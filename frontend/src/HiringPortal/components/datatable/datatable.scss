@@ -1,0 +1,102 @@
+.hiringDatatable
+{
+    padding: 20px;
+
+    .dataTableTitle
+    {
+        width: 100%;
+        font-size: 24px;
+        color: gray;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+       gap: 20px;
+
+       .link
+       {
+        font-size: 16px;
+        background-color: #7415f8;
+        padding: 5px 10px;
+        color: white;
+        border-radius: 5px;
+       }
+    }
+
+    .cellWithImg
+    {
+        display: flex;
+        align-items: center;
+
+        .imgCell
+        {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 20px;
+        }
+    }
+
+    .cellWithStatus
+    {
+        text-transform: capitalize;
+        padding: 5px;
+        border-radius: 5px;
+
+        &.active
+        {
+            color: green;
+            background-color: rgba(0, 128, 0, 0.203);
+            
+        }
+        &.inactive
+        {
+            color: red;
+            background-color: rgba(203, 0, 0, 0.203);
+        }
+
+
+    }
+    .cellAction
+    {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+
+        .viewButton,.deleteButton
+        {
+            padding: 2px 5px;
+            border-radius: 5px;
+            font-size: 15px
+         
+        }
+        .viewButton
+        {
+            color: darkblue;
+            border: 2px solid darkblue;
+
+            &:hover
+            {
+                cursor: pointer;
+                background-color: darkblue;
+                color: white;
+            }
+        }
+
+        .deleteButton
+        {
+            color: crimson;
+            border: 2px solid crimson;
+
+            &:hover
+            {
+                cursor: pointer;
+                background-color: crimson;
+                color: white;
+            }
+        }
+
+       
+    }
+}

@@ -1,0 +1,29 @@
+.userCart
+{
+    .cartContainer
+    {
+        width: 80%;
+        margin: auto;
+
+        h1
+        {
+            font-size: 40px;
+            margin-top: 20px;
+            
+        }
+
+       .itemsAndPrice
+       {
+        display: flex;
+        
+        .cartItems
+        {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+       }
+    }
+}

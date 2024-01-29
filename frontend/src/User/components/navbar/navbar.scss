@@ -1,0 +1,72 @@
+.userNavbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+
+    .siteLogo {
+        color: #023e8a;
+        letter-spacing: 3px;
+    }
+
+    gap: 20px;
+
+    .userNavSearch {
+        display: flex;
+        align-items: center;
+        background-color: aliceblue;
+        padding: 10px 5px;
+        width: 45%;
+        border-radius: 45px;
+
+        input {
+            width: 100%;
+            padding: 10px;
+            background-color: aliceblue;
+            border: none;
+            outline: transparent;
+        }
+    }
+
+    .userNavLinkContainer {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+
+
+    .userNavProfile {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+    }
+
+    .userNavCounterContainer {
+        display: flex;
+        align-items: center;
+        position: relative;
+
+        .userNavCounter {
+            background-color: #023e8a;
+            color: #ffff;
+            padding: 5px;
+            border-radius: 50%;
+            width: 10px;
+            height: 10px;
+            font-size: 10px;
+            text-align: center;
+            font-weight: bold;
+            position: absolute;
+            top: -13px;
+            right: -5px;
+        }
+    }
+
+    .userNavLink,
+    .userNavIcon {
+        &:hover {
+            color: #023e8a;
+            cursor: pointer;
+        }
+    }
+}

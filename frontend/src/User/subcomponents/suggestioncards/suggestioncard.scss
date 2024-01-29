@@ -1,0 +1,13 @@
+.suggestioncard
+{
+   width: 80%;
+   
+    .card
+    {
+        &:hover
+        {
+            background-color: rgba(128, 128, 128, 0.21);
+            cursor: pointer;
+        }
+    }
+}

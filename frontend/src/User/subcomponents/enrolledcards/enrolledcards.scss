@@ -1,0 +1,55 @@
+.enrolledCards
+{
+    display: flex;
+    // align-items: center;
+    border: 0.5px solid rgba(128, 128, 128, 0.336);
+    width: 350px;
+    height: 150px;
+    .left
+    {
+        flex: 1;
+        height: 100%;
+        img 
+        {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .right
+    {
+        flex: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 5px 10px;
+
+        .details
+        {
+            .courseName
+            {
+                font-size: 14px;
+                font-weight: bold;
+                color: gray;
+            }
+            .lectureName
+            {
+                font-size: 17px;
+                font-weight: bold;
+            }
+        }
+        
+        
+    }
+
+    transition: all 100ms
+    ;
+
+
+    &:hover
+    {
+        background-color: rgba(128, 128, 128, 0.241);
+        cursor: pointer;
+    }
+}

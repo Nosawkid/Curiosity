@@ -1,0 +1,30 @@
+.userPrice
+{
+    .priceContainer
+    {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        span 
+        {
+            font-size: 18px;
+            font-weight: bold;
+            color: gray;
+        }
+
+        .checkoutPrice
+        {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .checkoutBtn
+        {
+            background-color: rebeccapurple;
+            padding: 10px 30px;
+            color: white;
+            border-radius: 5px;
+            max-width: 150px;
+        }
+    }
+}
