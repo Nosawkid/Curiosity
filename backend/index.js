@@ -4,6 +4,8 @@ const bodyParser = require("body-parser");
 const mongoose = require('mongoose')
 const port = 5000;
 const { Schema } = mongoose
+const argon2 = require("argon2")
+const jwt = require("jsonwebtoken")
 
 const app = express();
 
@@ -196,6 +198,30 @@ app.delete("/Category/:id", async (req, res) => {
     }
 })
 
+// Update
+app.put("/Category/:id/edit", async (req, res) => {
+    try {
+        const { id } = req.params
+        let category = await Category.findById(id)
+        if (!category) {
+            return res.status(400).send({ message: "Category not found" })
+        }
+        const { categoryName } = req.body
+
+        const existing = await Category.findOne({ categoryName, _id: { $ne: id } })
+        if (existing) {
+            res.status(400).send("Category already present")
+        }
+
+        category = await Category.findByIdAndUpdate(id, { categoryName }, { new: true })
+        res.status(200).send(category)
+
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})
+
 
 
 // Links
@@ -228,6 +254,27 @@ app.get("/Link", async (req, res) => {
     catch (err) {
         console.log(err.message)
         res.send("Server Error")
+    }
+})
+
+
+app.put("/Link/:id/edit", async (req, res) => {
+    try {
+        const { id } = req.params
+        let link = await Link.findById(id)
+        if (!link) {
+            return res.status(400).send("Link doesn't exist")
+        }
+        const { linkName } = req.body
+        const existingLinks = await Link.findOne({ linkName, _id: { $ne: id } })
+        if (existingLinks) {
+            return res.status(400).send({ message: "Link already exists" })
+        }
+        link = await Link.findByIdAndUpdate(id, { linkName }, { new: true })
+        res.status(200).send(link)
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
     }
 })
 
@@ -290,6 +337,29 @@ app.get("/Subcategory/:id", async (req, res) => {
 
 
 
+app.put("/Subcategory/:id/edit", async (req, res) => {
+    try {
+        const { id } = req.params
+        let subcategory = await Subcategory.findById(id)
+        if (!subcategory) {
+            return res.status(400).send("Subcategory doesn't exist")
+        }
+        const { subCategoryName } = req.body
+        const existingSub = await Subcategory.findOne({ subCategoryName, _id: { $ne: id } })
+        if (existingSub) {
+            return res.status(400).send({ message: "Sub-category already exists" })
+        }
+        subcategory = await Subcategory.findByIdAndUpdate(id, { subCategoryName }, { new: true })
+        res.status(200).send(subcategory)
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})
+
+
+
+
 // Topics
 
 app.post("/Topic", async (req, res) => {
@@ -333,6 +403,30 @@ app.get("/Topic", async (req, res) => {
     }
 
 })
+
+
+
+// Edit
+app.put("/Topic/:id/edit", async (req, res) => {
+    try {
+        const { id } = req.params
+        let topic = await Topic.findById(id)
+        if (!topic) {
+            return res.status(400).send("Topic doesn't exist")
+        }
+        const { topicName } = req.body
+        const existingTopic = await Topic.findOne({ topicName, _id: { $ne: id } })
+        if (existingTopic) {
+            return res.status(400).send({ message: "Topic already exists" })
+        }
+        topic = await Topic.findByIdAndUpdate(id, { topicName }, { new: true })
+        res.status(200).send(topic)
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})
+
 
 
 
@@ -398,7 +492,10 @@ app.post("/User", async (req, res) => {
             linkId
         })
 
+        const salt = 12
+        user.userPassword = await argon2.hash(userPassword, salt)
         await user.save();
+        console.log(user);
         res.status(200).send("Account creation success")
     }
     catch (err) {
@@ -449,7 +546,46 @@ app.delete("/User/:id", async (req, res) => {
     }
 })
 
+// Update
 
+app.put("/User/:id/edit", async (req, res) => {
+    try {
+        const { id } = req.params
+        const {
+            userName,
+            userEmail,
+            userContact,
+            userHeadLine,
+        } = req.body
+
+        const existingUserName = await User.findOne({ userName, _id: { $ne: id } })
+        if (existingUserName) {
+            return (
+                res.status(400).send({ message: "Username already taken" })
+            )
+        }
+
+        const existingEmails = await User.findOne({ userEmail, _id: { $ne: id } })
+        const existingAdminMail = await Admin.findOne({ adminEmail: userEmail })
+        const existingPortal = await JobPortal.findOne({ jobPortalEmail: userEmail })
+        if (existingEmails || existingAdminMail || existingPortal) {
+            return (
+                res.status(400).send("Email already exists")
+            )
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(id, {
+            userName,
+            userEmail,
+            userContact,
+            userHeadLine,
+        }, { new: true })
+        res.status(200).send(updatedUser)
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})
 
 
 
@@ -582,6 +718,48 @@ app.delete("/Instructor/:id", async (req, res) => {
     }
 })
 
+// Update
+
+app.put("/Instructor/:id/edit", async (req, res) => {
+    try {
+        const { id } = req.params
+        let instructor = await Instructor.findById(id)
+        if (!instructor) {
+            return res.status(400).send({ message: "Instructor doesn't exist" })
+        }
+        const {
+            instructorName,
+            instructorEmail,
+            instructorContact,
+            instructorHeadLine,
+            instructorQualification,
+            instructorField
+        } = req.body
+
+        const existingInstructorEmail = await Instructor.findOne({ instructorEmail, _id: { $ne: id } })
+        const existingUserMail = await User.findOne({ userEmail: instructorEmail })
+        const existingPortal = await JobPortal.findOne({ jobPortalEmail: instructorEmail })
+
+        if (existingInstructorEmail || existingPortal || existingUserMail) {
+            return res.status(400).send({ message: "Email already exists" })
+        }
+
+        instructor = await findByIdAndUpdate(id, {
+            instructorName,
+            instructorEmail,
+            instructorContact,
+            instructorHeadLine,
+            instructorQualification,
+            instructorField
+        }, { new: true })
+        res.status(200).send(instructor)
+
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})
+
 
 
 // COURSE
@@ -684,15 +862,7 @@ app.get("/Course/:id", async (req, res) => {
     }
 })
 
-app.get("/Course/:id/section",async(req,res)=>{
-    try {
-        const {id} = req.params
-        const sections = await Section.find({courseId:id})
-        res.status(200).send(sections)
-    } catch (error) {
-        console.log(error.message);
-    }
-})
+
 
 // Delete
 
@@ -705,6 +875,30 @@ app.delete("/Course/:id", async (req, res) => {
     catch (err) {
         console.log(err.message)
         console.log("Server Error")
+    }
+})
+
+
+// Update
+app.put("/Course/:id/edit", async (req, res) => {
+    try {
+        const { id } = req.params
+        let course = await Course.findById(id)
+        if (!course) {
+            return res.status(400).send({ message: "No Course found" })
+        }
+        const { courseTitle, courseDesc } = req.body
+        const existingCourse = await Course.findOne({ courseTitle, _id: { $ne: id } })
+        if (existingCourse) {
+            return res.status(400).send("Name already exist for a different course, try another one")
+        }
+        course = await Course.findByIdAndUpdate(id, { courseTitle, courseDesc }, { new: true })
+        res.status(200).send(course)
+    }
+    catch (e) {
+        console.log(e.message);
+        console.log("Server Error");
+
     }
 })
 
@@ -806,6 +1000,37 @@ app.delete("/Section/:id", async (req, res) => {
     }
 })
 
+
+
+// Reading section based on course
+app.get("/Course/:id/section", async (req, res) => {
+    try {
+        const { id } = req.params
+        const sections = await Section.find({ courseId: id })
+        res.status(200).send(sections)
+    } catch (error) {
+        console.log(error.message);
+    }
+})
+
+// Update
+app.put("/Section/:id/edit", async (req, res) => {
+    try {
+        const { id } = req.params
+        let section = await Section.findById(id)
+        if (!section) {
+            return res.status(400).send("No Section found")
+        }
+        const { sectionName } = req.body
+
+        section = await Section.findByIdAndUpdate(id, { sectionName }, { new: true })
+        res.status(200).send(section)
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})
+
 // MATERIAL
 
 const materialSchema = new Schema({
@@ -865,7 +1090,7 @@ app.post("/Material", async (req, res) => {
     }
 })
 
-// // Read
+// Read
 
 app.get("/Material", async (req, res) => {
     try {
@@ -888,7 +1113,7 @@ app.get("/Material", async (req, res) => {
     }
 })
 
-// // Read One
+//  Read One
 
 app.get("/Material/:id", async (req, res) => {
     try {
@@ -927,6 +1152,39 @@ app.delete("/Material/:id", async (req, res) => {
     }
 })
 
+// Material based on section
+
+app.get("/section/:id/material", async (req, res) => {
+    try {
+        const { id } = req.params
+        const materials = await Material.find({ sectionId: id })
+        res.status(200).send(materials)
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})
+
+app.put("/material/:id/edit", async (req, res) => {
+    try {
+        const { id } = req.params
+        let material = await Material.findById(id)
+        if (!material) {
+            return res.status(400).send({ message: "No material found" })
+        }
+        const { materialTitle, materialDesc, materialFile } = req.body
+
+        material = await Material.findByIdAndUpdate(id, {
+            materialTitle,
+            materialDesc,
+            materialFile
+        }, { new: true })
+        res.status(400).send(material)
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})
 
 // BOOKING
 // schema
@@ -1236,8 +1494,6 @@ app.post("/Review", async (req, res) => {
 // read
 
 
-
-
 app.get("/review", async (req, res) => {
     try {
         const reviews = await Review.find().populate({
@@ -1282,6 +1538,25 @@ app.delete("/review/:id", async (req, res) => {
         console.log(error.message)
         console.log("Server Error")
     }
+})
+
+
+// Update
+app.put("/review/:id/edit", async (req, res) => {
+    const { id } = req.params
+    let review = await Review.findById(id)
+    if (!review) {
+        return res.status(400).send({ message: "Review doen't exist" })
+    }
+    const {
+        reviewTitle,
+        reviewContent
+    } = req.body
+    review = await Review.findByIdAndUpdate(id, {
+        reviewTitle,
+        reviewContent
+    }, { new: true })
+    res.status(200).send(review)
 })
 
 // COMMENT
@@ -1654,6 +1929,46 @@ app.delete("/Jobportal/:id", async (req, res) => {
     }
 })
 
+
+app.put("/Jobportal/:id/edit", async (req, res) => {
+    try {
+
+        const { id } = req.params
+        let portal = await JobPortal.findById(id)
+        if (!portal) {
+            return res.status(400).send({ message: "No Job Portal account found" })
+        }
+
+        const {
+            jobPortalName,
+            jobPortalEmail,
+            jobPortalContact,
+            jobPortalDetails,
+        } = req.body
+
+        const existingPortal = await JobPortal.findOne({ jobPortalEmail, _id: { $ne: id } })
+        const existingUser = await User.findOne({ userEmail: jobPortalEmail })
+        const existingInstructor = await Instructor.findOne({ instructorEmail: jobPortalEmail })
+        const existingAdmin = await Admin.findOne({ adminEmail: jobPortalEmail })
+
+        if (existingAdmin || existingInstructor || existingPortal || existingUser) {
+            return res.status(400).send({ message: "Email already taken" })
+        }
+
+        portal = await JobPortal.findByIdAndUpdate(id, {
+            jobPortalName,
+            jobPortalEmail,
+            jobPortalContact,
+            jobPortalDetails,
+        }, { new: true })
+        res.status(200).send(portal)
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+
+})
+
 // VACANCY
 
 // Schema
@@ -1739,10 +2054,10 @@ app.get("/Vacancy", async (req, res) => {
 
 // Delete
 
-app.delete("/Vacancy/:id", async(req,res)=>{
+app.delete("/Vacancy/:id", async (req, res) => {
     try {
         const vacancy = await Vacancy.findByIdAndDelete(req.params.id)
-        res.status(200).send({message:"Deletion Success"})
+        res.status(200).send({ message: "Deletion Success" })
     } catch (error) {
         console.log(error.message);
         console.log("Server Error");
@@ -1754,25 +2069,25 @@ app.delete("/Vacancy/:id", async(req,res)=>{
 // Schema
 
 const jobApplicationSchema = new Schema({
-    jobVacancyId:{
-        type:Schema.Types.ObjectId,
-        ref:"schemaJobVacancy"
+    jobVacancyId: {
+        type: Schema.Types.ObjectId,
+        ref: "schemaJobVacancy"
     },
-    userId:{
-        type:Schema.Types.ObjectId,
-        ref:"schemaUser"
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: "schemaUser"
     },
-    resumeFile:{
-        type:String,
-        required:true
+    resumeFile: {
+        type: String,
+        required: true
     },
-    experience:{
-        type:String
+    experience: {
+        type: String
     }
 
 })
 
-const Application = mongoose.model("schemaJobApplication",jobApplicationSchema)
+const Application = mongoose.model("schemaJobApplication", jobApplicationSchema)
 
 app.post("/Application", async (req, res) => {
     try {
@@ -1798,7 +2113,7 @@ app.post("/Application", async (req, res) => {
     }
 })
 
-app.get("/Application",async(req,res)=>{
+app.get("/Application", async (req, res) => {
     try {
         const applications = await Application.find()
         res.status(200).send(applications)
@@ -1808,10 +2123,62 @@ app.get("/Application",async(req,res)=>{
     }
 })
 
-app.delete("/Application/:id",async(req,res)=>{
+app.delete("/Application/:id", async (req, res) => {
     try {
         const applications = await Application.findByIdAndDelete(req.params.id)
-        res.status(200).send({message:"Deleted"})
+        res.status(200).send({ message: "Deleted" })
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})
+
+
+
+// Login
+app.post("/Login", async (req, res) => {
+    try {
+        let id;
+        let type;
+        let isValidPassword = false
+        const { Email, Password } = req.body
+        const user = await User.findOne({ userEmail: Email })
+        const instructor = await Instructor.findOne({ instructorEmail: Email })
+        const portal = await JobPortal.findOne({ jobPortalEmail: Email })
+
+        if (user) {
+            isValidPassword = argon2.verify(user.userPassword, Password)
+            if (isValidPassword) {
+                id = user._id
+                type = "User"
+            }
+        }
+        else if (instructor) {
+            id = instructor._id
+            type = "Instructor"
+        }
+        else if (portal) {
+            id = portal._id
+            type = "Jobportal"
+        }
+        else {
+            return res.status(500).send({ message: "No User found" })
+        }
+
+        const payload = {
+            type: {
+                id
+            }
+        }
+
+        jwt.sign(payload, "your_secret_key", { expiresIn: "100h" }, (err, token) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ message: "Error creating token" });
+            }
+            res.json({ token });
+        });
+
     } catch (error) {
         console.log(error.message);
         console.log("Server Error");
