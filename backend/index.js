@@ -404,6 +404,19 @@ app.get("/Topic", async (req, res) => {
 
 })
 
+app.get("/Topic/:id", async (req, res) => {
+    try {
+        const {id} = req.params
+        const topic = await Topic.find({subCategoryId:id})
+         res.status(200).send(topic)
+    }
+    catch (err) {
+        console.log(err.message)
+        res.send({message:"Server Error"})
+    }
+
+})
+
 
 
 // Edit
@@ -775,6 +788,10 @@ const courseSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "schemaInstructor"
     },
+    topicId:{
+        type:Schema.Types.ObjectId,
+        ref:"schemaTopic"
+    },
     courseDesc: {
         type: String,
         required: true
@@ -799,6 +816,7 @@ app.post("/Course", async (req, res) => {
         const {
             courseTitle,
             instructorId,
+            topicId,
             courseDesc,
             courseDateTime,
             price
@@ -815,6 +833,7 @@ app.post("/Course", async (req, res) => {
         course = new Course({
             courseTitle,
             instructorId,
+            topicId,
             courseDesc,
             courseDateTime,
             price
@@ -836,8 +855,19 @@ app.get("/Course", async (req, res) => {
         const courses = await Course.find().populate({
             path: "instructorId",
             model: "schemaInstructor"
+        }).populate({
+            path:"topicId",
+            model:"schemaTopic",
+            populate:{
+                path:"subCategoryId",
+                model:"schemaSubCategory",
+                populate:{
+                    path:"categoryId",
+                    model:"schemaCategory"
+                }
+            }
         })
-
+        console.log(courses)
         res.status(200).send(courses)
     } catch (error) {
         console.log(error.message)
@@ -853,6 +883,17 @@ app.get("/Course/:id", async (req, res) => {
         const course = await Course.findById(id).populate({
             path: "instructorId",
             model: "schemaInstructor"
+        }).populate({
+            path:"topicId",
+            model:"schemaTopic",
+            populate:{
+                path:"subCategoryId",
+                model:"schemaSubCategory",
+                populate:{
+                    path:"categoryId",
+                    model:"schemaCategory"
+                }
+            }
         })
         res.status(200).send(course)
     }

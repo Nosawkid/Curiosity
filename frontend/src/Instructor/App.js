@@ -16,6 +16,7 @@ import Wishlist from './pages/wishlist/Wishlist';
 import Complaint from './pages/complaint/Complaint';
 import Section from './pages/section/Section';
 import Material from './pages/material/Material';
+import Single from './pages/single/Single';
 
 function App() {
 
@@ -34,12 +35,15 @@ function App() {
               <Route path='/' element={<Home />} />
               <Route path='/Drafts' element={<Draft />} />
               <Route path='/Courses' element={<Course />} />
+              <Route path='/Courses/:id' element={<Single/>}/>
               <Route path='/Newcourse' element={<Newcourse />} />
               <Route path='/Cart' element = {<Cart/>}/>
               <Route path='/Wishlist' element = {<Wishlist/>}/>
               <Route path='/Complaints' element = {<Complaint/>}/>
               <Route path='/Section' element = {<Section/>} />
               <Route path='/Material' element={<Material/>}/>
+
+              
             </Routes>
 
           </div>
