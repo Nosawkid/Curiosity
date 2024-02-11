@@ -18,6 +18,7 @@ import Section from './pages/section/Section';
 import Material from './pages/material/Material';
 import Single from './pages/single/Single';
 
+
 function App() {
 
   
@@ -36,6 +37,8 @@ function App() {
               <Route path='/Drafts' element={<Draft />} />
               <Route path='/Courses' element={<Course />} />
               <Route path='/Courses/:id' element={<Single/>}/>
+              <Route path='/Courses/:courseId/section' element={<Section/>}/>
+              <Route path='/Section/:sid/material' element={<Material/>}/>
               <Route path='/Newcourse' element={<Newcourse />} />
               <Route path='/Cart' element = {<Cart/>}/>
               <Route path='/Wishlist' element = {<Wishlist/>}/>

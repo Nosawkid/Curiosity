@@ -2,19 +2,31 @@ import React, { useEffect, useState } from 'react'
 import './single.scss'
 
 import Chart from '../../components/chart/Chart'
-import Tables from '../../components/table/Table'
-import {useParams} from 'react-router-dom'
+import {useParams,Link} from 'react-router-dom'
 import axios from 'axios'
 import { Button } from '@mui/material'
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import DeleteIcon from '@mui/icons-material/Delete';
+
+
+
+
+
+
+
 
 const Single = () => {
-
-
-
 const {id} = useParams()
 const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [course, setCourse] = useState(null);
+  const [showSection,setShowSection] = useState([])
 
 
 const fetchCourse = async (id)=>{
@@ -25,7 +37,7 @@ const fetchCourse = async (id)=>{
  }
  catch(err)
  {
-    setError(error.message)
+    setError(err.message)
  }
  finally
  {
@@ -33,8 +45,24 @@ const fetchCourse = async (id)=>{
  }
 }
 
+const fetchSections = (id)=>{
+  axios.get(`http://localhost:5000/Course/${id}/section`).then((res)=>{
+    setShowSection(res.data)
+  }).catch((err)=>{
+    console.log(err)
+  })
+}
+
+const deleteSection = (sid)=>{
+  axios.delete("http://localhost:5000/Section/"+sid).then((res)=>{
+    alert("Section Deleted")
+    fetchSections(id)
+  })
+}
+
 useEffect(()=>{
   fetchCourse(id)
+  fetchSections(id)
 })
 
 
@@ -87,8 +115,45 @@ if(error)
           </div>
         </div>
         <div className="bottom">
-          <div className="title">Sections <Button variant='outlined'>Add New Section</Button></div>
-          <Tables/>
+          <div className="title">Sections
+          <Link to ={`/instructor/courses/${course._id}/section`}>
+            <Button sx={{mx:2}} variant='outlined'>Add New Section</Button>
+          </Link>
+           </div>
+           <TableContainer component={Paper}>
+      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell align='center'>SI No</TableCell>
+            <TableCell align="center">Section Name</TableCell>
+            <TableCell align="center">Course Name</TableCell>
+            <TableCell align="center">Action</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {showSection.map((row,key) => (
+            <TableRow
+              key={row.name}
+              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+              <TableCell align='center' component="th" scope="row">
+                {key + 1}
+              </TableCell>
+              <TableCell align="center">{row.sectionName}</TableCell>
+              <TableCell align="center">{row.courseId.courseTitle}</TableCell>
+              <TableCell align="center">
+               <Button onClick={()=>{
+                deleteSection(row._id)
+               }} sx={{mx:2}} variant='outlined'> <DeleteIcon sx={{color:"crimson"}}/></Button>
+               <Link>
+                <Button variant='outlined'>View Details</Button>
+               </Link>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
         </div>
       </div>
     </div>

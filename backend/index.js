@@ -487,9 +487,11 @@ app.post("/User", async (req, res) => {
     try {
         const { userName, userEmail, userPassword, userContact, userHeadLine, userPhoto, linkId } = req.body
         const admin = await Admin.findOne({ adminEmail: userEmail })
+        const ins = await Instructor.findOne({instructorEmail:userEmail})
+        const portal = await JobPortal.findOne({jobPortalEmail:userEmail})
         let user = await User.findOne({ userEmail })
 
-        if (admin || user) {
+        if (admin || user || ins || portal) {
             return res
                 .status(400)
                 .json({ errors: [{ msg: 'User already exists' }] })
@@ -664,8 +666,9 @@ app.post("/Instructor", async (req, res) => {
         const admin = await Admin.findOne({ adminEmail: instructorEmail })
         const user = await User.findOne({ userEmail: instructorEmail })
         let instructor = await Instructor.findOne({ instructorEmail })
+        const portal = await JobPortal.findOne({jobPortalEmail:instructorEmail})
 
-        if (admin || user || instructor) {
+        if (admin || user || instructor || portal) {
             return (
                 res.status(400).send("Email already exist")
             )
@@ -682,7 +685,8 @@ app.post("/Instructor", async (req, res) => {
             instructorQualification,
             instructorField
         })
-
+        const salt = 12
+        instructor.instructorPassword = await argon2.hash(instructorPassword,salt)
         await instructor.save()
         res.status(200).send("Instructor account creation success")
 
@@ -957,6 +961,9 @@ const sectionSchema = new Schema({
     courseId: {
         type: Schema.Types.ObjectId,
         ref: "schemaCourse"
+    },
+    sectionNumber:{
+        type:Number
     }
 })
 const Section = mongoose.model("schemaSection", sectionSchema)
@@ -969,7 +976,8 @@ app.post("/Section", async (req, res) => {
     try {
         const {
             sectionName,
-            courseId
+            courseId,
+            sectionNumber
         } = req.body
 
         let section = await Section.findOne({ sectionName })
@@ -982,7 +990,8 @@ app.post("/Section", async (req, res) => {
 
         section = new Section({
             sectionName,
-            courseId
+            courseId,
+            sectionNumber
         })
 
         await section.save();
@@ -1044,10 +1053,13 @@ app.delete("/Section/:id", async (req, res) => {
 
 
 // Reading section based on course
-app.get("/Course/:id/section", async (req, res) => {
+app.get("/Course/:courseId/section", async (req, res) => {
     try {
-        const { id } = req.params
-        const sections = await Section.find({ courseId: id })
+        const { courseId } = req.params
+        const sections = await Section.find({ courseId}).populate({
+            path: "courseId",
+            model: "schemaCourse"
+        })
         res.status(200).send(sections)
     } catch (error) {
         console.log(error.message);
@@ -1939,6 +1951,8 @@ app.post("/Jobportal", async (req, res) => {
             jobPortalStatus
         })
 
+        const salt = 12;
+        portal.jobPortalPassword = await argon2.hash(jobPortalPassword,salt)
         await portal.save();
         res.status(200).send({ message: "Account Created" })
 
@@ -2195,12 +2209,20 @@ app.post("/Login", async (req, res) => {
             }
         }
         else if (instructor) {
-            id = instructor._id
-            type = "Instructor"
+            isValidPassword = argon2.verify(instructor.instructorPassword,Password)
+            if(isValidPassword)
+            {
+                id = instructor._id
+                type = "Instructor"
+            }
         }
         else if (portal) {
-            id = portal._id
-            type = "Jobportal"
+            isValidPassword = argon2.verify(portal.jobPortalPassword,Password)
+            if(isValidPassword)
+            {
+                id = portal._id
+                type = "Jobportal"
+            }
         }
         else {
             return res.status(500).send({ message: "No User found" })

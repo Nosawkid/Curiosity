@@ -11,7 +11,7 @@ import { Box, Button } from '@mui/material';
 import axios from 'axios';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {Link} from 'react-router-dom'
-import Single from '../single/Single';
+
 
 
 
@@ -73,7 +73,7 @@ const Course = () => {
               <TableCell align='center' ><Button variant='outlined' onClick={()=>{
                 deleteCourse(row._id)
               }} sx={{color:"red",margin:2}}><DeleteIcon/></Button>
-              <Link to={`/instructor/courses/${row._id}`} component={<Single/>}><Button  sx={{color:"coralblue"}} variant='outlined'>View Details</Button></Link>
+              <Link to={`/instructor/courses/${row._id}`}><Button  sx={{color:"coralblue"}} variant='outlined'>View Details</Button></Link>
               </TableCell> 
             </TableRow>
           ))}
