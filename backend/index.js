@@ -873,7 +873,7 @@ app.get("/Course", async (req, res) => {
         })
         console.log(courses)
         res.status(200).send(courses)
-    } catch (error) {
+    }  catch (error) {
         console.log(error.message)
         console.log("Server Error")
     }

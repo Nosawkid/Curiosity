@@ -63,7 +63,7 @@ const deleteSection = (sid)=>{
 useEffect(()=>{
   fetchCourse(id)
   fetchSections(id)
-})
+},[])
 
 
 if(loading)
@@ -145,8 +145,8 @@ if(error)
                <Button onClick={()=>{
                 deleteSection(row._id)
                }} sx={{mx:2}} variant='outlined'> <DeleteIcon sx={{color:"crimson"}}/></Button>
-               <Link>
-                <Button variant='outlined'>View Details</Button>
+               <Link to={`/instructor/section/${row._id}/material`}>
+                <Button variant='outlined'>View Materials</Button>
                </Link>
               </TableCell>
             </TableRow>
