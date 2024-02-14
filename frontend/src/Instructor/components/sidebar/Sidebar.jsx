@@ -9,7 +9,6 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { Link } from 'react-router-dom';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { FaChalkboardTeacher, FaClipboardList } from "react-icons/fa";
-import { FaRegEdit } from "react-icons/fa";
 import RemoveFromQueueIcon from '@mui/icons-material/RemoveFromQueue';
 
 const Sidebar = () => {
@@ -31,6 +30,9 @@ const Sidebar = () => {
           <p className="title">MAIN</p>
           <Link to="/instructor/myprofile" style={{ textDecoration: "none" }}>
           <li> <DashboardIcon className='icon' /> <span>My Profile</span></li>
+          </Link>
+          <Link to="/instructor/settings" style={{ textDecoration: "none" }}>
+          <li> <DashboardIcon className='icon' /> <span>Account Settings</span></li>
           </Link>
           <p className="title">LISTS</p>
           <Link to="/instructor/Courses" style={{ textDecoration: "none" }}>

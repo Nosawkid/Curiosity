@@ -648,7 +648,7 @@ const instructorSchema = new Schema({
         type: String,
         required: true
     },
-    instructorField: {
+    instructorField: { 
         type: String,
     },
     instructorProof: {
@@ -660,7 +660,7 @@ const instructorSchema = new Schema({
         ref: "schemaLink"
     }
 })
-
+ 
 const Instructor = mongoose.model("schemaInstructor", instructorSchema)
 
 // Create
@@ -733,7 +733,7 @@ app.get("/Instructor", async (req, res) => {
     }
 })
 
-// View User
+// View specific instructor
 app.get("/Instructor/:id", async (req, res) => {
     try {
         let { id } = req.params
@@ -763,7 +763,7 @@ app.delete("/Instructor/:id", async (req, res) => {
 
 // Update
 
-app.put("/Instructor/:id/edit", async (req, res) => {
+app.patch("/Instructor/:id/edit", async (req, res) => {
     try {
         const { id } = req.params
         let instructor = await Instructor.findById(id)
@@ -787,7 +787,7 @@ app.put("/Instructor/:id/edit", async (req, res) => {
             return res.status(400).send({ message: "Email already exists" })
         }
 
-        instructor = await findByIdAndUpdate(id, {
+        instructor = await Instructor.findByIdAndUpdate(id, {
             instructorName,
             instructorEmail,
             instructorContact,

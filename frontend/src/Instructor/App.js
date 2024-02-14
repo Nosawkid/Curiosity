@@ -18,6 +18,9 @@ import Section from './pages/section/Section';
 import Material from './pages/material/Material';
 import Single from './pages/single/Single';
 import Myprofile from './pages/myprofile/Myprofile';
+import Editprofile from './pages/editprofile/Editprofile';
+
+
 
 
 function App() {
@@ -47,7 +50,7 @@ function App() {
               <Route path='/Complaints' element = {<Complaint/>}/>
               <Route path='/Section' element = {<Section/>} />
               <Route path='/Material' element={<Material/>}/>
-
+              <Route path='/Settings' element={<Editprofile/>}/>
               
             </Routes>
 

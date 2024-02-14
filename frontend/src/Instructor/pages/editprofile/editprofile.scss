@@ -1,0 +1,25 @@
+.instructorAccountSettings
+{
+    width: 100%;
+    min-height: 100vh;
+    overflow-y: hidden;
+
+    .formContainer
+    {
+        padding: 30px;
+
+        .detailName
+        {
+            color: #003f88;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+       .updateInput
+       {
+        width: 60%;
+       }
+    }
+
+
+}
