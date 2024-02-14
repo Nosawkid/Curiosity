@@ -11,6 +11,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { FaChalkboardTeacher, FaClipboardList } from "react-icons/fa";
 import RemoveFromQueueIcon from '@mui/icons-material/RemoveFromQueue';
 
+
 const Sidebar = () => {
 
 
@@ -32,7 +33,7 @@ const Sidebar = () => {
           <li> <DashboardIcon className='icon' /> <span>My Profile</span></li>
           </Link>
           <Link to="/instructor/settings" style={{ textDecoration: "none" }}>
-          <li> <DashboardIcon className='icon' /> <span>Account Settings</span></li>
+          <li> <SettingsIcon className='icon' /> <span>Account Settings</span></li>
           </Link>
           <p className="title">LISTS</p>
           <Link to="/instructor/Courses" style={{ textDecoration: "none" }}>
