@@ -1,4 +1,4 @@
-.single {
+.myProfileInstructor{
     display: flex;
 
     .singleContainer {
@@ -68,14 +68,6 @@
                             {
                                 font-weight: 300;
                                 margin-right: 5px;
-                            }
-
-                            .desc
-                            {
-                                &:hover
-                                {
-                                    color: gray;
-                                }
                             }
                         }
                     }

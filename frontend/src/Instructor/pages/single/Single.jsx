@@ -27,6 +27,7 @@ const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [course, setCourse] = useState(null);
   const [showSection,setShowSection] = useState([])
+  const [showFullDesc,setShowFullDesc] = useState(false)
 
 
 const fetchCourse = async (id)=>{
@@ -60,6 +61,10 @@ const deleteSection = (sid)=>{
   })
 }
 
+const fullDesc = ()=>{
+  setShowFullDesc(!showFullDesc)
+}
+
 useEffect(()=>{
   fetchCourse(id)
   fetchSections(id)
@@ -88,12 +93,12 @@ if(error)
             <div className="editButton">Edit</div>
             <h1 className="title">Information</h1>
             <div className="item">
-              <img  src={course.instructorId.instructorPhoto} alt="" className="itemImg" />
+              <img  src={course.instructorId.instructorPhoto ? course.instructorId.instructorPhoto : "https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png"} alt="" className="itemImg" />
               <div className="details">
                 <h1 className="itemTitle">{course.courseTitle}</h1>
                 <div className="itemDetail">
                   <span className="itemKey">Desc: </span>
-                  <span className="itemValue">{course.courseDesc}</span>
+                  <span  style={{cursor:"pointer"}} className="itemValue desc" onClick={fullDesc}>{showFullDesc ? course.courseDesc: course.courseDesc.length>100 ? course.courseDesc.slice(0,100)+"..." : course.courseDesc}</span>
                 </div>
                 <div className="itemDetail">
                   <span className="itemKey">Instructor: </span>

@@ -6,8 +6,23 @@ const port = 5000;
 const { Schema } = mongoose
 const argon2 = require("argon2")
 const jwt = require("jsonwebtoken")
+const multer = require("multer");
+
 
 const app = express();
+
+const PATH = "./public/images";
+const upload = multer({
+    storage: multer.diskStorage({
+        destination: PATH,
+        filename: function (req, file, cb) {
+            let origialname = file.originalname;
+            let ext = origialname.split(".").pop();
+            let filename = origialname.split(".").slice(0, -1).join(".");
+            cb(null, filename + "." + ext);
+        },
+    }),
+});
 
 
 app.use(cors())
@@ -406,13 +421,13 @@ app.get("/Topic", async (req, res) => {
 
 app.get("/Topic/:id", async (req, res) => {
     try {
-        const {id} = req.params
-        const topic = await Topic.find({subCategoryId:id})
-         res.status(200).send(topic)
+        const { id } = req.params
+        const topic = await Topic.find({ subCategoryId: id })
+        res.status(200).send(topic)
     }
     catch (err) {
         console.log(err.message)
-        res.send({message:"Server Error"})
+        res.send({ message: "Server Error" })
     }
 
 })
@@ -466,11 +481,9 @@ const userSchema = new Schema({
     },
     userHeadLine: {
         type: String,
-        required: true
     },
     userPhoto: {
         type: String,
-        required: true
     },
     linkId: {
         type: Schema.Types.ObjectId,
@@ -487,8 +500,8 @@ app.post("/User", async (req, res) => {
     try {
         const { userName, userEmail, userPassword, userContact, userHeadLine, userPhoto, linkId } = req.body
         const admin = await Admin.findOne({ adminEmail: userEmail })
-        const ins = await Instructor.findOne({instructorEmail:userEmail})
-        const portal = await JobPortal.findOne({jobPortalEmail:userEmail})
+        const ins = await Instructor.findOne({ instructorEmail: userEmail })
+        const portal = await JobPortal.findOne({ jobPortalEmail: userEmail })
         let user = await User.findOne({ userEmail })
 
         if (admin || user || ins || portal) {
@@ -614,7 +627,8 @@ const instructorSchema = new Schema({
     },
     instructorEmail: {
         type: String,
-        required: true
+        required: true,
+        lowercase: true
     },
     instructorPassword: {
         type: String,
@@ -626,11 +640,9 @@ const instructorSchema = new Schema({
     },
     instructorHeadLine: {
         type: String,
-        required: true
     },
     instructorPhoto: {
         type: String,
-        required: true
     },
     instructorQualification: {
         type: String,
@@ -638,6 +650,10 @@ const instructorSchema = new Schema({
     },
     instructorField: {
         type: String,
+    },
+    instructorProof: {
+        type: String,
+        required: true
     },
     linkId: {
         type: Schema.Types.ObjectId,
@@ -649,53 +665,61 @@ const Instructor = mongoose.model("schemaInstructor", instructorSchema)
 
 // Create
 
-app.post("/Instructor", async (req, res) => {
-    try {
-        const {
-            instructorName,
-            instructorEmail,
-            instructorPassword,
-            instructorContact,
-            instructorHeadLine,
-            instructorPhoto,
-            linkId,
-            instructorQualification,
-            instructorField
-        } = req.body
+app.post("/Instructor",
+    upload.fields([
+        { name: "instructorProof", maxCount: 1 },
+    ]), async (req, res) => {
+        try {
+            var fileValue = JSON.parse(JSON.stringify(req.files));
+            var instructorProofsrc = `http://127.0.0.1:${port}/images/${fileValue.instructorProof[0].filename}`;
 
-        const admin = await Admin.findOne({ adminEmail: instructorEmail })
-        const user = await User.findOne({ userEmail: instructorEmail })
-        let instructor = await Instructor.findOne({ instructorEmail })
-        const portal = await JobPortal.findOne({jobPortalEmail:instructorEmail})
+            const {
+                instructorName,
+                instructorEmail,
+                instructorPassword,
+                instructorContact,
+                instructorHeadLine,
+                instructorPhoto,
+                linkId,
+                instructorQualification,
+                instructorField,
+            } = req.body
+            console.log(req.body)
 
-        if (admin || user || instructor || portal) {
-            return (
-                res.status(400).send("Email already exist")
-            )
+            const admin = await Admin.findOne({ adminEmail: instructorEmail })
+            const user = await User.findOne({ userEmail: instructorEmail })
+            let instructor = await Instructor.findOne({ instructorEmail })
+            const portal = await JobPortal.findOne({ jobPortalEmail: instructorEmail })
+
+            if (admin || user || instructor || portal) {
+                return (
+                    res.status(400).send("Email already exist")
+                )
+            }
+
+            instructor = new Instructor({
+                instructorName,
+                instructorEmail,
+                instructorPassword,
+                instructorContact,
+                instructorHeadLine,
+                instructorPhoto,
+                linkId,
+                instructorQualification,
+                instructorField,
+                instructorProof: instructorProofsrc
+            })
+            const salt = 12
+            instructor.instructorPassword = await argon2.hash(instructorPassword, salt)
+            await instructor.save()
+            res.status(200).send("Instructor account creation success")
+
+
+        } catch (error) {
+            console.log(error.message)
+            console.log("Server Error")
         }
-
-        instructor = new Instructor({
-            instructorName,
-            instructorEmail,
-            instructorPassword,
-            instructorContact,
-            instructorHeadLine,
-            instructorPhoto,
-            linkId,
-            instructorQualification,
-            instructorField
-        })
-        const salt = 12
-        instructor.instructorPassword = await argon2.hash(instructorPassword,salt)
-        await instructor.save()
-        res.status(200).send("Instructor account creation success")
-
-
-    } catch (error) {
-        console.log(error.message)
-        console.log("Server Error")
-    }
-})
+    })
 
 // Read
 
@@ -712,7 +736,9 @@ app.get("/Instructor", async (req, res) => {
 // View User
 app.get("/Instructor/:id", async (req, res) => {
     try {
-        const { id } = req.params
+        let { id } = req.params
+       
+
         const instructor = await Instructor.findById(id)
         res.status(200).send(instructor)
     } catch (error) {
@@ -792,9 +818,9 @@ const courseSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "schemaInstructor"
     },
-    topicId:{
-        type:Schema.Types.ObjectId,
-        ref:"schemaTopic"
+    topicId: {
+        type: Schema.Types.ObjectId,
+        ref: "schemaTopic"
     },
     courseDesc: {
         type: String,
@@ -826,8 +852,8 @@ app.post("/Course", async (req, res) => {
             price
         } = req.body
 
-        let course = await Course.findOne({ courseTitle })
 
+        let course = await Course.findOne({ courseTitle })
         if (course) {
             return (
                 res.status(400).send("Course with same name already exist")
@@ -842,7 +868,6 @@ app.post("/Course", async (req, res) => {
             courseDateTime,
             price
         })
-
         await course.save();
         res.status(200).send("Course Added")
     } catch (error) {
@@ -860,20 +885,20 @@ app.get("/Course", async (req, res) => {
             path: "instructorId",
             model: "schemaInstructor"
         }).populate({
-            path:"topicId",
-            model:"schemaTopic",
-            populate:{
-                path:"subCategoryId",
-                model:"schemaSubCategory",
-                populate:{
-                    path:"categoryId",
-                    model:"schemaCategory"
+            path: "topicId",
+            model: "schemaTopic",
+            populate: {
+                path: "subCategoryId",
+                model: "schemaSubCategory",
+                populate: {
+                    path: "categoryId",
+                    model: "schemaCategory"
                 }
             }
         })
         console.log(courses)
         res.status(200).send(courses)
-    }  catch (error) {
+    } catch (error) {
         console.log(error.message)
         console.log("Server Error")
     }
@@ -888,14 +913,14 @@ app.get("/Course/:id", async (req, res) => {
             path: "instructorId",
             model: "schemaInstructor"
         }).populate({
-            path:"topicId",
-            model:"schemaTopic",
-            populate:{
-                path:"subCategoryId",
-                model:"schemaSubCategory",
-                populate:{
-                    path:"categoryId",
-                    model:"schemaCategory"
+            path: "topicId",
+            model: "schemaTopic",
+            populate: {
+                path: "subCategoryId",
+                model: "schemaSubCategory",
+                populate: {
+                    path: "categoryId",
+                    model: "schemaCategory"
                 }
             }
         })
@@ -904,6 +929,35 @@ app.get("/Course/:id", async (req, res) => {
     catch (err) {
         console.log(err.message)
         console.log("Server Error")
+    }
+})
+
+// Course from instructor
+
+app.get("/CourseFromIns/:insid", async (req, res) => {
+    try {
+        let { insid: id } = req.params
+       
+
+        const courses = await Course.find({ instructorId: id }).populate({
+            path: "instructorId",
+            model: "schemaInstructor"
+        }).populate({
+            path: "topicId",
+            model: "schemaTopic",
+            populate: {
+                path: "subCategoryId",
+                model: "schemaSubCategory",
+                populate: {
+                    path: "categoryId",
+                    model: "schemaCategory"
+                }
+            }
+        })
+        res.status(200).send(courses)
+    } catch (error) {
+        console.log(error.message)
+        console.log("Server Eror")
     }
 })
 
@@ -962,8 +1016,8 @@ const sectionSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "schemaCourse"
     },
-    sectionNumber:{
-        type:Number
+    sectionNumber: {
+        type: Number
     }
 })
 const Section = mongoose.model("schemaSection", sectionSchema)
@@ -1056,7 +1110,7 @@ app.delete("/Section/:id", async (req, res) => {
 app.get("/Course/:courseId/section", async (req, res) => {
     try {
         const { courseId } = req.params
-        const sections = await Section.find({ courseId}).populate({
+        const sections = await Section.find({ courseId }).populate({
             path: "courseId",
             model: "schemaCourse"
         })
@@ -1952,7 +2006,7 @@ app.post("/Jobportal", async (req, res) => {
         })
 
         const salt = 12;
-        portal.jobPortalPassword = await argon2.hash(jobPortalPassword,salt)
+        portal.jobPortalPassword = await argon2.hash(jobPortalPassword, salt)
         await portal.save();
         res.status(200).send({ message: "Account Created" })
 
@@ -2209,17 +2263,15 @@ app.post("/Login", async (req, res) => {
             }
         }
         else if (instructor) {
-            isValidPassword = argon2.verify(instructor.instructorPassword,Password)
-            if(isValidPassword)
-            {
+            isValidPassword = argon2.verify(instructor.instructorPassword, Password)
+            if (isValidPassword) {
                 id = instructor._id
                 type = "Instructor"
             }
         }
         else if (portal) {
-            isValidPassword = argon2.verify(portal.jobPortalPassword,Password)
-            if(isValidPassword)
-            {
+            isValidPassword = argon2.verify(portal.jobPortalPassword, Password)
+            if (isValidPassword) {
                 id = portal._id
                 type = "Jobportal"
             }
@@ -2229,18 +2281,13 @@ app.post("/Login", async (req, res) => {
         }
 
         const payload = {
-            type: {
-                id
-            }
+            id,
+            type
         }
 
-        jwt.sign(payload, "your_secret_key", { expiresIn: "100h" }, (err, token) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({ message: "Error creating token" });
-            }
-            res.json({ token });
-        });
+
+        res.json({ payload });
+
 
     } catch (error) {
         console.log(error.message);

@@ -3,9 +3,10 @@ import React, { useState } from 'react'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Section = () => {
-
+ const navigate = useNavigate()
   const {courseId} = useParams()
   const [sectionName,setSectionName] = useState("")
   const [sectionNumber,setSectionNumber] = useState("")
@@ -14,6 +15,7 @@ const Section = () => {
     e.preventDefault()
     axios.post("http://localhost:5000/Section",{courseId,sectionName,sectionNumber}).then((res)=>{
       console.log(res.data)
+      navigate(`/instructor/courses/${res.data._id}`)
     })
   }
 

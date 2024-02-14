@@ -3,8 +3,11 @@ import './newcourse.scss'
 import { Box, Button, Card, CardContent, FormControl, MenuItem, Select, Stack, TextField, Typography } from '@mui/material'
 import InputLabel from '@mui/material/InputLabel';
 import axios from 'axios';
-const Newcourse = () => {
+import { useNavigate } from 'react-router-dom';
 
+
+const Newcourse = () => {
+    const navigate = useNavigate()
     const [courseTitle,setCourseTitle] = useState('')
     const [courseDesc,setCourseDesc] = useState('')
     const [showCategory,setShowCategory] = useState([])
@@ -14,12 +17,13 @@ const Newcourse = () => {
     const [showTopic,setShowTopic] = useState([])
     const [topicId,setTopicId] = useState('')
 
-    
+    const instructorId = sessionStorage.getItem("Iid")
 
     const createCourse = (e)=>{
         e.preventDefault()
-        axios.post("http://localhost:5000/Course/",{courseTitle,courseDesc,topicId}).then((res)=>{
+        axios.post("http://localhost:5000/Course/",{courseTitle,courseDesc,topicId,instructorId}).then((res)=>{
             console.log(res.data)
+            navigate('/instructor/courses')
         })
 
     }
@@ -53,11 +57,11 @@ const Newcourse = () => {
                     <CardContent>
                         <Typography sx={{ textAlign: "center", fontSize: "20px", fontWeight: "bold" }}>Add New Course</Typography>
                         <Stack spacing={1} sx={{ mt: 2 }}>
-                            <InputLabel htmlFor="title">Course title:</InputLabel>
-                            <TextField id='title' onChange={(e)=> setCourseTitle(e.target.value)} ></TextField>
+                            <InputLabel htmlFor="title">Course Title:</InputLabel>
+                            <TextField id='title' value={courseTitle} onChange={(e)=> setCourseTitle(e.target.value)} ></TextField>
                         </Stack>
                         <Stack spacing={1} sx={{ mt: 2 }}>
-                            <InputLabel htmlFor="description">Course decription:</InputLabel>
+                            <InputLabel htmlFor="description">Course Decription:</InputLabel>
                             <TextField onChange={(e)=>setCourseDesc(e.target.value)} id='description' multiline minRows={3} ></TextField>
                         </Stack>
                         <Stack spacing={1} sx={{ mt: 2 }}>

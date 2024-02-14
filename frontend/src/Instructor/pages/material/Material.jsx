@@ -4,6 +4,14 @@ import { styled } from '@mui/material/styles';
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 
 const VisuallyHiddenInput = styled('input')({
@@ -30,13 +38,14 @@ const Material = () => {
         e.preventDefault()
         axios.post("http://localhost:5000/Material",{materialTitle,materialDesc,materialFile,sectionId}).then((res)=>{
             console.log(res.data)
+            fetchMaterials(sectionId)
         }).catch((e)=>{
             console.log(e.message)
         })
     }
 
-    const fetchMaterials = (id)=>{
-        axios.get("http://localhost:5000/section/"+id+"/material").then((res)=>{
+    const fetchMaterials = ()=>{
+        axios.get("http://localhost:5000/section/"+sectionId+"/material").then((res)=>{
             setShowMaterial(res.data)
             console.log(showMaterial)
         }).catch((err)=>{
@@ -44,16 +53,25 @@ const Material = () => {
         })
     }
 
+    const deleteMaterials = (id)=>{
+        axios.delete("http://localhost:5000/Material/"+id).then((res)=>{
+            alert("Material Deleted")
+            fetchMaterials(sectionId)
+        }).catch((err)=>{
+            console.log(err.message)
+        })
+    }
+
 
     useEffect(()=>{
-        fetchMaterials(sectionId)
+        fetchMaterials()
     },[])
 
     
 
     return (
         <div className='instructorCourseMaterial'>
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "50vh" }}>
                 <Card onSubmit={createMaterial}  component="form" sx={{ minWidth: "700px" }}>
                     <CardContent>
                         <Typography sx={{ textAlign: "center", fontSize: "30px", fontWeight: "bold" }}>New Material</Typography>
@@ -69,7 +87,40 @@ const Material = () => {
                     <Button type='submit' variant='contained' sx={{display:"block",margin:"10px auto"}} >Submit</Button>
                 </Card>
             </Box>
-            {showMaterial.materialTitle}
+            
+            <Box sx={{p:3}}>
+            <TableContainer component={Paper}>
+      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell align='center'>SI No</TableCell>
+            <TableCell align="center">Material Title</TableCell>
+            <TableCell align="center">Material Desc</TableCell>
+            <TableCell align="center">Material File</TableCell>
+            <TableCell align="center">Action</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {showMaterial.map((row,key) => (
+            <TableRow
+              key={row.name}
+              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+              <TableCell component="th" scope="row" align='center'>
+                {key + 1}
+              </TableCell>
+              <TableCell align="center">{row.materialTitle}</TableCell>
+              <TableCell align="center">{row.materialDesc}</TableCell>
+              <TableCell align="center">{row.materialFile}</TableCell>
+              <TableCell align="center">
+                <Button onClick={(e)=>deleteMaterials(row._id)} variant='outlined'><DeleteIcon sx={{color:"crimson"}} /></Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+            </Box>
             
         </div>
     )

@@ -17,6 +17,7 @@ import Complaint from './pages/complaint/Complaint';
 import Section from './pages/section/Section';
 import Material from './pages/material/Material';
 import Single from './pages/single/Single';
+import Myprofile from './pages/myprofile/Myprofile';
 
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
           <div>
             <Routes>
               <Route path='/' element={<Home />} />
+              <Route path='/Myprofile' element={<Myprofile/>}/>
               <Route path='/Drafts' element={<Draft />} />
               <Route path='/Courses' element={<Course />} />
               <Route path='/Courses/:id' element={<Single/>}/>

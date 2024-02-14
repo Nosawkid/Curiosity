@@ -10,10 +10,11 @@ import { Link } from 'react-router-dom';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { FaChalkboardTeacher, FaClipboardList } from "react-icons/fa";
 import { FaRegEdit } from "react-icons/fa";
-import { IoAddCircle } from "react-icons/io5";
 import RemoveFromQueueIcon from '@mui/icons-material/RemoveFromQueue';
 
 const Sidebar = () => {
+
+
 
 
 
@@ -28,16 +29,12 @@ const Sidebar = () => {
       <div className="center">
         <ul>
           <p className="title">MAIN</p>
-          <li> <DashboardIcon className='icon' /> <span>Dashboard</span></li>
+          <Link to="/instructor/myprofile" style={{ textDecoration: "none" }}>
+          <li> <DashboardIcon className='icon' /> <span>My Profile</span></li>
+          </Link>
           <p className="title">LISTS</p>
           <Link to="/instructor/Courses" style={{ textDecoration: "none" }}>
             <li> <FaChalkboardTeacher className='icon' /> <span>Courses</span></li>
-          </Link>
-          <Link to="/instructor/Drafts" style={{ textDecoration: "none" }}>
-            <li><FaRegEdit className='icon' /> <span>Drafts</span></li>
-          </Link>
-          <Link to="/instructor/Newcourse" style={{ textDecoration: "none" }} >
-            <li><IoAddCircle className='icon' /> <span>Add Course</span></li>
           </Link>
           <Link to="/instructor/Cart" style={{ textDecoration: "none" }}>
             <li><ShoppingCartIcon className='icon' /> <span>Cart</span></li>
@@ -60,7 +57,7 @@ const Sidebar = () => {
       {/* <div className="bottom">
         <div className="colorOption" onClick={() => dispatch({ type: "LIGHT" })}></div>
         <div className="colorOption" onClick={() => dispatch({ type: "DARK" })} ></div>
-      </div> */}
+      </div> */}    
     </div>
   )
 }
