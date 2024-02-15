@@ -15,7 +15,7 @@ const Section = () => {
     e.preventDefault()
     axios.post("http://localhost:5000/Section",{courseId,sectionName,sectionNumber}).then((res)=>{
       console.log(res.data)
-      navigate(`/instructor/courses/${res.data._id}`)
+      navigate(`/instructor/courses/${res.data.courseId}`)
     })
   }
 

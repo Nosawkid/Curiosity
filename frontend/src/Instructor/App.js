@@ -19,6 +19,7 @@ import Material from './pages/material/Material';
 import Single from './pages/single/Single';
 import Myprofile from './pages/myprofile/Myprofile';
 import Editprofile from './pages/editprofile/Editprofile';
+import Footer from './pages/footer/footer';
 
 
 
@@ -55,8 +56,10 @@ function App() {
             </Routes>
 
           </div>
+          <Footer/>
         </div>
       </div>
+      
 
 
     </div>

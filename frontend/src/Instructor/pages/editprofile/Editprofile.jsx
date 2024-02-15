@@ -77,9 +77,9 @@ const Editprofile = () => {
                 startIcon={<CloudUploadIcon />}
               >
                 Upload file
-                <VisuallyHiddenInput type="file" />
+                <VisuallyHiddenInput disabled={!isEditing} type="file" />
               </Button>
-              <Typography className='info'>Your profile picture is used to identify.</Typography>
+              <Typography className='info'>Your profile picture is used to identify you.</Typography>
             </Box>
             <Box>
               <Typography className='detailName'>Name</Typography>

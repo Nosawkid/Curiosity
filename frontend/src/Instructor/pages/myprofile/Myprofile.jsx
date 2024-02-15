@@ -3,19 +3,35 @@ import './myprofile.scss'
 
 import Chart from '../../components/chart/Chart'
 import axios from 'axios'
-import { Card, CardContent, Stack, TextField } from '@mui/material'
+import Card from '@mui/material/Card';
+// import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import { Box, Typography } from '@mui/material';
+
 
 
 
 const Myprofile = () => {
 
+  const Id = sessionStorage.getItem("Iid")
   const [instructorData,setInstructorData] = useState([])
+  const [instructorCourses,setInstructorCourses] = useState([])
+
+  const fetchCourses = ()=>{
+    axios.get("http://localhost:5000/CourseFromIns/"+Id).then((res)=>{
+      setInstructorCourses(res.data)
+    }).catch((err)=>{
+      console.log(err.message)
+    })
+  }
 
   useEffect(()=>{
-    const Id = sessionStorage.getItem("Iid")
+ 
     axios.get("http://localhost:5000/Instructor/"+Id).then((res)=>{
       setInstructorData(res.data)
     })
+
+    fetchCourses()
   },[])
   return (
     <div className='myProfileInstructor'>
@@ -49,16 +65,20 @@ const Myprofile = () => {
           </div>
         </div>
         <div className="bottom">
-          <div className="title">Complete Profile Profile
-            <Card>
+        <Card>
               <CardContent>
-                <Stack direction={"column"} spacing={3}>
-                    <TextField variant='outlined' multiline minRows={4}></TextField>
-                </Stack>
+                <Typography sx={{fontWeight:"bold"}}>My Courses</Typography>
+                <Box sx={{mt:3,display:"flex",alignItems:"center",gap:"20px"}}>
+                  {instructorCourses.map((row,key)=>(
+                    <Card>
+                      <CardContent>
+                        <Typography>{row.courseTitle}</Typography>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </Box>
               </CardContent>
-            </Card>
-          
-           </div>    
+            </Card>    
     </div>
     </div>
     </div>

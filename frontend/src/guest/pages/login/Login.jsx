@@ -21,10 +21,13 @@ const Login = () => {
             const { id, type } = res.data.payload
             console.log(type);
             if (type === "Instructor") {
-                console.log("hi");
                 sessionStorage.setItem("Iid", id)
                 navigate("../../Instructor/")
-
+            }
+            else if(type === "User")
+            {
+                sessionStorage.setItem("Uid",id)
+                navigate("../../User/")
             }
 
 

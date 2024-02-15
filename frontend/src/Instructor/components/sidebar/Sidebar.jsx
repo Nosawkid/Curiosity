@@ -1,6 +1,5 @@
 import React from 'react'
 import './sidebar.scss'
-import DashboardIcon from '@mui/icons-material/Dashboard';
 import AddLinkIcon from '@mui/icons-material/AddLink';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -30,7 +29,7 @@ const Sidebar = () => {
         <ul>
           <p className="title">MAIN</p>
           <Link to="/instructor/myprofile" style={{ textDecoration: "none" }}>
-          <li> <DashboardIcon className='icon' /> <span>My Profile</span></li>
+          <li> <AccountCircleIcon className='icon' /> <span>My Profile</span></li>
           </Link>
           <Link to="/instructor/settings" style={{ textDecoration: "none" }}>
           <li> <SettingsIcon className='icon' /> <span>Account Settings</span></li>
@@ -53,7 +52,6 @@ const Sidebar = () => {
           <li><AddLinkIcon className='icon' /> <span>Logs</span></li>
           <li><SettingsIcon className='icon' /> <span>Settings</span></li>
           <p className="title">User</p>
-          <li><AccountCircleIcon className='icon' /> <span>Profile</span></li>
           <li><LogoutIcon className='icon' /><span> Logout</span></li>
         </ul>
       </div>

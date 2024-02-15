@@ -498,7 +498,7 @@ const User = mongoose.model("schemaUser", userSchema)
 // creating new user
 app.post("/User", async (req, res) => {
     try {
-        const { userName, userEmail, userPassword, userContact, userHeadLine, userPhoto, linkId } = req.body
+        const { userName, userEmail, userPassword, userContact } = req.body
         const admin = await Admin.findOne({ adminEmail: userEmail })
         const ins = await Instructor.findOne({ instructorEmail: userEmail })
         const portal = await JobPortal.findOne({ jobPortalEmail: userEmail })
@@ -514,10 +514,7 @@ app.post("/User", async (req, res) => {
             userName,
             userEmail,
             userPassword,
-            userContact,
-            userHeadLine,
-            userPhoto,
-            linkId
+            userContact
         })
 
         const salt = 12
@@ -954,6 +951,7 @@ app.get("/CourseFromIns/:insid", async (req, res) => {
                 }
             }
         })
+        
         res.status(200).send(courses)
     } catch (error) {
         console.log(error.message)
@@ -1049,7 +1047,7 @@ app.post("/Section", async (req, res) => {
         })
 
         await section.save();
-        res.status(200).send("Section added successfully")
+        res.status(200).send(section)
 
     } catch (error) {
         console.error(error.message)

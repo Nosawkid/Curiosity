@@ -1,0 +1,88 @@
+.insFooter
+{
+    margin-top: 40px;
+    background-color: aliceblue;
+    color: #444;
+
+    .footerTop
+    {
+        text-align: center;
+        padding:40px 20px;
+
+        .logo
+        {
+            color: #023e8a;
+        }
+
+        border-bottom: 1px solid black;
+    }
+
+    .bottom
+    {
+        padding: 20px;
+        .linkAndLang
+        {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+
+            ul 
+            {
+                list-style: none;
+                li 
+                {
+                    &:hover
+                    {
+                        cursor: pointer;
+                    }
+                }
+            }
+
+            .linkContainer
+            {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+                line-height: 1.6;
+            }
+        }
+
+        .lang 
+        {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 16px;
+            padding: 10px;
+            border: 2px solid white;
+
+            &:hover
+            {
+                cursor: pointer;
+            }
+        }
+
+        .logoAndDate
+        {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+            justify-content: space-between;
+
+            .footerLogo
+            {
+                font-size: 40px;
+                font-weight: bold;
+                color: #023e8a;
+                cursor: pointer;
+                letter-spacing: 3px;
+            }
+
+            .year
+            {
+                font-size: 20px;
+                cursor: default;
+            }
+        }
+    }
+}
