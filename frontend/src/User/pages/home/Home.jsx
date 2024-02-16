@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import './home.scss'
-import Navbar from '../../components/navbar/Navbar'
 import Topsuggestion from '../../components/topsuggestion/Topsuggestion'
 import Hero from '../../components/hero/Hero'
 import Enrolledsuggestion from '../../components/enrolledsuggestion/Enrolledsuggestion'
@@ -30,7 +29,7 @@ const Home = () => {
 
   return (
     <div className='userHome'>
-      <Navbar />
+    
       <Topsuggestion />
       <Hero />
       <Box>

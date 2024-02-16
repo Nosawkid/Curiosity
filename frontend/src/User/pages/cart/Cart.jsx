@@ -1,6 +1,5 @@
 import React from 'react'
 import './cart.scss'
-import Navbar from '../../components/navbar/Navbar'
 import Suggestioncard from '../../subcomponents/suggestioncards/Suggestioncard'
 import Price from '../../components/price/Price'
 import Footer from '../../components/footer/footer'
@@ -8,7 +7,7 @@ import Footer from '../../components/footer/footer'
 const Cart = () => {
   return (
     <div className='userCart'>
-      <Navbar />
+      
       <div className="cartContainer">
         <h1>Shopping Cart</h1>
         <div className="itemsAndPrice">

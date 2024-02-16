@@ -482,6 +482,9 @@ const userSchema = new Schema({
     userHeadLine: {
         type: String,
     },
+    userBiography:{
+        type:String
+    },
     userPhoto: {
         type: String,
     },
@@ -555,6 +558,43 @@ app.get("/User/:id", async (req, res) => {
         console.log("Server Error")
     }
 })
+
+app.get("/User/:uid/checkPassword/:pass",async(req,res)=>{
+    try {
+        const {uid,pass} = req.params
+        const user = await User.findById(uid)
+        isValidPassword = await argon2.verify(user.userPassword,pass)
+        if(isValidPassword)
+        {
+            res.send(true)
+            
+        }
+        else
+        {
+            res.send(false)
+        }
+    } catch (error) {
+        console.log(error.message)
+    }
+})
+
+app.put("/User/changePassword/:id",async(req,res)=>{
+    try
+    {
+     const {id} = req.params
+     let {userPassword} = req.body
+     const salt = 12
+     userPassword = await argon2.hash(userPassword,salt) 
+     const user = await User.findByIdAndUpdate(id,{userPassword},{new:true})
+     res.status(200).send(user)
+    }
+    catch(err)
+    {
+     console.log(err.message)
+     console.log("Server Error")
+    }
+})
+
 
 
 // Delete
@@ -2249,30 +2289,40 @@ app.post("/Login", async (req, res) => {
         let type;
         let isValidPassword = false
         const { Email, Password } = req.body
+        console.log(Password)
         const user = await User.findOne({ userEmail: Email })
         const instructor = await Instructor.findOne({ instructorEmail: Email })
         const portal = await JobPortal.findOne({ jobPortalEmail: Email })
+        const admin = await Admin.findOne({adminEmail:Email})
 
         if (user) {
-            isValidPassword = argon2.verify(user.userPassword, Password)
+            isValidPassword = await argon2.verify(user.userPassword, Password)
             if (isValidPassword) {
                 id = user._id
                 type = "User"
             }
+            else
+            {
+                console.log("Invalid Login Credentials")
+            }
         }
         else if (instructor) {
-            isValidPassword = argon2.verify(instructor.instructorPassword, Password)
+            isValidPassword = await argon2.verify(instructor.instructorPassword, Password)
             if (isValidPassword) {
                 id = instructor._id
                 type = "Instructor"
             }
         }
         else if (portal) {
-            isValidPassword = argon2.verify(portal.jobPortalPassword, Password)
+            isValidPassword = await argon2.verify(portal.jobPortalPassword, Password)
             if (isValidPassword) {
                 id = portal._id
                 type = "Jobportal"
             }
+        }
+        else if(admin)
+        {
+
         }
         else {
             return res.status(500).send({ message: "No User found" })
