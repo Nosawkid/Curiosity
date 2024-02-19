@@ -8,7 +8,9 @@ import Job from './pages/job/Job'
 import './app.scss'
 import Settings from './pages/settings/Settings'
 import Navbar from './components/navbar/Navbar'
+
 import Footer from './components/footer/footer'
+
 
 const App = () => {
   return (
