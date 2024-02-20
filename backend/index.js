@@ -29,6 +29,7 @@ app.use(cors())
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('./public'))
 
 
 
@@ -113,14 +114,81 @@ const Topic = mongoose.model('schemaTopic', topicSchema)
 // LinkSchema
 
 const linkSchema = new mongoose.Schema({
-    linkName: {
-        type: String,
-        required: true
+    facebookLink: {
+        type: String
     },
-    linkIcon: String
+    twitterLink: {
+        type: String
+    },
+    instagramLink: {
+        type: String
+    },
+    linkedInLink: {
+        type: String
+    },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: "schemaUser"
+    }
 })
 
 const Link = mongoose.model('schemaLink', linkSchema)
+
+// Crud
+
+
+// app.post("/Link", async (req, res) => {
+//     try {
+//         const { facebookLink, twitterLink, instagramLink, linkedInLink, userId } = req.body
+//         const links = new Link({
+//             facebookLink,
+//             twitterLink,
+//             instagramLink,
+//             linkedInLink,
+//             userId
+//         })
+//         await links.save()
+//     }
+//     catch (err) {
+//         console.error(err.message)
+//         res.send('Server Error')
+//     }
+// })
+
+app.get("/Link/:userId", async (req, res) => {
+    try {
+        const { userId } = req.params
+        const link = await Link.findOne({ userId })
+        res.status(200).send(link)
+    }
+    catch (err) {
+        console.log(err.message)
+        res.send("Server Error")
+    }
+})
+
+
+// app.put("/Link/:id/edit", async (req, res) => {
+//     try {
+//         const { id } = req.params
+//         let link = await Link.findById(id)
+//         if (!link) {
+//             return res.status(400).send("Link doesn't exist")
+//         }
+//         const { linkName } = req.body
+//         const existingLinks = await Link.findOne({ linkName, _id: { $ne: id } })
+//         if (existingLinks) {
+//             return res.status(400).send({ message: "Link already exists" })
+//         }
+//         link = await Link.findByIdAndUpdate(id, { linkName }, { new: true })
+//         res.status(200).send(link)
+//     } catch (error) {
+//         console.log(error.message);
+//         console.log("Server Error");
+//     }
+// })
+
+
 
 
 //CRUD
@@ -240,59 +308,6 @@ app.put("/Category/:id/edit", async (req, res) => {
 
 
 // Links
-
-app.post("/Link", async (req, res) => {
-    try {
-        const { linkName } = req.body
-        let link = await Link.findOne({ linkName })
-
-        if (link) {
-            return res
-                .json({ errors: [{ msg: 'Link already exists' }] })
-        }
-
-        link = new Link({ linkName })
-        await link.save()
-        res.send("Link Insertion Success")
-    }
-    catch (err) {
-        console.error(err.message)
-        res.send('Server Error')
-    }
-})
-
-app.get("/Link", async (req, res) => {
-    try {
-        const link = await Link.find()
-        res.status(200).send(link)
-    }
-    catch (err) {
-        console.log(err.message)
-        res.send("Server Error")
-    }
-})
-
-
-app.put("/Link/:id/edit", async (req, res) => {
-    try {
-        const { id } = req.params
-        let link = await Link.findById(id)
-        if (!link) {
-            return res.status(400).send("Link doesn't exist")
-        }
-        const { linkName } = req.body
-        const existingLinks = await Link.findOne({ linkName, _id: { $ne: id } })
-        if (existingLinks) {
-            return res.status(400).send({ message: "Link already exists" })
-        }
-        link = await Link.findByIdAndUpdate(id, { linkName }, { new: true })
-        res.status(200).send(link)
-    } catch (error) {
-        console.log(error.message);
-        console.log("Server Error");
-    }
-})
-
 
 
 
@@ -482,8 +497,8 @@ const userSchema = new Schema({
     userHeadLine: {
         type: String,
     },
-    userBiography:{
-        type:String
+    userBiography: {
+        type: String
     },
     userPhoto: {
         type: String,
@@ -567,7 +582,7 @@ app.get("/User/:id", async (req, res) => {
 //         if(isValidPassword)
 //         {
 //             res.send(true)
-            
+
 //         }
 //         else
 //         {
@@ -578,30 +593,28 @@ app.get("/User/:id", async (req, res) => {
 //     }
 // })
 
-app.put("/User/changePassword/:id",async(req,res)=>{
-   try {
+app.put("/User/changePassword/:id", async (req, res) => {
+    try {
 
-    const {id} = req.params
-    let {userPassword,existingPassword} = req.body
-    const user = await User.findById(id)
-    const isExisting = await argon2.verify(user.userPassword,existingPassword)
-    
-    if(isExisting)
-    {
-        const salt = 12
-        userPassword = await argon2.hash(userPassword,salt)
-        let newUserPassword = await User.findByIdAndUpdate(id,{userPassword},{new:true})
-        res.status(200).send((true))
-    }
-    else
-    {
-        return res.status(400).send(false)
-    }
-    
-   } catch (error) {
+        const { id } = req.params
+        let { userPassword, existingPassword } = req.body
+        const user = await User.findById(id)
+        const isExisting = await argon2.verify(user.userPassword, existingPassword)
+
+        if (isExisting) {
+            const salt = 12
+            userPassword = await argon2.hash(userPassword, salt)
+            let newUserPassword = await User.findByIdAndUpdate(id, { userPassword }, { new: true })
+            res.status(200).send((true))
+        }
+        else {
+            return res.status(400).send(false)
+        }
+
+    } catch (error) {
         console.log(error.message)
         console.log("Server Error")
-   }
+    }
 })
 
 
@@ -622,44 +635,106 @@ app.delete("/User/:id", async (req, res) => {
 
 // Update
 
-app.put("/User/:id/edit", async (req, res) => {
-    try {
-        const { id } = req.params
-        const {
-            userName,
-            userEmail,
-            userContact,
-            userHeadLine,
-        } = req.body
 
-        const existingUserName = await User.findOne({ userName, _id: { $ne: id } })
-        if (existingUserName) {
-            return (
-                res.status(400).send({ message: "Username already taken" })
-            )
+app.put("/User/:id/editPhoto",
+    upload.fields([
+        { name: "userPhoto", maxCount: 1 },
+    ]),
+    async (req, res) => {
+        try {
+            console.log('hi');
+            const { id } = req.params
+
+            var fileValue = JSON.parse(JSON.stringify(req.files));
+            var userPhoto = `http://127.0.0.1:${port}/images/${fileValue.userPhoto[0].filename}`;
+            console.log(userPhoto);
+
+
+            const updatedUser = await User.findByIdAndUpdate(id, {
+                userPhoto
+            }, { new: true })
+            res.status(200).send(updatedUser)
+
+
+        } catch (error) {
+
         }
+    })
 
-        const existingEmails = await User.findOne({ userEmail, _id: { $ne: id } })
-        const existingAdminMail = await Admin.findOne({ adminEmail: userEmail })
-        const existingPortal = await JobPortal.findOne({ jobPortalEmail: userEmail })
-        if (existingEmails || existingAdminMail || existingPortal) {
-            return (
-                res.status(400).send("Email already exists")
-            )
+
+app.put("/User/:id/edit",
+    // upload.fields([
+    //     { name: "userPhoto", maxCount: 1 },
+    // ]), 
+    async (req, res) => {
+        try {
+            // var fileValue = JSON.parse(JSON.stringify(req.files));
+            // var userPhoto = `http://127.0.0.1:${port}/images/${fileValue.userPhoto[0].filename}`;
+
+            const { id } = req.params
+            const {
+                userName,
+                userEmail,
+                userContact,
+                userHeadLine,
+                userBiography,
+            } = req.body
+            console.log(req.body);
+
+            const existingUserName = await User.findOne({ userName, _id: { $ne: id } })
+            if (existingUserName) {
+                return (
+                    res.status(400).send({ message: "Username already taken" })
+                )
+            }
+
+            const existingEmails = await User.findOne({ userEmail, _id: { $ne: id } })
+            const existingAdminMail = await Admin.findOne({ adminEmail: userEmail })
+            const existingPortal = await JobPortal.findOne({ jobPortalEmail: userEmail })
+            if (existingEmails || existingAdminMail || existingPortal) {
+                return (
+                    res.status(400).send("Email already exists")
+                )
+            }
+
+            const updatedUser = await User.findByIdAndUpdate(id, {
+                userName,
+                userEmail,
+                userContact,
+                userHeadLine,
+                userBiography,
+            }, { new: true })
+            const user = await Link.findOne({ userId: id })
+            const {
+                facebookLink,
+                instagramLink,
+                twitterLink,
+                linkedInLink
+            } = req.body
+            if (user) {
+                const updatedLink = await Link.findByIdAndUpdate(user._id, {
+                    facebookLink,
+                    instagramLink,
+                    twitterLink,
+                    linkedInLink
+                }, { new: true })
+            }
+            else {
+                const newLinks = new Link({
+                    facebookLink,
+                    instagramLink,
+                    twitterLink,
+                    linkedInLink,
+                    userId: id
+                })
+                await newLinks.save()
+            }
+            res.status(200).send(updatedUser)
+        } catch (error) {
+            console.log(error.message);
+            console.log("Server Error");
         }
-
-        const updatedUser = await User.findByIdAndUpdate(id, {
-            userName,
-            userEmail,
-            userContact,
-            userHeadLine,
-        }, { new: true })
-        res.status(200).send(updatedUser)
-    } catch (error) {
-        console.log(error.message);
-        console.log("Server Error");
-    }
-})
+    })
 
 
 
@@ -694,7 +769,7 @@ const instructorSchema = new Schema({
         type: String,
         required: true
     },
-    instructorField: { 
+    instructorField: {
         type: String,
     },
     instructorProof: {
@@ -706,7 +781,7 @@ const instructorSchema = new Schema({
         ref: "schemaLink"
     }
 })
- 
+
 const Instructor = mongoose.model("schemaInstructor", instructorSchema)
 
 // Create
@@ -783,7 +858,7 @@ app.get("/Instructor", async (req, res) => {
 app.get("/Instructor/:id", async (req, res) => {
     try {
         let { id } = req.params
-       
+
 
         const instructor = await Instructor.findById(id)
         res.status(200).send(instructor)
@@ -983,7 +1058,7 @@ app.get("/Course/:id", async (req, res) => {
 app.get("/CourseFromIns/:insid", async (req, res) => {
     try {
         let { insid: id } = req.params
-       
+
 
         const courses = await Course.find({ instructorId: id }).populate({
             path: "instructorId",
@@ -1000,7 +1075,7 @@ app.get("/CourseFromIns/:insid", async (req, res) => {
                 }
             }
         })
-        
+
         res.status(200).send(courses)
     } catch (error) {
         console.log(error.message)
@@ -1447,6 +1522,10 @@ const cartSchema = new Schema({
     cartStatus: {
         type: Number,
         default: 0
+    },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: "schemaUser"
     }
 })
 
@@ -1460,13 +1539,23 @@ app.post("/Cart", async (req, res) => {
         const {
             bookingId,
             courseId,
-            cartStatus
+            cartStatus,
+            userId
         } = req.body
+
+
+        let ifExisting = await Cart.findOne({ userId, courseId })
+        if (ifExisting) {
+            return (
+                res.status(400).send({ message: "Item already present in cart" })
+            )
+        }
 
         let cart = new Cart({
             bookingId,
             courseId,
-            cartStatus
+            cartStatus,
+            userId
         })
         await cart.save()
         res.status(200).send("Added to cart")
@@ -1502,6 +1591,49 @@ app.get("/Cart", async (req, res) => {
     }
 })
 
+// Read from specific user
+
+app.get("/Cart/:id", async (req, res) => {
+    try {
+        const { id } = req.params
+        const carts = await Cart.find({ userId: id }).populate({
+            path: "bookingId",
+            model: "schemaBooking",
+            populate: {
+                path: "userId",
+                model: "schemaUser"
+            }
+        }).populate({
+            path: "courseId",
+            model: "schemaCourse",
+            populate: {
+                path: "instructorId",
+                model: "schemaInstructor"
+            }
+        })
+
+        res.status(200).send(carts)
+
+    } catch (error) {
+        console.log(error.message)
+        console.log("Server Error")
+    }
+})
+
+// Remove Cart
+
+app.delete("/DeleteCart/:delId", async (req, res) => {
+    try {
+        const { delId } = req.params
+        const deleteCart = await Cart.findByIdAndDelete(delId)
+        res.status(200).send({ message: "Item removed from cart" })
+    }
+    catch (err) {
+        console.log(err.message)
+        console.log("Server Error")
+    }
+})
+
 
 // WISHLIST
 // schema
@@ -1528,11 +1660,10 @@ app.post("/wishlist", async (req, res) => {
         const { courseId, userId } = req.body
 
 
-        const wish = await Wishlist.findOne({courseId,userId})
+        const wish = await Wishlist.findOne({ courseId, userId })
 
-        if(wish)
-        {
-            return(
+        if (wish) {
+            return (
                 res.status(400).send("Already Present in the wishlist")
             )
         }
@@ -1572,9 +1703,13 @@ app.get("/wishlist", async (req, res) => {
 
 app.get("/wishlist/:id", async (req, res) => {
     try {
-        const wishlist = await Wishlist.findById(req.params.id).populate({
+        const wishlist = await Wishlist.find({ userId: req.params.id }).populate({
             path: "courseId",
-            model: "schemaCourse"
+            model: "schemaCourse",
+            populate: {
+                path: "instructorId",
+                model: "schemaInstructor"
+            }
         }).populate({
             path: "userId",
             model: "schemaUser"
@@ -2312,7 +2447,7 @@ app.post("/Login", async (req, res) => {
         const user = await User.findOne({ userEmail: Email })
         const instructor = await Instructor.findOne({ instructorEmail: Email })
         const portal = await JobPortal.findOne({ jobPortalEmail: Email })
-        const admin = await Admin.findOne({adminEmail:Email})
+        const admin = await Admin.findOne({ adminEmail: Email })
 
         if (user) {
             isValidPassword = await argon2.verify(user.userPassword, Password)
@@ -2320,8 +2455,7 @@ app.post("/Login", async (req, res) => {
                 id = user._id
                 type = "User"
             }
-            else
-            {
+            else {
                 console.log("Invalid Login Credentials")
             }
         }
@@ -2339,8 +2473,7 @@ app.post("/Login", async (req, res) => {
                 type = "Jobportal"
             }
         }
-        else if(admin)
-        {
+        else if (admin) {
 
         }
         else {

@@ -1,0 +1,25 @@
+.userWishList
+{
+    .courseCard
+    {
+        cursor: pointer;
+        transition: all 300ms;
+        &:hover
+        {
+            transform: scale(1.1);
+        }
+
+        .cartIcon,.favrtIcon
+        {
+            color: #003f88;
+            transition: all 0.25s;
+            &:hover
+            {
+                color: #003f88;
+                transform: scale(1.07);
+            }
+        }
+
+        
+    }
+}

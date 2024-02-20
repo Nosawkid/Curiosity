@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import './settings.scss'
-import { Button, Card, CardContent, FormControl, Stack, Typography } from '@mui/material'
+import { Button, Card, CardContent, CardMedia, FormControl, Stack, Typography } from '@mui/material'
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -71,39 +71,98 @@ const Settings = () => {
 
 
   const [value, setValue] = React.useState(0);
-  const [links, setLinks] = useState([])
   const [isEditing, setIsEditing] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [userDetails, setUserDetails] = useState([])
   const [existingPassword, setExistingPassword] = useState('')
   const [userPassword, setUserPassowrd] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [userName, setUserName] = useState("")
+  const [userEmail, setUserEmail] = useState("")
+  const [userHeadLine, setUserHeadLine] = useState("")
+  const [userBiography, setUserBiography] = useState("")
+  const [userContact, setUserContact] = useState("")
+  const [facebookLink, setFacebookLink] = useState("")
+  const [twitterLink, setTwitterLink] = useState("")
+  const [instagramLink, setInstagramLink] = useState("")
+  const [linkedInLink, setLinkedInLink] = useState("")
+  const [userPhoto, setUserPhoto] = useState("")
+  const [imageUrl, setImageUrl] = useState(null); // State to hold the URL of the uploaded image
+
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
+  const handleFileChange = (e) => {
+    setUserPhoto(e.target.files[0]); // Set the selected file as userPhoto
+    const url = URL.createObjectURL(e.target.files[0]); // Create a URL for the selected file
+    setImageUrl(url); // Set the URL as imageUrl
+  };
 
-  const fetchLinks = () => {
-    axios.get("http://localhost:5000/Link").then((res) => {
-      setLinks(res.data)
-    })
-  }
 
 
   const fetchUserDetails = () => {
     axios.get("http://localhost:5000/User/" + uid).then((res) => {
-      setUserDetails(res.data)
+      setUserName(res.data.userName)
+      setUserEmail(res.data.userEmail)
+      setUserContact(res.data.userContact)
+      setUserBiography(res.data.userBiography)
+      setUserHeadLine(res.data.userHeadLine)
+      setUserPhoto(res.data.userPhoto)
     })
   }
+
+  const fetchLinks = () => {
+    axios.get("http://localhost:5000/Link/" + uid).then((res) => {
+      setFacebookLink(res.data.facebookLink)
+      setTwitterLink(res.data.twitterLink)
+      setInstagramLink(res.data.instagramLink)
+      setLinkedInLink(res.data.linkedInLink)
+    })
+  }
+
+ 
+
 
   const toggleEdit = () => {
     setIsEditing(!isEditing)
   }
 
+  const FileUpload = () => {
+    console.log(imageUrl);
+    console.log(userPhoto);
+     const frm = new FormData()
+     frm.append("userPhoto",userPhoto)
 
-  const updateBasicDetails = (e) => {
-    e.preventDefault()
+    axios.put("http://localhost:5000/User/" + uid + "/editPhoto",frm).then((res) => {
+      console.log("Data Updated")
+      // fetchUserDetails()
+    })
+  }
+
+
+  const updateBasicDetails = async () => {
+
+
+    const data = {
+      userName,
+      userEmail,
+      userContact,
+      userBiography,
+      userHeadLine,
+      facebookLink,
+      twitterLink,
+      instagramLink,
+      linkedInLink
+    }
+   
+
+    // const data = {userName,userEmail,userContact,userBiography,userHeadLine,facebookLink,instagramLink,twitterLink,linkedInLink}
+    // console.log(data);
+    await axios.put("http://localhost:5000/User/" + uid + "/edit", data).then((res) => {
+      console.log("Data Updated")
+      fetchUserDetails()
+    })
 
   }
 
@@ -128,30 +187,27 @@ const Settings = () => {
 
   // }
 
-  const changePassword = (e)=>{
+  const changePassword = (e) => {
     e.preventDefault()
-    if(confirmPassword === userPassword)
-    {
-    axios.put("http://localhost:5000/User/changePassword/"+uid,{userPassword,existingPassword}).then((res)=>{
-      if(res.data)
-      {
-        alert("Password Updated")
-      }
-        
-      }).catch((err)=>{
+    if (confirmPassword === userPassword) {
+      axios.put("http://localhost:5000/User/changePassword/" + uid, { userPassword, existingPassword }).then((res) => {
+        if (res.data) {
+          alert("Password Updated")
+        }
+
+      }).catch((err) => {
         console.log(err.message)
         console.log("Password Updation Failed")
       })
     }
-    else
-    {
+    else {
       alert("Password Mismatch")
     }
-   
-   
+
+
   }
 
-  
+
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -159,10 +215,9 @@ const Settings = () => {
     event.preventDefault();
   };
 
-
   useEffect(() => {
-    fetchLinks()
     fetchUserDetails()
+    fetchLinks()
   }, [])
 
 
@@ -180,51 +235,69 @@ const Settings = () => {
 
 
         <CustomTabPanel value={value} index={0}>
-          <Stack onSubmit={updateBasicDetails} component={"form"} className='inputContainer' sx={{ width: "100%" }} direction={'row'} spacing={10}>
+          <Stack  className='inputContainer' sx={{ width: "100%" }} direction={'row'} spacing={10}>
             <Stack sx={{ width: "45%" }} direction={'column'} spacing={4}>
 
               <Box sx={{ mt: 1 }}>
                 <Typography sx={{ fontWeight: "bold" }} component={"p"} variant='p'>Full Name</Typography>
-                <input defaultValue={userDetails.userName} disabled={!isEditing} type="text" className="updateInput" />
+                <input onChange={(e) => setUserName(e.target.value)} defaultValue={userName} disabled={!isEditing} type="text" className="updateInput" />
               </Box>
 
               <Box>
                 <Typography sx={{ fontWeight: "bold" }} component={"p"} variant='p'>Email</Typography>
-                <input defaultValue={userDetails.userEmail} disabled={!isEditing} type="email" className="updateInput" />
+                <input onChange={(e) => setUserEmail(e.target.value)} defaultValue={userEmail} disabled={!isEditing} type="email" className="updateInput" />
               </Box>
 
               <Box>
                 <Typography sx={{ fontWeight: "bold" }} component={"p"} variant='p'>Headline</Typography>
-                <input defaultValue={userDetails.userHeadLine} disabled={!isEditing} placeholder='Eg: Software Developer' type="text" className="updateInput" />
+                <input onChange={(e) => setUserHeadLine(e.target.value)} defaultValue={userHeadLine} disabled={!isEditing} placeholder='Eg: Software Developer' type="text" className="updateInput" />
               </Box>
 
               <Box>
                 <Typography sx={{ fontWeight: "bold" }} component={"p"} variant='p'>Biography</Typography>
-                <textarea defaultValue={userDetails.userBiography || "Description"} disabled={!isEditing} className="updateInput txtArea" />
+                <textarea onChange={(e) => setUserBiography(e.target.value)} defaultValue={userBiography} disabled={!isEditing} className="updateInput txtArea" />
               </Box>
 
             </Stack>
             <Stack sx={{ width: "45%" }} direction={'column'} spacing={4}>
               <Box>
                 <Typography sx={{ fontWeight: "bold" }} component={"p"} variant='p'>Contact</Typography>
-                <input type="text" defaultValue={userDetails.userContact} disabled={!isEditing} className="updateInput" />
+                <input onChange={(e) => setUserContact(e.target.value)} type="text" defaultValue={userContact} disabled={!isEditing} className="updateInput" />
               </Box>
 
-              {links.map((row, key) => (
-                <Box>
-                  <Stack sx={{ display: "flex", alignItems: "center" }} direction={'row'} spacing={0}>
-                    <input type="text" placeholder={row.linkName.toUpperCase()} disabled className='updateInputDisabled' />
-                    <input disabled={!isEditing} type="text" className="updateInput link" />
-                  </Stack>
-                </Box>
-              ))}
+
+              <Box>
+                <Stack sx={{ display: "flex", alignItems: "center" }} direction={'row'} spacing={0}>
+                  <input type="text" placeholder={"FACEBOOK"} disabled className='updateInputDisabled' />
+                  <input onChange={(e) => setFacebookLink(e.target.value)} defaultValue={facebookLink} disabled={!isEditing} type="text" className="updateInput link" />
+                </Stack>
+              </Box>
+              <Box>
+                <Stack sx={{ display: "flex", alignItems: "center" }} direction={'row'} spacing={0}>
+                  <input type="text" placeholder={"INSTAGRAM"} disabled className='updateInputDisabled' />
+                  <input onChange={(e) => setInstagramLink(e.target.value)} defaultValue={instagramLink} disabled={!isEditing} type="text" className="updateInput link" />
+                </Stack>
+              </Box>
+              <Box>
+                <Stack sx={{ display: "flex", alignItems: "center" }} direction={'row'} spacing={0}>
+                  <input type="text" placeholder={"TWITTER"} disabled className='updateInputDisabled' />
+                  <input onChange={(e) => setTwitterLink(e.target.value)} defaultValue={twitterLink} disabled={!isEditing} type="text" className="updateInput link" />
+                </Stack>
+              </Box>
+              <Box>
+                <Stack sx={{ display: "flex", alignItems: "center" }} direction={'row'} spacing={0}>
+                  <input type="text" placeholder={"LINKEDIN"} disabled className='updateInputDisabled' />
+                  <input onChange={(e) => setLinkedInLink(e.target.value)} defaultValue={linkedInLink} disabled={!isEditing} type="text" className="updateInput link" />
+                </Stack>
+              </Box>
+
 
               <Box>
                 <Stack sx={{ display: "flex", alignItems: "center" }} direction={'row'} spacing={2}>
                   <Button variant='outlined' onClick={toggleEdit}>
                     {!isEditing ? "Edit" : "Cancel"}
                   </Button>
-                  {isEditing && <Button type='submit' variant='contained'>Submit</Button>}
+                  {isEditing && <Button  onClick={updateBasicDetails} variant='contained'>Submit</Button>}
                 </Stack>
               </Box>
             </Stack>
@@ -233,7 +306,7 @@ const Settings = () => {
 
 
         <CustomTabPanel value={value} index={1}>
-          <Stack component={"form"} onSubmit={changePassword} sx={{ width: "40%" }} direction={'column'} spacing={3}>
+          <Stack  sx={{ width: "40%" }} direction={'column'} spacing={3}>
             <Box sx={{ width: "100%" }}>
 
               <FormControl sx={{ m: 1, width: "100%" }} variant="outlined">
@@ -309,7 +382,7 @@ const Settings = () => {
                 />
               </FormControl>
             </Box>
-            <Button type='submit' variant='contained' sx={{ width: "50%" }}>Submit</Button>
+            <Button onClick={changePassword} variant='contained' sx={{ width: "50%" }}>Submit</Button>
 
           </Stack>
         </CustomTabPanel>
@@ -319,11 +392,11 @@ const Settings = () => {
               <Typography sx={{ fontSize: "15px", fontWeight: "bold" }}>Image Preview</Typography>
               <Card sx={{ height: "250px", px: 2, py: 1 }}>
                 <CardContent sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
-                  <img style={{ width: "400px", height: "200px", objectFit: "cover" }} src='https://i.insider.com/5f74dff70ab50d00184ad67e?width=1136&format=jpeg' alt='profile'></img>
+                  <CardMedia style={{ width: "400px", height: "200px", objectFit: "cover" }} image={imageUrl} alt='profile'/>
                 </CardContent>
               </Card>
               <Button
-              sx={{mt:3}}
+                sx={{ mt: 3 }}
                 component="label"
                 role={undefined}
                 variant="contained"
@@ -331,13 +404,15 @@ const Settings = () => {
                 startIcon={<CloudUploadIcon />}
               >
                 Upload file
-                <VisuallyHiddenInput type="file" />
+                <VisuallyHiddenInput type="file" onChange={handleFileChange} />
               </Button>
             </Box>
+            <Button onClick={FileUpload} variant='contained' sx={{ width: "50%" }}>Submit</Button>
+
           </Stack>
         </CustomTabPanel>
       </Box>
-      <Footer/>
+      <Footer />
     </div>
   )
 }

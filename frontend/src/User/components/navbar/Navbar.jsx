@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import './navbar.scss'
 import SearchIcon from '@mui/icons-material/Search';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -8,20 +8,22 @@ import { Link } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import axios from 'axios';
 
 
 const Navbar = () => {
 
-    const [anchorEl,setAnchorEl] = useState(null)
+    const [anchorEl, setAnchorEl] = useState(null)
     const open = Boolean(anchorEl)
-    const handleClick = (e)=>{
+    const handleClick = (e) => {
         setAnchorEl(e.currentTarget)
     }
 
-    const handleClose = (e)=>{
+    const handleClose = (e) => {
         setAnchorEl(null)
     }
 
+    
 
     return (
         <div className="userNavbar">
@@ -40,41 +42,40 @@ const Navbar = () => {
                 <Link to="/user/jobs" style={{ textDecoration: "none", color: "black" }}>
                     <p className="userNavLink">Jobs</p>
                 </Link>
-                <Link to="/user/profile" style={{ textDecoration: "none", color: "black" }}>
-                    <p className="userNavLink">Profile</p>
+                <Link to="/user/wishlist" style={{ textDecoration: "none", color: "black" }}>
+                    <FavoriteIcon className='userNavIcon' />
                 </Link>
-                <FavoriteIcon className='userNavIcon' />
                 <div className="userNavCounterContainer">
                     <Link to="/user/cart" style={{ textDecoration: "none", color: "black" }}>
                         <ShoppingCartIcon className='userNavIcon' />
                     </Link>
-                    <div className="userNavCounter">2</div>
+                    <div className="userNavCounter">{5}</div>
                 </div>
                 <NotificationsIcon className='userNavIcon' />
                 <div className='userNavCounterContainer'>
                     <Button
-                     id='basic-button'
-                     onClick={handleClick}
-                     aria-controls={open ? 'basic-menu' : undefined}
-                     aria-expanded = {open ? true : undefined}
+                        id='basic-button'
+                        onClick={handleClick}
+                        aria-controls={open ? 'basic-menu' : undefined}
+                        aria-expanded={open ? true : undefined}
                     >
                         <img className='userNavProfile' src="https://cdn.openart.ai/stable_diffusion/006ac68fd78ccba67b48953a72d218d54a568238_2000x2000.webp" alt="profile" />
                     </Button>
                     <Menu
-                     id='basic-menu'
-                     anchorEl={anchorEl}
-                     open={open}
-                     onClose={handleClose}
-                     MenuListProps={{
-                        'aria-labelledby': 'basic-button',
-                      }}
+                        id='basic-menu'
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleClose}
+                        MenuListProps={{
+                            'aria-labelledby': 'basic-button',
+                        }}
                     >
                         <MenuItem onClick={handleClose}>
-                            <Link style={{textDecoration:"none",color:"black"}} to={"/user/profile"}>My Profile</Link>
+                            <Link  style={{ textDecoration: "none", color: "black" }} to={"/user/profile"}>My Profile</Link>
                         </MenuItem>
 
                         <MenuItem onClick={handleClose}>
-                            <Link style={{textDecoration:"none",color:"black"}} to={"/user/settings"}>Account Settings</Link>
+                            <Link style={{ textDecoration: "none", color: "black" }} to={"/user/settings"}>Account Settings</Link>
                         </MenuItem>
                     </Menu>
                 </div>
