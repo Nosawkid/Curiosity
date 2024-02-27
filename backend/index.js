@@ -1286,16 +1286,20 @@ const Material = mongoose.model("schemaMaterial", materialSchema)
 
 // create
 
-app.post("/Material", async (req, res) => {
+app.post("/Material", upload.fields([
+    { name: "materialFile", maxCount: 1 },
+]), async (req, res) => {
     try {
+        
+        var fileValue = JSON.parse(JSON.stringify(req.files));
+        var materialFile = `http://127.0.0.1:${port}/images/${fileValue.materialFile[0].filename}`;
         const {
             sectionId,
             materialTitle,
             materialDesc,
-            materialFile
         } = req.body
 
-        let material = await Material.findOne({ materialTitle })
+        let material = await Material.findOne({ materialTitle, sectionId })
 
         if (material) {
             return (

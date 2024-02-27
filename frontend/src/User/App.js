@@ -19,7 +19,7 @@ const App = () => {
   return (
     <div className='userApp'>
       <Navbar/>
-      <Box sx={{minHeight:'60vh'}}>
+      <Box sx={{minHeight:'100vh'}}>
 
       <Routes>
           <Route path='/'>

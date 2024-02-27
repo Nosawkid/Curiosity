@@ -1,0 +1,17 @@
+.userCourseDetailedView {
+    .topContainer {
+        .courseCard {
+            -webkit-box-shadow: -2px 5px 17px -1px rgba(0, 0, 0, 0.75);
+            -moz-box-shadow: -2px 5px 17px -1px rgba(0, 0, 0, 0.75);
+            box-shadow: -2px 5px 17px -1px rgba(0, 0, 0, 0.75);
+            border-radius: 15px;
+            padding: 5px;
+
+            .coursePreviewImage
+            {
+                border-top-left-radius: 15px;
+                border-top-right-radius: 15px;
+            }
+        }
+    }
+}

@@ -34,14 +34,28 @@ const Material = () => {
     const [materialFile,setMaterialFile] = useState('')
     const [showMaterial,setShowMaterial] = useState([])
 
-    const createMaterial = (e)=>{
-        e.preventDefault()
-        axios.post("http://localhost:5000/Material",{materialTitle,materialDesc,materialFile,sectionId}).then((res)=>{
-            console.log(res.data)
-            fetchMaterials(sectionId)
-        }).catch((e)=>{
-            console.log(e.message)
-        })
+    // const createMaterial = (e)=>{
+    //     e.preventDefault()
+    //     axios.post("http://localhost:5000/Material",{materialTitle,materialDesc,materialFile,sectionId}).then((res)=>{
+    //         console.log(res.data)
+    //         fetchMaterials(sectionId)
+    //     }).catch((e)=>{
+    //         console.log(e.message)
+    //     })
+    // }
+
+    const createMaterial = ()=>{
+      const frm = new FormData()
+      frm.append("materialTitle",materialTitle)
+      frm.append("materialFile",materialFile)
+      frm.append("materialDesc",materialDesc)
+      frm.append("sectionId",sectionId)
+      axios.post("http://localhost:5000/Material",frm).then((res)=>{
+        console.log(res.data)
+        fetchMaterials(sectionId)
+      }).catch((err)=>{
+        console.log(err.message)
+      })
     }
 
     const fetchMaterials = ()=>{
@@ -72,7 +86,7 @@ const Material = () => {
     return (
         <div className='instructorCourseMaterial'>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "50vh" }}>
-                <Card onSubmit={createMaterial}  component="form" sx={{ minWidth: "700px" }}>
+                <Card   component="form" sx={{ minWidth: "700px" }}>
                     <CardContent>
                         <Typography sx={{ textAlign: "center", fontSize: "30px", fontWeight: "bold" }}>New Material</Typography>
                         <Stack spacing={3} direction="column" sx={{ mt: 5 }}>
@@ -80,11 +94,11 @@ const Material = () => {
                             <TextField onChange={(e)=>setMaterialDesc(e.target.value)} label="Material Description" multiline minRows={5} variant='outlined' />
                             <Button component="label" variant="outlined" startIcon={<CloudUploadIcon />}>
                                 Upload file
-                                <VisuallyHiddenInput onChange={(e)=>setMaterialFile(e.target.value)} type="file" />
+                                <VisuallyHiddenInput onChange={(e)=>setMaterialFile(e.target.files[0])} type="file" />
                             </Button>
                         </Stack>
                     </CardContent>
-                    <Button type='submit' variant='contained' sx={{display:"block",margin:"10px auto"}} >Submit</Button>
+                    <Button onClick={createMaterial} variant='contained' sx={{display:"block",margin:"10px auto"}} >Submit</Button>
                 </Card>
             </Box>
             
