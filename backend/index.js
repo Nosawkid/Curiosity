@@ -115,16 +115,20 @@ const Topic = mongoose.model('schemaTopic', topicSchema)
 
 const linkSchema = new mongoose.Schema({
     facebookLink: {
-        type: String
+        type: String,
+        default:"www.facebook.com"
     },
     twitterLink: {
-        type: String
+        type: String,
+        default:"www.x.com"
     },
     instagramLink: {
-        type: String
+        type: String,
+        default:"www.instagram.com"
     },
     linkedInLink: {
-        type: String
+        type: String,
+        default:"www.linkedin.com"
     },
     userId: {
         type: Schema.Types.ObjectId,
@@ -496,17 +500,20 @@ const userSchema = new Schema({
     },
     userHeadLine: {
         type: String,
+        default:null
     },
     userBiography: {
-        type: String
+        type: String,
+        default:null
     },
     userPhoto: {
         type: String,
+        default:null
     },
-    linkId: {
-        type: Schema.Types.ObjectId,
-        ref: "schemaLink"
-    }
+    // linkId: {
+    //     type: Schema.Types.ObjectId,
+    //     ref: "schemaLink"
+    // }
 })
 
 const User = mongoose.model("schemaUser", userSchema)
@@ -521,6 +528,7 @@ app.post("/User", async (req, res) => {
         const ins = await Instructor.findOne({ instructorEmail: userEmail })
         const portal = await JobPortal.findOne({ jobPortalEmail: userEmail })
         let user = await User.findOne({ userEmail })
+        vdvfb
 
         if (admin || user || ins || portal) {
             return res
@@ -538,7 +546,6 @@ app.post("/User", async (req, res) => {
         const salt = 12
         user.userPassword = await argon2.hash(userPassword, salt)
         await user.save();
-        console.log(user);
         res.status(200).send("Account creation success")
     }
     catch (err) {
@@ -608,7 +615,7 @@ app.put("/User/changePassword/:id", async (req, res) => {
             res.status(200).send((true))
         }
         else {
-            return res.status(400).send(false)
+            return res.send(false)
         }
 
     } catch (error) {
@@ -642,7 +649,6 @@ app.put("/User/:id/editPhoto",
     ]),
     async (req, res) => {
         try {
-            console.log('hi');
             const { id } = req.params
 
             var fileValue = JSON.parse(JSON.stringify(req.files));
@@ -949,12 +955,14 @@ const courseSchema = new Schema({
     },
     courseDateTime: {
         type: Date,
-        default: Date.now()
+        default: Date.now() 
     },
     price: {
         type: Number,
     },
 })
+
+
 
 const Course = mongoose.model("schemaCourse", courseSchema)
 
@@ -1017,7 +1025,6 @@ app.get("/Course", async (req, res) => {
                 }
             }
         })
-        console.log(courses)
         res.status(200).send(courses)
     } catch (error) {
         console.log(error.message)
@@ -1426,10 +1433,6 @@ const bookingSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "userSchema"
     },
-    bookingStatus: {
-        type: Number,
-        default: 0
-    },
     price: {
         type: Number,
         default: 0
@@ -1526,10 +1529,6 @@ const cartSchema = new Schema({
     cartStatus: {
         type: Number,
         default: 0
-    },
-    userId: {
-        type: Schema.Types.ObjectId,
-        ref: "schemaUser"
     }
 })
 
@@ -1538,36 +1537,43 @@ const Cart = mongoose.model("schemaCart", cartSchema)
 
 // crud
 
-app.post("/Cart", async (req, res) => {
+
+app.post("/Cart",async(req,res)=>{
     try {
         const {
-            bookingId,
-            courseId,
-            cartStatus,
-            userId
+            userId,
+            courseId
         } = req.body
 
-
-        let ifExisting = await Cart.findOne({ userId, courseId })
-        if (ifExisting) {
-            return (
-                res.status(400).send({ message: "Item already present in cart" })
-            )
+        let booking = await Booking.findOne({userId,__v:0})
+        if(!booking)
+        {
+            const newBooking = new Booking({
+                userId
+            })
+            booking = await newBooking.save()
         }
 
-        let cart = new Cart({
-            bookingId,
+        const existingCart = await Cart.findOne({courseId,bookingId:booking._id})
+        if(existingCart)
+        {
+            return res.send(false)
+        }
+
+        const cart = new Cart({
             courseId,
-            cartStatus,
-            userId
+            bookingId:booking._id
         })
+
         await cart.save()
-        res.status(200).send("Added to cart")
+        return res.status(200).send({message:"Added to cart"})
+        
     } catch (error) {
-        console.error(error.message)
-        console.log("Server Error")
+        console.log(error.message)
+        console.log("Server Erro")
     }
 })
+
 
 app.get("/Cart", async (req, res) => {
     try {
@@ -1600,7 +1606,8 @@ app.get("/Cart", async (req, res) => {
 app.get("/Cart/:id", async (req, res) => {
     try {
         const { id } = req.params
-        const carts = await Cart.find({ userId: id }).populate({
+        const booking = await Booking.findOne({userId:id,__v:0})
+        const carts = await Cart.find({ bookingId:booking._id }).populate({
             path: "bookingId",
             model: "schemaBooking",
             populate: {
@@ -2447,7 +2454,6 @@ app.post("/Login", async (req, res) => {
         let type;
         let isValidPassword = false
         const { Email, Password } = req.body
-        console.log(Password)
         const user = await User.findOne({ userEmail: Email })
         const instructor = await Instructor.findOne({ instructorEmail: Email })
         const portal = await JobPortal.findOne({ jobPortalEmail: Email })
@@ -2498,3 +2504,5 @@ app.post("/Login", async (req, res) => {
         console.log("Server Error");
     }
 })
+
+

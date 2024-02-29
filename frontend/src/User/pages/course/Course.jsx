@@ -16,6 +16,9 @@ const Course = () => {
   const [showSection, setShowSection] = useState([])
   const [showFull,setShowFull] = useState(false)
 
+
+  const uid = sessionStorage.getItem("Uid")
+
   const fetchCourse = () => {
     axios.get("http://localhost:5000/course/" + id).then((res) => {
       setCourse(res.data)
@@ -36,6 +39,20 @@ const Course = () => {
   const showFullText = ()=>{
     setShowFull(!showFull)
   }
+
+
+  const addToFavs = (courseId) => {
+    axios.post("http://localhost:5000/wishlist", { courseId, userId: uid }).then((res) => {
+      alert("Item Added to wishlist")
+    })
+  }
+
+  const addToCart = (courseId) => {
+    axios.post("http://localhost:5000/Cart", { courseId, userId: uid }).then((res) => {
+      alert("Item added to cart")
+    })
+  }
+
 
  
 
@@ -79,12 +96,12 @@ const Course = () => {
             </Box>
             <Stack direction={"row"} sx={{ alignItems: "center", gap: "20px", px: 2, }}>
               <Button sx={{ flex: 3 }} variant='contained'>Buy Now</Button>
-              <Button sx={{ flex: 1 }} variant='outlined'>
+              <Button sx={{ flex: 1 }} variant='outlined' onClick={()=>addToFavs(course._id)}>
                 <FavoriteIcon />
               </Button>
             </Stack>
             <Box sx={{ px: 2 }}>
-              <Button fullWidth variant='outlined'>Add to cart</Button>
+              <Button fullWidth variant='outlined' onClick={()=>addToCart(course._id)}>Add to cart</Button>
             </Box>
             <Box sx={{ px: 2 }}>
               <Typography sx={{ fontSize: "15px", color: "gray" }}>

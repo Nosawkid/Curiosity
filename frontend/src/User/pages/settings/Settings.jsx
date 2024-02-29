@@ -194,6 +194,10 @@ const Settings = () => {
         if (res.data) {
           alert("Password Updated")
         }
+        else
+        {
+          alert("Something went wrong")
+        }
 
       }).catch((err) => {
         console.log(err.message)

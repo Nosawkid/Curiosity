@@ -9,10 +9,12 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios';
+import Placeholder from '../placeholder/Placeholder';
+import { Typography } from '@mui/material';
 
 
 const Navbar = () => {
-
+    const [user,setUser] = useState(null)
     const [anchorEl, setAnchorEl] = useState(null)
     const open = Boolean(anchorEl)
     const handleClick = (e) => {
@@ -23,6 +25,25 @@ const Navbar = () => {
         setAnchorEl(null)
     }
 
+    const uid = sessionStorage.getItem("Uid")
+
+    const fetchCourse = ()=>{
+        axios.get("http://localhost:5000/User/"+uid).then((res)=>{
+            setUser(res.data)
+        })
+    }
+
+
+    // const logout = ()=>{
+    //     axios.post("http://localhost:5000/logout").then((res)=>{
+    //         console.log(res.data)
+    //     })
+    // }
+
+
+    useEffect(()=>{
+        fetchCourse()
+    },[])
     
 
     return (
@@ -59,7 +80,8 @@ const Navbar = () => {
                         aria-controls={open ? 'basic-menu' : undefined}
                         aria-expanded={open ? true : undefined}
                     >
-                        <img className='userNavProfile' src="https://cdn.openart.ai/stable_diffusion/006ac68fd78ccba67b48953a72d218d54a568238_2000x2000.webp" alt="profile" />
+                       {user && user.userPhoto ? <img style={{ width: "50px", height: "50px", borderRadius: "50%", objectFit: "cover" }} src={user.userPhoto} alt="profile" /> :
+                 <Placeholder   username={user && user.userName}/> }
                     </Button>
                     <Menu
                         id='basic-menu'
@@ -76,6 +98,9 @@ const Navbar = () => {
 
                         <MenuItem onClick={handleClose}>
                             <Link style={{ textDecoration: "none", color: "black" }} to={"/user/settings"}>Account Settings</Link>
+                        </MenuItem>
+                        <MenuItem>
+                            <Typography>Logout</Typography>
                         </MenuItem>
                     </Menu>
                 </div>

@@ -36,7 +36,7 @@ function App() {
         <Sidebar />
         <div className="homeContainer">
           <Navbar />
-          <div>
+          <div style={{minHeight:"100vh"}}>
             <Routes>
               <Route path='/' element={<Home />} />
               <Route path='/Myprofile' element={<Myprofile/>}/>

@@ -31,7 +31,14 @@ const Home = () => {
 
   const addToCart = (courseId) => {
     axios.post("http://localhost:5000/Cart", { courseId, userId: uid }).then((res) => {
-      alert("Item added to cart")
+      if(res.data)
+      {
+        alert("Item Added to Cart")
+      }
+      else
+      {
+        alert("Item already in the cart")
+      }
     })
   }
 

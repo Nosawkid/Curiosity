@@ -9,7 +9,7 @@ import LiveTvIcon from '@mui/icons-material/LiveTv';
 import { Box, Button, DialogContent, DialogTitle, IconButton, Stack, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import Dialog from '@mui/material/Dialog';
-import myData from '../../../assets/Thor.mp4'
+
 
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
