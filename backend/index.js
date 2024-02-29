@@ -1570,7 +1570,7 @@ app.post("/Cart",async(req,res)=>{
         
     } catch (error) {
         console.log(error.message)
-        console.log("Server Erro")
+        console.log("Server Error")
     }
 })
 
@@ -2498,6 +2498,36 @@ app.post("/Login", async (req, res) => {
 
         res.json({ payload });
 
+
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})
+
+
+// Course buying
+app.post("/Checkout",async(req,res)=>{
+    try {
+        const {
+            userId,
+            courseId
+        } = req.body
+        const booking = new Booking({
+            userId
+        })
+
+        let savedBooking = await booking.save()
+
+        const cart = new Cart({
+            courseId,
+            bookingId:savedBooking._id
+        })
+
+        const savedCart = await cart.save()
+
+        const existingBooking = await Booking.findByIdAndUpdate(savedBooking._id,{__v:1},{new:true})
+        res.status(200).send({message:"Checkout Complete"})
 
     } catch (error) {
         console.log(error.message);

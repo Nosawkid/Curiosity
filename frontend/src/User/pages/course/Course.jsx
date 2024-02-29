@@ -4,12 +4,12 @@ import React, { useEffect, useState } from 'react'
 import './course.scss'
 import { useParams } from 'react-router-dom'
 import FavoriteIcon from '@mui/icons-material/Favorite';
-
-
 import Showsection from '../showsection/Showsection'
+import { useNavigate } from 'react-router-dom'
 
 const Course = () => {
 
+  const navigate = useNavigate()
   const { id } = useParams()
   const [course, setCourse] = useState(null)
   const [value, setValue] = useState(2)
@@ -53,6 +53,10 @@ const Course = () => {
     })
   }
 
+  const goToCheckout = (courseId)=>{
+    navigate("/user/checkout/"+courseId)
+  }
+  
 
  
 
@@ -90,12 +94,12 @@ const Course = () => {
             <Box sx={{ display: "flex", alignItems: "center", gap: "10px", px: 2, justifyContent: "center" }} >
               <Typography sx={{ fontWeight: "bold", fontSize: "25px" }}>Rs 2500</Typography>
               <Rating sx={{ fontSize: "20px" }} name="read-only" value={value} readOnly />
-              <Alert severity="success" color="warning">
+              <Alert severity="success" color="warning"> 
                 BESTSELLER
               </Alert>
             </Box>
             <Stack direction={"row"} sx={{ alignItems: "center", gap: "20px", px: 2, }}>
-              <Button sx={{ flex: 3 }} variant='contained'>Buy Now</Button>
+              <Button onClick={()=>goToCheckout(course._id)}  sx={{ flex: 3 }} variant='contained'>Buy Now</Button>
               <Button sx={{ flex: 1 }} variant='outlined' onClick={()=>addToFavs(course._id)}>
                 <FavoriteIcon />
               </Button>

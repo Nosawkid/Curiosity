@@ -13,6 +13,7 @@ import Footer from './components/footer/footer'
 import Wishlist from './pages/wishlist/Wishlist'
 import Course from './pages/course/Course'
 import { Box } from '@mui/material'
+import Checkout from './pages/checkout/Checkout'
 
 
 const App = () => {
@@ -29,6 +30,7 @@ const App = () => {
               <Route path='/cart' element={<Cart/>}/>
               <Route path='/wishlist' element={<Wishlist/>}/>
               <Route path='/course/:id' element={<Course/>}/>
+              <Route path='/Checkout/:courseId' element={<Checkout/>}/>
               <Route path='/mylearning' element={<Mylearning/>}/>
               <Route path='/jobs' element={<Job/>} />
           </Route>
