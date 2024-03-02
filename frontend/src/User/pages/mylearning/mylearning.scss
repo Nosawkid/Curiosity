@@ -1,0 +1,12 @@
+.mylearning
+{
+    .courseCard
+    {
+        transition: all 0.25s;
+        &:hover{
+            transform: scale(1.1);
+            cursor: pointer;
+        }
+
+    }
+}

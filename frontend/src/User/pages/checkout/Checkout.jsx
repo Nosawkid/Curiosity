@@ -5,14 +5,20 @@ import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { Button, Card, CardContent, Stack, TextField } from '@mui/material';
-import visa from '../../../assets/visa.webp'
-import master from '../../../assets/Mastercard-Logo.png'
-import ae from '../../../assets/americanExpress.png'
+// import visa from '../../../assets/visa.webp'
+// import master from '../../../assets/Mastercard-Logo.png'
+// import ae from '../../../assets/americanExpress.png'
 import './checkout.scss'
-import InputMask from 'react-input-mask';
-import placeholderog from '../../../assets/placeholderog.png'
-import {useParams} from 'react-router-dom'
+// import InputMask from 'react-input-mask';
+// import placeholderog from '../../../assets/placeholderog.png'
+import { useParams } from 'react-router-dom'
 import axios from 'axios';
+import Cards from "react-credit-cards-2";
+import "react-credit-cards-2/dist/es/styles-compiled.css";
+import { useNavigate } from 'react-router-dom';
+
+
+
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -49,12 +55,32 @@ function a11yProps(index) {
 
 
 const Checkout = () => {
+  const navigate = useNavigate()
   const [value, setValue] = React.useState(0);
-  const [card, setCard] = useState("")
+  // const [card, setCard] = useState("")
   const [orderId, setOrderId] = useState("")
-  const [course,setCourse] = useState([])
-  const [user,setUser] = useState([])
-  const [booking,setBooking] = useState([])
+  const [course, setCourse] = useState([])
+  const [user, setUser] = useState([])
+  const [booking, setBooking] = useState([])
+
+  const [state, setState] = useState({
+    number: "",
+    name: "",
+    expiry: "",
+    cvc: "",
+    name: "",
+    focus: "",
+  });
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setState((prev) => ({ ...prev, [name]: value }));
+  };
+  const handleInputFocus = (e) => {
+    setState((prev) => ({ ...prev, focus: e.target.name }));
+  };
+
+
+
 
   const generateOrderId = () => {
     const randmomNo = Math.floor(Math.random() * 900000) + 100000
@@ -67,39 +93,42 @@ const Checkout = () => {
   }
 
   const uid = sessionStorage.getItem("Uid")
-  let {courseId, type} = useParams()
+  let { courseId, type } = useParams()
   let bookingId = ""
 
-  if(type === "multiple")
-  {
+  if (type === "multiple") {
     bookingId = courseId
   }
 
-  const buyOneCourse = ()=>{
-    axios.post("http://localhost:5000/Checkout",{userId:uid,courseId,orderId}).then((res)=>{
+  const buyOneCourse = (e) => {
+    e.preventDefault()
+    axios.post("http://localhost:5000/Checkout", { userId: uid, courseId, orderId }).then((res) => {
       console.log(res.data.message)
+      navigate("/user/viewcourse/" + courseId)
     })
   }
-  const buyFromCart = ()=>{
-    axios.post("http://localhost:5000/Cartcheckout",{bookingId}).then((res)=>{
+  const buyFromCart = (e) => {
+    e.preventDefault()
+    axios.post("http://localhost:5000/Cartcheckout", { bookingId }).then((res) => {
       console.log(res.data.message)
+      navigate("/user")
     })
   }
-  
-  const getBooking = ()=>{
-    axios.get("http://localhost:5000/Booking/"+uid).then((res)=>{
+
+  const getBooking = () => {
+    axios.get("http://localhost:5000/Booking/" + uid).then((res) => {
       setBooking(res.data)
     })
   }
 
-  const getCourse = ()=>{
-    axios.get("http://localhost:5000/Course/"+courseId).then((res)=>{
+  const getCourse = () => {
+    axios.get("http://localhost:5000/Course/" + courseId).then((res) => {
       setCourse(res.data)
     })
   }
 
-  const getUser = ()=>{
-    axios.get("http://localhost:5000/User/"+uid).then((res)=>{
+  const getUser = () => {
+    axios.get("http://localhost:5000/User/" + uid).then((res) => {
       setUser(res.data)
     })
   }
@@ -108,31 +137,31 @@ const Checkout = () => {
     setValue(newValue);
   };
 
-  const changeType = () => {
-    const firstTwo = card.slice(0, 2)
+  // const changeType = () => {
+  //   const firstTwo = card.slice(0, 2)
 
-    if (firstTwo[0] === "4") {
-      return "visa"
-    }
-    else if (Number(firstTwo) > 50 && Number(firstTwo) < 56) {
-      return "master"
-    }
-    else if (Number(firstTwo) === 34 || Number(firstTwo) === 37) {
-      return "ae"
-    }
-    else {
-      return false
-    }
+  //   if (firstTwo[0] === "4") {
+  //     return "visa"
+  //   }
+  //   else if (Number(firstTwo) > 50 && Number(firstTwo) < 56) {
+  //     return "master"
+  //   }
+  //   else if (Number(firstTwo) === 34 || Number(firstTwo) === 37) {
+  //     return "ae"
+  //   }
+  //   else {
+  //     return false
+  //   }
 
 
-  }
+  // }
 
-  useState(()=>{
+  useState(() => {
     generateOrderId()
     getCourse()
     getUser()
     getBooking()
-  },[])
+  }, [])
 
   return (
     <Box className="userCheckout" sx={{ width: '100%' }}>
@@ -142,12 +171,12 @@ const Checkout = () => {
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
           <Tab label="Credit/Debit Card" {...a11yProps(0)} />
-          
+
         </Tabs>
       </Box>
       <CustomTabPanel value={value} index={0}>
         <Box sx={{ width: "100%", minHeight: "50vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Card sx={{ width: "900px", height: "550px" }}>
+          <Card sx={{ width: "900px", height: "700px" }}>
             <CardContent>
               <Typography sx={{ color: "#003f88", fontWeight: "bold", fontSize: "30px", textAlign: "center", mt: 3 }} variant='h4'>CHECKOUT</Typography>
               <Typography sx={{ color: "gray", fontSize: "12px", textAlign: "center" }}>Secure Card Payments</Typography>
@@ -156,13 +185,13 @@ const Checkout = () => {
                   type === "multiple" ? booking.orderId : orderId
                 }</span></Typography>
                 <Typography sx={{ color: "#003f88" }}>AMOUNT: <span style={{ fontWeight: "bold" }}>
-                {type === "multiple" ? booking && `₹${booking.price}` : course.price === 0 ? "Free" : (course.price ? `₹${course.price}` : "₹4200")}
-                
-                  </span></Typography>
-                <Typography sx={{ color: "#003f88" }}>USERNAME: <span style={{ fontWeight: "bold",textTransform:"uppercase" }}>{user && user.userName}</span></Typography>
+                  {type === "multiple" ? booking && `₹${booking.price}` : course.price === 0 ? "Free" : (course.price ? `₹${course.price}` : "₹4200")}
+
+                </span></Typography>
+                <Typography sx={{ color: "#003f88" }}>USERNAME: <span style={{ fontWeight: "bold", textTransform: "uppercase" }}>{user && user.userName}</span></Typography>
               </Stack>
               <Box>
-                <Stack direction={"row"} spacing={3} sx={{ justifyContent: "center", alignItems: "center", mt: 5 }}>
+                {/* <Stack direction={"row"} spacing={3} sx={{ justifyContent: "center", alignItems: "center", mt: 5 }}>
                   <Box className="debitCard" sx={{ width: "300px", height: "200px", borderRadius: "10px", p: 1, position: "relative" }}>
                     <img style={{ position: "absolute", top: "15px", right: "10px" }} width={30} src={
                       changeType() === "visa" ? visa : changeType() === "master" ? master : changeType() === "ae" ? ae : placeholderog
@@ -238,10 +267,86 @@ const Checkout = () => {
                     </Box>
                   </Box>
 
-                </Stack>
-                <Button
-                  onClick={type === "multiple" ? buyFromCart:buyOneCourse}
-                  variant='outlined' sx={{ margin: "0 auto", display: "block", mt: 3, px: 5, fontSize: "18px" }}>Pay Now</Button>
+                </Stack> */}
+                <Box sx={{ mt: 2, width: "100%" }}>
+                  <Cards
+                    number={state.number}
+                    expiry={state.expiry}
+                    cvc={state.cvc}
+                    name={state.name}
+                    focused={state.focus}
+                  />
+                  <div className="mt-3">
+                    <form  onSubmit={type === "multiple" ? buyFromCart : buyOneCourse} >
+
+                      <TextField
+                        sx={{ mt: 3 }}
+                        type="number"
+                        name="number"
+                        className="form-control"
+                        placeholder="Card Number"
+                        value={state.number}
+                        onChange={handleInputChange}
+                        onFocus={handleInputFocus}
+                        required
+                        variant='outlined'
+                        fullWidth
+                      >
+                      </TextField>
+
+
+                      <TextField
+                        sx={{ mt: 3 }}
+                        fullWidth
+                        type="text"
+                        name="name"
+                        className="form-control"
+                        placeholder="Name"
+                        onChange={handleInputChange}
+                        onFocus={handleInputFocus}
+                        required
+
+                      ></TextField>
+
+
+                      <Stack direction={"row"} spacing={3} mt={3} sx={{ justifyContent: "center" }}>
+                        <TextField
+                          type="number"
+                          name="expiry"
+                          className="form-control"
+                          placeholder="Valid Thru"
+                          pattern="\d\d/\d\d"
+                          value={state.expiry}
+                          onChange={handleInputChange}
+                          onFocus={handleInputFocus}
+                          required
+
+                        ></TextField>
+
+
+                        <TextField
+                          type="text"
+                          name="cvc"
+                          className="form-control"
+                          placeholder="CVC"
+                          pattern="\d{3,4}"
+                          value={state.cvc}
+                          onChange={handleInputChange}
+                          onFocus={handleInputFocus}
+                          required
+
+
+                        ></TextField>
+
+                      </Stack>
+
+                      <Button
+                       type='submit'
+                        variant='outlined' sx={{ margin: "0 auto", display: "block", mt: 3, px: 5, fontSize: "18px" }}>Pay Now</Button>
+                    </form>
+                  </div>
+                </Box>
+
               </Box>
             </CardContent>
           </Card>

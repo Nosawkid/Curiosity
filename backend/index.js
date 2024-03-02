@@ -138,6 +138,21 @@ const linkSchema = new mongoose.Schema({
 
 const Link = mongoose.model('schemaLink', linkSchema)
 
+
+// PURCHASED COURSES
+const purchaseSchema = new Schema({
+    courseId:{
+        type:Schema.Types.ObjectId,
+        ref:"schemaCourse"
+    },
+    userId:{
+        type:Schema.Types.ObjectId,
+        ref:"schemaUser"
+    }
+})
+
+const Purchase = mongoose.model("schemaPurchase",purchaseSchema)
+
 // Crud
 
 
@@ -2554,6 +2569,11 @@ app.post("/Checkout", async (req, res) => {
         const course = await Course.findById(courseId)
 
         const existingBooking = await Booking.findByIdAndUpdate(savedBooking._id, { __v: 1,price:course.price, orderId}, { new: true })
+        const purchase = new Purchase({
+            userId,
+            courseId
+        })
+        await purchase.save()
         res.status(200).send({ message: "Checkout Complete" })
 
     } catch (error) {
@@ -2569,8 +2589,18 @@ app.post("/Cartcheckout",async(req,res)=>{
             bookingId
         } = req.body
 
-        const booking = await Booking.findById(bookingId)
-        await Booking.findByIdAndUpdate(booking._id,{__v:1},{new:true})
+        let booking = await Booking.findById(bookingId)
+        booking = await Booking.findByIdAndUpdate(booking._id,{__v:1},{new:true})
+        let carts = await Cart.find({bookingId:booking._id})
+        for(let cart of carts)
+        {
+           const purchase =  new Purchase({
+                userId:booking.userId,
+                courseId:cart.courseId
+            })
+            await purchase.save()
+        }
+        
         res.status(200).send({message:"Purchase Successful"})
     } catch (error) {
         console.log(error.message);
@@ -2579,23 +2609,7 @@ app.post("/Cartcheckout",async(req,res)=>{
 })
 
 // View purchased course
-app.get("/mycourses/:id",async(req,res)=>{
-    try {
-        const {
-            userId
-        } = req.body
 
-        const user = await User.findById(userId)
-        const booking = await Booking.find({userId:user._id,__v:1})
-        for(let i = 0; i < booking.length;i++)
-        {
-            
-        }
-    } catch (error) {
-        console.log(error.message);
-        console.log("Server Error");
-    }
-})
 
 // Getting All materials of a course
 app.get("/getallmaterial/:courseId",async(req,res)=>{
@@ -2626,3 +2640,21 @@ app.get("/getallmaterial/:courseId",async(req,res)=>{
 
 })
 
+// Getting Purchased courses
+app.get("/mycourses/:userId",async(req,res)=>{
+    try {
+        const {userId} = req.params
+        const courses = await Purchase.find({userId:userId}).populate({
+            path:"courseId",
+            model:"schemaCourse",
+            populate:{
+                path:"instructorId",
+                model:"schemaInstructor"
+            }
+        })
+        res.status(200).send(courses)
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})

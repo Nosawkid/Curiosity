@@ -38,6 +38,9 @@ const Cart = () => {
       navigate("/user/checkout/"+booking._id+"/multiple")
     }
 
+    const viewCourse = (courseId)=>{
+      navigate("/user/course/"+courseId)
+    }
 
 
     
@@ -56,7 +59,7 @@ const Cart = () => {
               <Stack direction={"row"} sx={{display:"flex",alignItems:"center",justifyContent:"space-around"}}>
                 <Box sx={{width:"75%",display:"flex",alignItems:"center",justifyContent:"center",gap:"45px",flexWrap:"wrap",mt:2}}>
                 {showCourses.map((row,key)=>(
-                <Card className='courseCard' sx={{width:"300px",height:"350px"}}>
+                <Card onClick={()=>viewCourse(row.courseId._id)} className='courseCard' sx={{width:"300px",height:"350px"}}>
                   <CardContent sx={{display:"flex",flexDirection:"column",gap:"10px"}}>
                     <img style={{width:"100%",height:"200px",objectFit:"cover"}} src="https://t4.ftcdn.net/jpg/05/99/25/47/360_F_599254718_4hsBO7IvKD8KN9T4Cv8utU37903QzZjA.jpg" alt="Cover" />
                     <Typography sx={{fontSize:"18px",fontWeight:"bold"}} variant='h3'>{row.courseId.courseTitle}</Typography>
@@ -66,7 +69,7 @@ const Cart = () => {
                       <Rating sx={{fontSize:"20px"}} name="read-only" value={value} readOnly />
                     </Stack>
                     <Stack sx={{alignItems:"center",justifyContent:"space-between"}} direction={"row"}>
-                    <Typography sx={{fontSize:"25px",fontWeight:"bold"}} component={"p"} variant='h3'>Rs 4200</Typography>
+                    <Typography sx={{fontSize:"25px",fontWeight:"bold"}} component={"p"} variant='h3'> ₹{row.courseId.price}</Typography>
                       <Box sx={{display:"flex",alignItems:"center",gap:"10px"}} className="iconContainer">
                     <Tooltip title="Remove from cart">
                     <RemoveShoppingCartIcon sx={{cursor:"pointer"}} onClick={()=>removeFromCart(row._id)} className='cartIcon'/>
@@ -79,7 +82,7 @@ const Cart = () => {
               </Box>
               <Box sx={{alignSelf:"flex-start"}}>
                 <Typography variant='p' sx={{fontWeight:"bold",fontSize:"20px",color:"gray",textAlign:"left"}}>Total:</Typography>
-                <Typography variant='h3' sx={{fontWeight:"bold"}}>Rs 3450</Typography>
+                <Typography variant='h3' sx={{fontWeight:"bold"}}> ₹{booking.price}</Typography>
                 <Button onClick={goToCheckout} variant='contained'>Checkout</Button>
               </Box>
               </Stack>

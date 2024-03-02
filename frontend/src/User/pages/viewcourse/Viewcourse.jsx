@@ -72,7 +72,7 @@ const Viewcourse = () => {
     },[])
 
 
-
+    
 
 
 
@@ -92,7 +92,7 @@ const Viewcourse = () => {
                         <Typography sx={{ color: "gray", fontWeight: "bold", fontSize: "16px" }}> &rarr; {materialDetails && materialDetails.sectionId.sectionName} </Typography>
                     </Stack>
                     <Box sx={{ p: 2 }}>
-                    <video autoPlay style={{ width: "100%",height:"500px" }} controls src={showVideo && showVideo }></video>
+                    <video  autoPlay style={{ width: "100%",height:"500px" }} controls src={showVideo && showVideo }></video>
                         <Stack direction={"row"} spacing={2} sx={{ alignItems: "center", mt: 2, justifyContent: "space-between" }}>
                             <Box>
                                 <Typography sx={{ fontSize: "25px", fontWeight: "bold" }}>{materialDetails && materialDetails.materialTitle}</Typography>
