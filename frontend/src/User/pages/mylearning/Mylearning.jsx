@@ -1,14 +1,25 @@
 import React from 'react'
 import './mylearning.scss'
-
-import Mylearningcontent from '../../components/mylearningcontent/Mylearningcontent'
-import Footer from '../../components/footer/footer'
+import { Card, CardContent, Rating, Stack, Tooltip, Typography } from '@mui/material'
 
 const Mylearning = () => {
   return (
-    <div className='mylearning'>
-      
-      <Mylearningcontent title="My Learning"/>
+    <div style={{padding:"20px"}} className='mylearning'>
+      <Typography sx={{textAlign:"center",fontWeight:"bold",fontSize:"35px"}}>My Courses</Typography>
+      <Card className='courseCard' sx={{width:"300px",height:"350px"}}>
+                  <CardContent sx={{display:"flex",flexDirection:"column",gap:"10px"}}>
+                    <img style={{width:"100%",height:"200px",objectFit:"cover"}} src="https://t4.ftcdn.net/jpg/05/99/25/47/360_F_599254718_4hsBO7IvKD8KN9T4Cv8utU37903QzZjA.jpg" alt="Cover" />
+                    <Typography sx={{fontSize:"18px",fontWeight:"bold"}} variant='h3'>Hello</Typography>
+                    <Typography sx={{fontSize:"13px",color:"gray"}} component={"p"} variant='span'>WOW</Typography>
+                    <Stack sx={{display:"flex",alignItems:"center",justifyContent:"space-between"}} direction={"row"} spacing={1}>
+                      <Typography sx={{fontWeight:"bold",fontSize:"15px"}} component={"span"} variant='span'>4.6</Typography>
+                      <Rating sx={{fontSize:"20px"}} name="read-only" value={3} readOnly />
+                    </Stack>
+                    <Stack sx={{alignItems:"center",justifyContent:"space-between"}} direction={"row"}>
+                    <Typography sx={{fontSize:"25px",fontWeight:"bold"}} component={"p"} variant='h3'>Rs 4200</Typography>
+                    </Stack>
+                  </CardContent>
+                </Card>
       
     </div>
   )

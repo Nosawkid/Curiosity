@@ -6,50 +6,56 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 
+
 const Newcourse = () => {
     const navigate = useNavigate()
-    const [courseTitle,setCourseTitle] = useState('')
-    const [courseDesc,setCourseDesc] = useState('')
-    const [showCategory,setShowCategory] = useState([])
-    const [category,setCategory] = useState('')
-    const [showSubCategory,setShowSubCategory] = useState([])
-    const [subCategory,setSubCategory] = useState('')
-    const [showTopic,setShowTopic] = useState([])
-    const [topicId,setTopicId] = useState('')
+    const [courseTitle, setCourseTitle] = useState('')
+    const [courseDesc, setCourseDesc] = useState('')
+    const [showCategory, setShowCategory] = useState([])
+    const [category, setCategory] = useState('')
+    const [showSubCategory, setShowSubCategory] = useState([])
+    const [subCategory, setSubCategory] = useState('')
+    const [showTopic, setShowTopic] = useState([])
+    const [topicId, setTopicId] = useState('')
+    const [price, setPrice] = useState(0)
 
     const instructorId = sessionStorage.getItem("Iid")
 
-    const createCourse = (e)=>{
+    const createCourse = (e) => {
         e.preventDefault()
-        axios.post("http://localhost:5000/Course/",{courseTitle,courseDesc,topicId,instructorId}).then((res)=>{
+        axios.post("http://localhost:5000/Course/", { courseTitle, courseDesc, topicId, instructorId,price }).then((res) => {
             console.log(res.data)
             navigate('/instructor/courses')
         })
 
     }
 
-    const fetchCategory = () =>{
-        axios.get("http://localhost:5000/Category/").then((res)=>{
+    const fetchCategory = () => {
+        axios.get("http://localhost:5000/Category/").then((res) => {
             setShowCategory(res.data)
         })
     }
 
-    const fetchSubCategory = (id) =>{
-        axios.get("http://localhost:5000/Subcategory/"+id).then((res)=>{
+    const fetchSubCategory = (id) => {
+        axios.get("http://localhost:5000/Subcategory/" + id).then((res) => {
             setShowSubCategory(res.data)
         })
     }
 
-    const fetchTopic = (id) =>{
-        axios.get("http://localhost:5000/Topic/"+id).then((res)=>{
+    const fetchTopic = (id) => {
+        axios.get("http://localhost:5000/Topic/" + id).then((res) => {
             setShowTopic(res.data)
         })
     }
-    
 
-    useEffect(()=>{
+    const handleChange = (e) => {
+        setPrice(e.target.value)
+    }
+
+
+    useEffect(() => {
         fetchCategory()
-    },[])
+    }, [])
     return (
         <div className='newcourse'>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
@@ -58,11 +64,32 @@ const Newcourse = () => {
                         <Typography sx={{ textAlign: "center", fontSize: "20px", fontWeight: "bold" }}>Add New Course</Typography>
                         <Stack spacing={1} sx={{ mt: 2 }}>
                             <InputLabel htmlFor="title">Course Title:</InputLabel>
-                            <TextField id='title' value={courseTitle} onChange={(e)=> setCourseTitle(e.target.value)} ></TextField>
+                            <TextField id='title' value={courseTitle} onChange={(e) => setCourseTitle(e.target.value)} ></TextField>
                         </Stack>
                         <Stack spacing={1} sx={{ mt: 2 }}>
                             <InputLabel htmlFor="description">Course Decription:</InputLabel>
-                            <TextField onChange={(e)=>setCourseDesc(e.target.value)} id='description' multiline minRows={3} ></TextField>
+                            <TextField onChange={(e) => setCourseDesc(e.target.value)} id='description' multiline minRows={3} ></TextField>
+                        </Stack>
+                        <Stack spacing={1} sx={{ mt: 2 }}>
+                            <FormControl fullWidth>
+                                <InputLabel id="demo-simple-select-label">Price Tier</InputLabel>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id="demo-simple-select"
+                                    value={price}
+                                    label="Price Tier"
+                                    onChange={handleChange}
+                                >
+                                    <MenuItem value={0}>Free</MenuItem>
+                                    <MenuItem value={799}>&#8377;799 (Tier 1)</MenuItem>
+                                    <MenuItem value={999}>&#8377;999 (Tier 2)</MenuItem>
+                                    <MenuItem value={1199}>&#8377;1,199 (Tier 3)</MenuItem>
+                                    <MenuItem value={1299}>&#8377;1,299 (Tier 4)</MenuItem>
+                                    <MenuItem value={1499}>&#8377;1,499 (Tier 5)</MenuItem>
+                                    
+                                    
+                                </Select>
+                            </FormControl>
                         </Stack>
                         <Stack spacing={1} sx={{ mt: 2 }}>
                             <Stack direction="row" spacing={2}>
@@ -71,22 +98,22 @@ const Newcourse = () => {
                                     <Select
                                         labelId="demo-simple-select-label"
                                         id="demo-simple-select"
-                                    
+
                                         label="Category"
-                                        onChange={(e)=>{
+                                        onChange={(e) => {
                                             setCategory(e.target.value)
                                             fetchSubCategory(e.target.value)
                                         }
                                         }
                                         value={category}
 
-                                      
-                                        
+
+
                                     >
-                                        {showCategory.map((row)=>(
+                                        {showCategory.map((row) => (
                                             <MenuItem value={row._id}>{row.categoryName}</MenuItem>
                                         ))}
-                                        
+
                                     </Select>
                                 </FormControl>
                                 <FormControl fullWidth>
@@ -94,18 +121,18 @@ const Newcourse = () => {
                                     <Select
                                         labelId="demo-simple-select-label"
                                         id="demo-simple-select"
-                                    
+
                                         label="SubCategory"
-                                        onChange={(e)=>{
+                                        onChange={(e) => {
                                             setSubCategory(e.target.value)
                                             fetchTopic(e.target.value)
                                         }}
                                         value={subCategory}
-                                        
+
                                     >
-                                       {showSubCategory.map((row)=>(
-                                        <MenuItem value={row._id}>{row.subCategoryName}</MenuItem>
-                                       ))}
+                                        {showSubCategory.map((row) => (
+                                            <MenuItem value={row._id}>{row.subCategoryName}</MenuItem>
+                                        ))}
                                     </Select>
                                 </FormControl>
                                 <FormControl fullWidth>
@@ -113,21 +140,21 @@ const Newcourse = () => {
                                     <Select
                                         labelId="demo-simple-select-label"
                                         id="demo-simple-select"
-                                    
+
                                         label="Topic"
-                                        onChange={(e)=>{
+                                        onChange={(e) => {
                                             setTopicId(e.target.value)
                                         }}
                                         value={topicId}
-                                        
+
                                     >
-                                       {showTopic.map((row)=>(
-                                        <MenuItem value={row._id}>{row.topicName}</MenuItem>
-                                       ))}
+                                        {showTopic.map((row) => (
+                                            <MenuItem value={row._id}>{row.topicName}</MenuItem>
+                                        ))}
                                     </Select>
                                 </FormControl>
                             </Stack>
-                            <Button type='submit' style={{marginTop:'20px'}} variant='contained'>Submit</Button>
+                            <Button type='submit' style={{ marginTop: '20px' }} variant='contained'>Submit</Button>
                         </Stack>
                     </CardContent>
                 </Card>

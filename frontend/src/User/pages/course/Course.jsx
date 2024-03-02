@@ -54,7 +54,7 @@ const Course = () => {
   }
 
   const goToCheckout = (courseId)=>{
-    navigate("/user/checkout/"+courseId)
+    navigate("/user/checkout/"+courseId+"/single")
   }
   
 
@@ -92,7 +92,9 @@ const Course = () => {
           <Stack direction={"column"} spacing={2}>
             <img className='coursePreviewImage' style={{ height: "200px", objectFit: "cover" }} src="https://thequill369.files.wordpress.com/2020/05/2-19-12-9-11-46-44m.jpg" alt="course image" />
             <Box sx={{ display: "flex", alignItems: "center", gap: "10px", px: 2, justifyContent: "center" }} >
-              <Typography sx={{ fontWeight: "bold", fontSize: "25px" }}>Rs 2500</Typography>
+              <Typography sx={{ fontWeight: "bold", fontSize: "25px" }}>
+              {course && course.price === 0 ? "Free" : (course && course.price ? `₹${course.price}` : "₹4200")}
+              </Typography>
               <Rating sx={{ fontSize: "20px" }} name="read-only" value={value} readOnly />
               <Alert severity="success" color="warning"> 
                 BESTSELLER

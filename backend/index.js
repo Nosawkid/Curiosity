@@ -116,19 +116,19 @@ const Topic = mongoose.model('schemaTopic', topicSchema)
 const linkSchema = new mongoose.Schema({
     facebookLink: {
         type: String,
-        default:"www.facebook.com"
+        default: "www.facebook.com"
     },
     twitterLink: {
         type: String,
-        default:"www.x.com"
+        default: "www.x.com"
     },
     instagramLink: {
         type: String,
-        default:"www.instagram.com"
+        default: "www.instagram.com"
     },
     linkedInLink: {
         type: String,
-        default:"www.linkedin.com"
+        default: "www.linkedin.com"
     },
     userId: {
         type: Schema.Types.ObjectId,
@@ -500,15 +500,15 @@ const userSchema = new Schema({
     },
     userHeadLine: {
         type: String,
-        default:null
+        default: null
     },
     userBiography: {
         type: String,
-        default:null
+        default: null
     },
     userPhoto: {
         type: String,
-        default:null
+        default: null
     },
     // linkId: {
     //     type: Schema.Types.ObjectId,
@@ -955,10 +955,11 @@ const courseSchema = new Schema({
     },
     courseDateTime: {
         type: Date,
-        default: Date.now() 
+        default: Date.now()
     },
     price: {
         type: Number,
+        required: true
     },
 })
 
@@ -1297,7 +1298,7 @@ app.post("/Material", upload.fields([
     { name: "materialFile", maxCount: 1 },
 ]), async (req, res) => {
     try {
-        
+
         var fileValue = JSON.parse(JSON.stringify(req.files));
         var materialFile = `http://127.0.0.1:${port}/images/${fileValue.materialFile[0].filename}`;
         const {
@@ -1436,6 +1437,10 @@ const bookingSchema = new Schema({
     price: {
         type: Number,
         default: 0
+    },
+    orderId: {
+        type: String,
+        default: null
     }
 })
 
@@ -1487,7 +1492,7 @@ app.get("/Booking", async (req, res) => {
 app.get("/Booking/:id", async (req, res) => {
     try {
         const { id } = req.params
-        const booking = await Booking.findById(id).populate({
+        const booking = await Booking.findOne({userId:id,__v:0}).populate({
             path: "userId",
             model: "schemaUser"
         })
@@ -1514,7 +1519,7 @@ app.delete("/Booking/:id", async (req, res) => {
 })
 
 
-// CART
+// Booking
 // schema
 
 const cartSchema = new Schema({
@@ -1538,36 +1543,52 @@ const Cart = mongoose.model("schemaCart", cartSchema)
 // crud
 
 
-app.post("/Cart",async(req,res)=>{
+app.post("/Cart", async (req, res) => {
     try {
         const {
             userId,
             courseId
         } = req.body
 
-        let booking = await Booking.findOne({userId,__v:0})
-        if(!booking)
-        {
+
+
+
+
+
+
+        let booking = await Booking.findOne({ userId, __v: 0 })
+        if (!booking) {
+            const randmomNo = Math.floor(Math.random() * 900000) + 100000
+            const currentDate = new Date();
+            const year = currentDate.getFullYear();
+            const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Zero-pad the month
+            const day = String(currentDate.getDate()).padStart(2, '0'); // Zero-pad the day
+
+            const orderId = `CUR-${year}${month}${day}-${randmomNo}`
+
+
             const newBooking = new Booking({
-                userId
+                userId,
+                orderId
             })
             booking = await newBooking.save()
         }
 
-        const existingCart = await Cart.findOne({courseId,bookingId:booking._id})
-        if(existingCart)
-        {
+        const existingCart = await Cart.findOne({ courseId, bookingId: booking._id })
+        if (existingCart) {
             return res.send(false)
         }
 
         const cart = new Cart({
             courseId,
-            bookingId:booking._id
+            bookingId: booking._id
         })
 
         await cart.save()
-        return res.status(200).send({message:"Added to cart"})
-        
+        const course = await Course.findById(courseId)
+        await Booking.findByIdAndUpdate(booking._id, { price: booking.price + course.price }, { new: true })
+        return res.status(200).send({ message: "Added to cart" })
+
     } catch (error) {
         console.log(error.message)
         console.log("Server Error")
@@ -1606,8 +1627,8 @@ app.get("/Cart", async (req, res) => {
 app.get("/Cart/:id", async (req, res) => {
     try {
         const { id } = req.params
-        const booking = await Booking.findOne({userId:id,__v:0})
-        const carts = await Cart.find({ bookingId:booking._id }).populate({
+        const booking = await Booking.findOne({ userId: id, __v: 0 })
+        const carts = await Cart.find({ bookingId: booking._id }).populate({
             path: "bookingId",
             model: "schemaBooking",
             populate: {
@@ -1636,6 +1657,10 @@ app.get("/Cart/:id", async (req, res) => {
 app.delete("/DeleteCart/:delId", async (req, res) => {
     try {
         const { delId } = req.params
+        const cart = await Cart.findById(delId)
+        const course = await Course.findById(cart.courseId)
+        const booking = await Booking.findById(cart.bookingId)
+        await Booking.findByIdAndUpdate(booking._id,{price: booking.price - course.price},{new:true})
         const deleteCart = await Cart.findByIdAndDelete(delId)
         res.status(200).send({ message: "Item removed from cart" })
     }
@@ -2506,12 +2531,13 @@ app.post("/Login", async (req, res) => {
 })
 
 
-// Course buying
-app.post("/Checkout",async(req,res)=>{
+// Single Course buying
+app.post("/Checkout", async (req, res) => {
     try {
         const {
             userId,
-            courseId
+            courseId,
+            orderId
         } = req.body
         const booking = new Booking({
             userId
@@ -2521,13 +2547,14 @@ app.post("/Checkout",async(req,res)=>{
 
         const cart = new Cart({
             courseId,
-            bookingId:savedBooking._id
+            bookingId: savedBooking._id
         })
 
         const savedCart = await cart.save()
+        const course = await Course.findById(courseId)
 
-        const existingBooking = await Booking.findByIdAndUpdate(savedBooking._id,{__v:1},{new:true})
-        res.status(200).send({message:"Checkout Complete"})
+        const existingBooking = await Booking.findByIdAndUpdate(savedBooking._id, { __v: 1,price:course.price, orderId}, { new: true })
+        res.status(200).send({ message: "Checkout Complete" })
 
     } catch (error) {
         console.log(error.message);
@@ -2535,4 +2562,67 @@ app.post("/Checkout",async(req,res)=>{
     }
 })
 
+// Multiple Course Buying
+app.post("/Cartcheckout",async(req,res)=>{
+    try {
+        const {
+            bookingId
+        } = req.body
+
+        const booking = await Booking.findById(bookingId)
+        await Booking.findByIdAndUpdate(booking._id,{__v:1},{new:true})
+        res.status(200).send({message:"Purchase Successful"})
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})
+
+// View purchased course
+app.get("/mycourses/:id",async(req,res)=>{
+    try {
+        const {
+            userId
+        } = req.body
+
+        const user = await User.findById(userId)
+        const booking = await Booking.find({userId:user._id,__v:1})
+        for(let i = 0; i < booking.length;i++)
+        {
+            
+        }
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})
+
+// Getting All materials of a course
+app.get("/getallmaterial/:courseId",async(req,res)=>{
+    try {
+        const {courseId} = req.params
+        Section.find({courseId}).then((section)=>{
+        const sectionIds = section.map(section => section._id)
+        return Material.find({sectionId:{$in:sectionIds}}).populate({
+            path:"sectionId",
+            model:"schemaSection",
+            populate:{
+                path:"courseId",
+                model:"schemaCourse",
+                populate:{
+                    path:"instructorId",
+                    model:"schemaInstructor"
+                }
+            }
+        })
+        }).then((material)=>{
+            console.log(material);
+           return  res.status(200).send(material)
+        })
+    } catch (error) {
+       console.log(error.message); 
+       log("Server Error")
+    }
+
+})
 

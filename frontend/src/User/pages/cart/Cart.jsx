@@ -3,11 +3,16 @@ import './cart.scss'
 import { Box, Button, Card, CardContent, Rating, Stack, Tooltip, Typography } from '@mui/material'
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom';
+
 
 const Cart = () => {
-
+    const navigate = useNavigate()
     const [value,setValue] = useState(2)
     const [showCourses,setShowCourses] = useState([])
+    const [booking,setBooking] = useState("")
+
+    
 
     const uid = sessionStorage.getItem("Uid")
     
@@ -23,10 +28,23 @@ const Cart = () => {
         })
     }
 
+    const getBooking = ()=>{
+      axios.get("http://localhost:5000/Booking/"+uid).then((res)=>{
+        setBooking(res.data)
+      })
+    }
+
+    const goToCheckout = (courseId)=>{
+      navigate("/user/checkout/"+booking._id+"/multiple")
+    }
+
+
+
     
 
     useEffect(()=>{
       fetchCart()
+      getBooking()
     },[])
 
   return (
@@ -62,7 +80,7 @@ const Cart = () => {
               <Box sx={{alignSelf:"flex-start"}}>
                 <Typography variant='p' sx={{fontWeight:"bold",fontSize:"20px",color:"gray",textAlign:"left"}}>Total:</Typography>
                 <Typography variant='h3' sx={{fontWeight:"bold"}}>Rs 3450</Typography>
-                <Button variant='contained'>Checkout</Button>
+                <Button onClick={goToCheckout} variant='contained'>Checkout</Button>
               </Box>
               </Stack>
             )

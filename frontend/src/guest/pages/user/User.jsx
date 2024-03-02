@@ -14,7 +14,7 @@ const User = () => {
     const [showPassword,setShowPassword] = useState(false)
     const [showCPassword,setShowCPassword] = useState(false)
     const [firstName,setFirstName] = useState("")
-    const [userName,setUserName] = useState("")
+    // const [userName,setUserName] = useState("")
     const [lastname,setLastName] = useState("")
     const [userEmail,setUserEmail] = useState("")
     const [userContact,setUserContact] = useState("")

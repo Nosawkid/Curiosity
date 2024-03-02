@@ -14,6 +14,9 @@ import Wishlist from './pages/wishlist/Wishlist'
 import Course from './pages/course/Course'
 import { Box } from '@mui/material'
 import Checkout from './pages/checkout/Checkout'
+import Viewcourse from './pages/viewcourse/Viewcourse'
+
+
 
 
 const App = () => {
@@ -30,8 +33,9 @@ const App = () => {
               <Route path='/cart' element={<Cart/>}/>
               <Route path='/wishlist' element={<Wishlist/>}/>
               <Route path='/course/:id' element={<Course/>}/>
-              <Route path='/Checkout/:courseId' element={<Checkout/>}/>
+              <Route path='/Checkout/:courseId/:type' element={<Checkout/>}/>
               <Route path='/mylearning' element={<Mylearning/>}/>
+              <Route path='/viewcourse/:courseId' element={<Viewcourse/>}/>
               <Route path='/jobs' element={<Job/>} />
           </Route>
       </Routes>
