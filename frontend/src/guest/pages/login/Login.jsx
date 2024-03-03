@@ -29,6 +29,15 @@ const Login = () => {
                 sessionStorage.setItem("Uid",id)
                 navigate("../../User/")
             }
+            else if(type === "Jobportal")
+            {
+                sessionStorage.setItem("Jid",id)
+                navigate("../../HiringPortal/")
+            }
+            else
+            {
+                alert("Invalid Credentials")
+            }
 
 
 

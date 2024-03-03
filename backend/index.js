@@ -2189,6 +2189,9 @@ const jobPortalSchema = new Schema({
         type: String,
         required: true
     },
+    jobPortalCompanyName:{
+        type:String
+    },
     jobPortalProof: {
         type: String,
         required: true
@@ -2527,7 +2530,7 @@ app.post("/Login", async (req, res) => {
 
         }
         else {
-            return res.status(500).send({ message: "No User found" })
+            return res.status(500).send({ message: "Invalid Credentials" })
         }
 
         const payload = {

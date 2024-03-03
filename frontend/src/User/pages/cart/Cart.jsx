@@ -48,7 +48,7 @@ const Cart = () => {
     useEffect(()=>{
       fetchCart()
       getBooking()
-    },[])
+    },[]) 
 
   return (
     <div className='userCart'>
