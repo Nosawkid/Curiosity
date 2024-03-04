@@ -4,7 +4,7 @@ import './single.scss'
 import Chart from '../../components/chart/Chart'
 import {useParams,Link} from 'react-router-dom'
 import axios from 'axios'
-import { Button } from '@mui/material'
+import { Button, Stack } from '@mui/material'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -13,6 +13,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Skeleton from '@mui/material/Skeleton';
 
 
 
@@ -74,7 +75,13 @@ useEffect(()=>{
 if(loading)
 {
   return(
-    <div>Loading</div>
+    <Stack sx={{p:3}}  spacing={1}>
+      <Stack direction={"row"} spacing={2}>
+        <Skeleton animation="wave" variant='rounded' width={"400px"} height={"300px"}/>
+        <Skeleton animation="wave" variant='rounded' width={"900px"} height={"300px"}/>
+      </Stack>
+      <Skeleton sx={{mt:2}} animation="wave" variant='rounded' width={"1273px"} height={"300px"}/>
+    </Stack>
   )
 }
 

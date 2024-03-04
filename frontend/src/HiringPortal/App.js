@@ -15,27 +15,29 @@ import Complaint from './pages/complaint/Complaint';
 import Profile from './pages/profile/Profile';
 import './App.scss'
 
+
+
 function App() {
 
- 
+
 
 
   return (
-    <div className="hirerApp">
+    <div  className="hirerApp">
 
       <div className='home'>
         <Sidebar />
-        <div className="homeContainer">
+        <div style={{position:"relative"}}  className="homeContainer">
           <Navbar />
           <div>
             <Routes>
               <Route path='/' element={<Home />} />
-              <Route path='/profile' element={<Profile/>}/>
+              <Route path='/profile' element={<Profile />} />
               <Route path='/Drafts' element={<Draft />} />
-              <Route path='/Courses' element={<Course />} />
-              <Route path='/Newcourse' element={<Newcourse />} />
-              <Route path='/Wishlist' element = {<Wishlist/>}/>
-              <Route path='/Complaints' element = {<Complaint/>}/>
+              <Route path='/myposts' element={<Course />} />
+              <Route path='/Newvacancy' element={<Newcourse />} />
+              <Route path='/Wishlist' element={<Wishlist />} />
+              <Route path='/Complaints' element={<Complaint />} />
             </Routes>
 
           </div>

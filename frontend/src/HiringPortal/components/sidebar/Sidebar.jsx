@@ -32,15 +32,16 @@ const Sidebar = () => {
           <li> <AccountCircleIcon className='icon' /> <span>Profile</span></li>
           </Link>
           <p className="title">LISTS</p>
-          <Link to="/HiringPortal/Courses" style={{ textDecoration: "none" }}>
-            <li> <ChecklistIcon className='icon' /> <span>Applicants</span></li>
+          <Link to="/HiringPortal/Newvacancy" style={{ textDecoration: "none" }} >
+            <li><IoAddCircle className='icon' /> <span>Add Vacancy </span></li>
+          </Link>
+          <Link to="/HiringPortal/myposts" style={{ textDecoration: "none" }}>
+            <li> <ChecklistIcon className='icon' /> <span>My Posts</span></li>
           </Link>
           <Link to="/HiringPortal/Drafts" style={{ textDecoration: "none" }}>
             <li><FaRegEdit className='icon' /> <span>Drafts</span></li>
           </Link>
-          <Link to="/HiringPortal/Newcourse" style={{ textDecoration: "none" }} >
-            <li><IoAddCircle className='icon' /> <span>Add </span></li>
-          </Link>
+          
           <Link to="/HiringPortal/Cart" style={{ textDecoration: "none" }}>
             <li><ShoppingCartIcon className='icon' /> <span>Cart</span></li>
           </Link>

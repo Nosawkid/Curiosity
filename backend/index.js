@@ -7,6 +7,8 @@ const { Schema } = mongoose
 const argon2 = require("argon2")
 const jwt = require("jsonwebtoken")
 const multer = require("multer");
+const mailer = require('nodemailer');
+
 
 
 const app = express();
@@ -138,20 +140,72 @@ const linkSchema = new mongoose.Schema({
 
 const Link = mongoose.model('schemaLink', linkSchema)
 
-
-// PURCHASED COURSES
-const purchaseSchema = new Schema({
-    courseId:{
-        type:Schema.Types.ObjectId,
-        ref:"schemaCourse"
+// PROGRESS
+const progressSchema = new Schema({
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: "schemaUser"
     },
-    userId:{
-        type:Schema.Types.ObjectId,
-        ref:"schemaUser"
+    courseId: {
+        type: Schema.Types.ObjectId,
+        ref: "schemaUser"
+    },
+    materialProgress: {
+        type: Number,
+        default: 0
+    },
+    materialIndex: {
+        type: Number,
+        default: 0
+    }
+
+})
+
+const Progress = mongoose.model("schemaProgress", progressSchema)
+
+app.patch("/progress/:progressId", async (req, res) => {
+    try {
+        const { progressId } = req.params
+        const { materialProgress, materialIndex } = req.body
+        const progress = await Progress.findByIdAndUpdate(progressId, { materialProgress, materialIndex }, { new: true })
+        res.status(200).send(progress)
+    } catch (error) {
+        console.log(error.message);
     }
 })
 
-const Purchase = mongoose.model("schemaPurchase",purchaseSchema)
+
+// Fetching progress
+
+app.get("/progress/:userId/:courseId", async (req, res) => {
+    try {
+        const {
+            userId,
+            courseId
+        } = req.params
+        const progress = await Progress.findOne({userId,courseId})
+        res.status(200).send(progress)
+    } catch (error) {
+        console.log(error.message);
+    }
+})
+
+
+// PURCHASED COURSES
+const purchaseSchema = new Schema({
+    courseId: {
+        type: Schema.Types.ObjectId,
+        ref: "schemaCourse"
+    },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: "schemaUser"
+    }
+})
+
+const Purchase = mongoose.model("schemaPurchase", purchaseSchema)     
+
+
 
 // Crud
 
@@ -241,6 +295,7 @@ app.post('/Admin', async (req, res) => {
     }
 
 })
+
 
 
 
@@ -1507,7 +1562,7 @@ app.get("/Booking", async (req, res) => {
 app.get("/Booking/:id", async (req, res) => {
     try {
         const { id } = req.params
-        const booking = await Booking.findOne({userId:id,__v:0}).populate({
+        const booking = await Booking.findOne({ userId: id, __v: 0 }).populate({
             path: "userId",
             model: "schemaUser"
         })
@@ -1675,7 +1730,7 @@ app.delete("/DeleteCart/:delId", async (req, res) => {
         const cart = await Cart.findById(delId)
         const course = await Course.findById(cart.courseId)
         const booking = await Booking.findById(cart.bookingId)
-        await Booking.findByIdAndUpdate(booking._id,{price: booking.price - course.price},{new:true})
+        await Booking.findByIdAndUpdate(booking._id, { price: booking.price - course.price }, { new: true })
         const deleteCart = await Cart.findByIdAndDelete(delId)
         res.status(200).send({ message: "Item removed from cart" })
     }
@@ -2189,8 +2244,9 @@ const jobPortalSchema = new Schema({
         type: String,
         required: true
     },
-    jobPortalCompanyName:{
-        type:String
+    jobPortalCompanyName: {
+        type: String,
+        required: true
     },
     jobPortalProof: {
         type: String,
@@ -2198,7 +2254,7 @@ const jobPortalSchema = new Schema({
     },
     jobPortalDetails: {
         type: String,
-        required: true
+        default: null
     },
     jobPortalPassword: {
         type: String,
@@ -2206,12 +2262,16 @@ const jobPortalSchema = new Schema({
     },
     jobPortalPhoto: {
         type: String,
-        required: true
+        default: null
     },
     jobPortalStatus: {
         type: Number,
         default: 0
     },
+    jobPortalIdType: {
+        type: String,
+        enum: ["Aadhar", "Voter Id", "Pan Card"]
+    }
 
 })
 
@@ -2220,23 +2280,34 @@ const JobPortal = mongoose.model("schemaJobPortal", jobPortalSchema)
 // Crud
 // Create
 
-app.post("/Jobportal", async (req, res) => {
+app.post("/Jobportal", upload.fields([
+    { name: "jobPortalProof", maxCount: 1 },
+]), async (req, res) => {
     try {
+
+        var fileValue = JSON.parse(JSON.stringify(req.files));
+        var jobPortalProof = `http://127.0.0.1:${port}/images/${fileValue.jobPortalProof[0].filename}`;
+
         const {
             jobPortalName,
             jobPortalEmail,
             jobPortalContact,
-            jobPortalProof,
             jobPortalDetails,
             jobPortalPassword,
             jobPortalPhoto,
-            jobPortalStatus
+            jobPortalStatus,
+            jobPortalCompanyName,
+            jobPortalIdType
         } = req.body
 
         let portal = await JobPortal.findOne({ jobPortalEmail })
-        if (portal) {
+        const user = await User.findOne({ userEmail: jobPortalEmail })
+        const instructor = await Instructor.findOne({ instructorEmail: jobPortalEmail })
+        const admin = await Admin.findOne({ adminEmail: jobPortalEmail })
+
+        if (portal || user || instructor || admin) {
             return (
-                res.status(400).send({ message: "Alreafy existing email" })
+                res.send({ message: "Email already registered with a user", status: false })
             )
         }
 
@@ -2248,18 +2319,21 @@ app.post("/Jobportal", async (req, res) => {
             jobPortalDetails,
             jobPortalPassword,
             jobPortalPhoto,
-            jobPortalStatus
+            jobPortalStatus,
+            jobPortalCompanyName,
+            jobPortalIdType
         })
 
         const salt = 12;
         portal.jobPortalPassword = await argon2.hash(jobPortalPassword, salt)
         await portal.save();
-        res.status(200).send({ message: "Account Created" })
+        res.status(200).send({ message: "Account Created", status: true })
 
 
     } catch (error) {
         console.log(error.message);
         console.log("Server Error");
+        res.send({ message: "Something Went wrong", status: false })
     }
 })
 
@@ -2346,16 +2420,27 @@ const vacancySchema = new Schema({
         default: true
     },
     maxSalary: {
-        type: String,
+        type: Number,
         required: true
     },
-    subCategoryId: {
+    categoryId: {
         type: Schema.Types.ObjectId,
-        ref: "schemaSubCategory"
+        ref: "schemaCategory"
     },
     vacancyDate: {
         type: Date,
         default: Date.now()
+    },
+    vacancyRequirement: {
+        type: String,
+    },
+    vacancyStatus: {
+        type: Number,
+        default: 0
+    },
+    vacancyTime: {
+        type: String,
+        required: true
     }
 
 })
@@ -2372,8 +2457,10 @@ app.post("/Vacancy", async (req, res) => {
             vacancyDesc,
             minSalary,
             maxSalary,
-            subCategoryId,
-            vacancyDate
+            categoryId,
+            vacancyDate,
+            vacancyRequirement,
+            vacancyTime
         } = req.body
 
         const newVacancy = new Vacancy({
@@ -2382,12 +2469,14 @@ app.post("/Vacancy", async (req, res) => {
             vacancyDesc,
             minSalary,
             maxSalary,
-            subCategoryId,
-            vacancyDate
+            categoryId,
+            vacancyDate,
+            vacancyRequirement,
+            vacancyTime
         })
 
         await newVacancy.save()
-        res.status(200).send({ message: "Vacancy Added" })
+        res.status(200).send({ message: "Vacancy Added", status: true })
     } catch (err) {
         console.log(err.message);
         console.log("Server Error");
@@ -2403,6 +2492,17 @@ app.get("/Vacancy", async (req, res) => {
     } catch (error) {
         console.log(error.message);
         console.log("Server Error");
+    }
+})
+
+// Finding vacancy based on hirer
+app.get("/Vacancy/:jobPortalId", async (req, res) => {
+    try {
+        const { jobPortalId } = req.params
+        const jobs = await Vacancy.find({ jobPortalId })
+        res.status(200).send(jobs)
+    } catch (error) {
+        console.log(error.message);
     }
 })
 
@@ -2530,7 +2630,7 @@ app.post("/Login", async (req, res) => {
 
         }
         else {
-            return res.status(500).send({ message: "Invalid Credentials" })
+            return res.send({ message: "Invalid Credentials" })
         }
 
         const payload = {
@@ -2571,12 +2671,79 @@ app.post("/Checkout", async (req, res) => {
         const savedCart = await cart.save()
         const course = await Course.findById(courseId)
 
-        const existingBooking = await Booking.findByIdAndUpdate(savedBooking._id, { __v: 1,price:course.price, orderId}, { new: true })
+        const existingBooking = await Booking.findByIdAndUpdate(savedBooking._id, { __v: 1, price: course.price, orderId }, { new: true })
         const purchase = new Purchase({
             userId,
             courseId
         })
         await purchase.save()
+
+        const progress = new Progress({
+            userId,
+            courseId
+        })
+        await progress.save()
+        let content=` 
+        <html>
+       <head>
+           <title>OTP Email</title>
+           <style>
+               /* Define the style for the container */
+               .container {
+                   width: 90%;
+                   max-width: 600px;
+                   margin: 0 auto;
+                   padding: 20px;
+                   background-color: #f2f2f2;
+                   font-family: Arial, sans-serif;
+               }
+       
+               /* Define the style for the OTP box */
+               .otp-box {
+                   width: 90%;
+                    max-width: 600px;
+                   background-color: #ffffff;
+                   padding: 20px;
+                   border-radius: 5px;
+                   text-align: center;
+               }
+       
+               /* Define the style for the OTP text */
+               .otp-text {
+                   font-size: 24px;
+                   font-weight: bold;
+                   color: #333333;
+               }
+       
+               /* Define the style for the OTP number */
+               .otp-number {
+                   font-size: 48px;
+                   font-weight: bold;
+                   color: #007bff;
+                   margin-top: 10px;
+               }
+       
+               /* Define the style for the instructions text */
+               .instructions {
+                   font-size: 14px;
+                   color: #666666;
+                   margin-top: 10px;
+               }
+           </style>
+       </head>
+       <body>
+           <!-- Display OTP in an improved email view -->
+           <div class="container">
+               <div class="otp-box">
+                   <div class="otp-text">One-Time Password (OTP)</div>
+                   <div class="otp-number">12345678</div>
+                   <div class="instructions">Please use the above OTP to verify your account.</div>
+               </div>
+           </div>
+       </body>
+       </html> `; 
+        sendEmail(content);   
+
         res.status(200).send({ message: "Checkout Complete" })
 
     } catch (error) {
@@ -2586,25 +2753,30 @@ app.post("/Checkout", async (req, res) => {
 })
 
 // Multiple Course Buying
-app.post("/Cartcheckout",async(req,res)=>{
+app.post("/Cartcheckout", async (req, res) => {
     try {
         const {
             bookingId
         } = req.body
 
         let booking = await Booking.findById(bookingId)
-        booking = await Booking.findByIdAndUpdate(booking._id,{__v:1},{new:true})
-        let carts = await Cart.find({bookingId:booking._id})
-        for(let cart of carts)
-        {
-           const purchase =  new Purchase({
-                userId:booking.userId,
-                courseId:cart.courseId
+        booking = await Booking.findByIdAndUpdate(booking._id, { __v: 1 }, { new: true })
+        let carts = await Cart.find({ bookingId: booking._id })
+        for (let cart of carts) {
+            const purchase = new Purchase({
+                userId: booking.userId,
+                courseId: cart.courseId
             })
             await purchase.save()
+
+            const progress = new Progress({
+                userId: booking.userId,
+                courseId: cart.courseId
+            })
+            await progress.save()
         }
-        
-        res.status(200).send({message:"Purchase Successful"})
+
+        res.status(200).send({ message: "Purchase Successful" })
     } catch (error) {
         console.log(error.message);
         console.log("Server Error");
@@ -2615,44 +2787,44 @@ app.post("/Cartcheckout",async(req,res)=>{
 
 
 // Getting All materials of a course
-app.get("/getallmaterial/:courseId",async(req,res)=>{
+app.get("/getallmaterial/:courseId", async (req, res) => {
     try {
-        const {courseId} = req.params
-        Section.find({courseId}).then((section)=>{
-        const sectionIds = section.map(section => section._id)
-        return Material.find({sectionId:{$in:sectionIds}}).populate({
-            path:"sectionId",
-            model:"schemaSection",
-            populate:{
-                path:"courseId",
-                model:"schemaCourse",
-                populate:{
-                    path:"instructorId",
-                    model:"schemaInstructor"
+        const { courseId } = req.params
+        Section.find({ courseId }).then((section) => {
+            const sectionIds = section.map(section => section._id)
+            return Material.find({ sectionId: { $in: sectionIds } }).populate({
+                path: "sectionId",
+                model: "schemaSection",
+                populate: {
+                    path: "courseId",
+                    model: "schemaCourse",
+                    populate: {
+                        path: "instructorId",
+                        model: "schemaInstructor"
+                    }
                 }
-            }
-        })
-        }).then((material)=>{
+            })
+        }).then((material) => {
             console.log(material);
-           return  res.status(200).send(material)
+            return res.status(200).send(material)
         })
     } catch (error) {
-       console.log(error.message); 
-       log("Server Error")
+        console.log(error.message);
+        log("Server Error")
     }
 
 })
 
 // Getting Purchased courses
-app.get("/mycourses/:userId",async(req,res)=>{
+app.get("/mycourses/:userId", async (req, res) => {
     try {
-        const {userId} = req.params
-        const courses = await Purchase.find({userId:userId}).populate({
-            path:"courseId",
-            model:"schemaCourse",
-            populate:{
-                path:"instructorId",
-                model:"schemaInstructor"
+        const { userId } = req.params
+        const courses = await Purchase.find({ userId: userId }).populate({
+            path: "courseId",
+            model: "schemaCourse",
+            populate: {
+                path: "instructorId",
+                model: "schemaInstructor"
             }
         })
         res.status(200).send(courses)
@@ -2661,3 +2833,48 @@ app.get("/mycourses/:userId",async(req,res)=>{
         console.log("Server Error");
     }
 })
+
+// Updating Progress
+
+app.patch("/progress/:progressId", async (req, res) => {
+    try {
+        const { progressId } = req.params
+        const { materialProgress, materialIndex } = req.body
+        const progress = await Progress.findByIdAndUpdate(progressId, { materialProgress, materialIndex }, { new: true })
+        res.status(200).send(progress)
+    } catch (error) {
+        console.log(error.message);
+    }
+})
+
+
+// Fetching progress
+
+
+
+
+
+
+var transporter = mailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: "curiosity2255@gmail.com", //from email Id
+        pass: "izuvpenxjegowfcw", // App password created from google account
+    },
+  });
+  function sendEmail( content) {
+    const mailOptions = {
+        from: "curiosity2255@gmail.com", //from email Id for recipient can view
+        to:"abijoy611@gmail.com",
+        subject: "Verification",
+        html: content,
+        
+    };
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log("Email sented");
+        }
+    });
+  }
