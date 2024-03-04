@@ -4,6 +4,7 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import axios from 'axios';
 import './wishlist.scss'
+import Courseholder from '../../../assets/Courseholder.png'
 
 const Wishlist = () => {
 
@@ -46,7 +47,7 @@ const Wishlist = () => {
                 {showCourses.map((row,key)=>(
                 <Card className='courseCard' sx={{width:"300px",height:"350px"}}>
                   <CardContent sx={{display:"flex",flexDirection:"column",gap:"10px"}}>
-                    <img style={{width:"100%",height:"200px",objectFit:"cover"}} src="https://t4.ftcdn.net/jpg/05/99/25/47/360_F_599254718_4hsBO7IvKD8KN9T4Cv8utU37903QzZjA.jpg" alt="Cover" />
+                    <img style={{width:"100%",height:"200px",objectFit:"cover"}} src={row.courseId.courseImage || Courseholder} alt="Cover" />
                     <Typography sx={{fontSize:"18px",fontWeight:"bold"}} variant='h3'>{row.courseId.courseTitle}</Typography>
                     <Typography sx={{fontSize:"13px",color:"gray"}} component={"p"} variant='span'>{row.courseId.instructorId.instructorName}</Typography>
                     <Stack sx={{display:"flex",alignItems:"center",justifyContent:"space-between"}} direction={"row"} spacing={1}>
@@ -54,7 +55,7 @@ const Wishlist = () => {
                       <Rating sx={{fontSize:"20px"}} name="read-only" value={value} readOnly />
                     </Stack>
                     <Stack sx={{alignItems:"center",justifyContent:"space-between"}} direction={"row"}>
-                    <Typography sx={{fontSize:"25px",fontWeight:"bold"}} component={"p"} variant='h3'>Rs 4200</Typography>
+                    <Typography sx={{fontSize:"25px",fontWeight:"bold"}} component={"p"} variant='h3'>₹ {row.courseId.price}</Typography>
                       <Box sx={{display:"flex",alignItems:"center",gap:"10px"}} className="iconContainer">
                     <Tooltip title="Add to cart">
                     <AddShoppingCartIcon className='cartIcon'/>

@@ -4,6 +4,7 @@ import { Box, Button, Card, CardContent, Rating, Stack, Tooltip, Typography } fr
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
+import Courseholder from '../../../assets/Courseholder.png'
 
 
 const Cart = () => {
@@ -61,7 +62,7 @@ const Cart = () => {
                 {showCourses.map((row,key)=>(
                 <Card onClick={()=>viewCourse(row.courseId._id)} className='courseCard' sx={{width:"300px",height:"350px"}}>
                   <CardContent sx={{display:"flex",flexDirection:"column",gap:"10px"}}>
-                    <img style={{width:"100%",height:"200px",objectFit:"cover"}} src="https://t4.ftcdn.net/jpg/05/99/25/47/360_F_599254718_4hsBO7IvKD8KN9T4Cv8utU37903QzZjA.jpg" alt="Cover" />
+                    <img style={{width:"100%",height:"200px",objectFit:"cover"}} src={row.courseId.courseImage || Courseholder} alt="Cover" />
                     <Typography sx={{fontSize:"18px",fontWeight:"bold"}} variant='h3'>{row.courseId.courseTitle}</Typography>
                     <Typography sx={{fontSize:"13px",color:"gray"}} component={"p"} variant='span'>{row.courseId.instructorId.instructorName}</Typography>
                     <Stack sx={{display:"flex",alignItems:"center",justifyContent:"space-between"}} direction={"row"} spacing={1}>

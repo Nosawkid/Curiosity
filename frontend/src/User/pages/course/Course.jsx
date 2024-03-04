@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom'
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import Showsection from '../showsection/Showsection'
 import { useNavigate } from 'react-router-dom'
+import Courseholder from '../../../assets/Courseholder.png'
 
 const Course = () => {
 
@@ -15,6 +16,7 @@ const Course = () => {
   const [value, setValue] = useState(2)
   const [showSection, setShowSection] = useState([])
   const [showFull,setShowFull] = useState(false)
+  
 
 
   const uid = sessionStorage.getItem("Uid")
@@ -43,7 +45,14 @@ const Course = () => {
 
   const addToFavs = (courseId) => {
     axios.post("http://localhost:5000/wishlist", { courseId, userId: uid }).then((res) => {
+     if(res.data.status)
+     {
       alert("Item Added to wishlist")
+     }
+     else
+     {
+      alert("Item aleady added to wishlist")
+     }
     })
   }
 
@@ -90,7 +99,7 @@ const Course = () => {
         </Box>
         <Box className="courseCard" sx={{ backgroundColor: "white", width: "450px", height: "500px", position: "absolute", right: "10px", top: "50px", mt: 4 }}>
           <Stack direction={"column"} spacing={2}>
-            <img className='coursePreviewImage' style={{ height: "200px", objectFit: "cover" }} src="https://thequill369.files.wordpress.com/2020/05/2-19-12-9-11-46-44m.jpg" alt="course image" />
+            <img className='coursePreviewImage' style={{ height: "200px", objectFit: "cover" }} src={course && course.courseImage || Courseholder} alt="course image" />
             <Box sx={{ display: "flex", alignItems: "center", gap: "10px", px: 2, justifyContent: "center" }} >
               <Typography sx={{ fontWeight: "bold", fontSize: "25px" }}>
               {course && course.price === 0 ? "Free" : (course && course.price ? `₹${course.price}` : "₹4200")}

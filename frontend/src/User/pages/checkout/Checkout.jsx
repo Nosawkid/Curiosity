@@ -103,8 +103,14 @@ const Checkout = () => {
   const buyOneCourse = (e) => {
     e.preventDefault()
     axios.post("http://localhost:5000/Checkout", { userId: uid, courseId, orderId }).then((res) => {
-      console.log(res.data.message)
-      navigate("/user/viewcourse/" + courseId)
+      if (res.data.status) {
+        console.log(res.data.message)
+        navigate("/user/viewcourse/" + courseId)
+      }
+      else
+      {
+        alert("Course Already bought")
+      }
     })
   }
   const buyFromCart = (e) => {
@@ -277,7 +283,7 @@ const Checkout = () => {
                     focused={state.focus}
                   />
                   <div className="mt-3">
-                    <form  onSubmit={type === "multiple" ? buyFromCart : buyOneCourse} >
+                    <form onSubmit={type === "multiple" ? buyFromCart : buyOneCourse} >
 
                       <TextField
                         sx={{ mt: 3 }}
@@ -341,7 +347,7 @@ const Checkout = () => {
                       </Stack>
 
                       <Button
-                       type='submit'
+                        type='submit'
                         variant='outlined' sx={{ margin: "0 auto", display: "block", mt: 3, px: 5, fontSize: "18px" }}>Pay Now</Button>
                     </form>
                   </div>

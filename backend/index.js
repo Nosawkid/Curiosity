@@ -347,8 +347,14 @@ app.get('/Category', async (req, res) => {
 app.delete("/Category/:id", async (req, res) => {
     try {
         const { id } = req.params
+        const subcategories = await Subcategory.find({categoryId:id})
+        for(let sub of subcategories)
+        {
+            await Topic.deleteMany({subCategoryId:sub._id})
+        }
+        await Subcategory.deleteMany({categoryId:id})
         await Category.findByIdAndDelete(id)
-        res.send({ message: "Deleted" })
+        res.status(200).send({message:"Category Deleted"})
     }
     catch (err) {
         console.log(err.message)
@@ -437,6 +443,17 @@ app.get("/Subcategory/:id", async (req, res) => {
         console.log(err.message)
         console.log("Server Error")
     }
+})
+
+app.delete("/Subcategory/:id",async(req,res)=>{
+   try {
+    const {id} = req.params
+    await Topic.deleteMany({subCategoryId:id})
+    await Subcategory.findByIdAndDelete(id)
+   } catch (error) {
+    console.log(error);
+    console.log("Server Error");
+   }
 })
 
 
@@ -1031,6 +1048,9 @@ const courseSchema = new Schema({
         type: Number,
         required: true
     },
+    courseImage:{
+        type:String
+    }
 })
 
 
@@ -1041,8 +1061,12 @@ const Course = mongoose.model("schemaCourse", courseSchema)
 
 // Create
 
-app.post("/Course", async (req, res) => {
+app.post("/Course",upload.fields([
+    { name: "courseImage", maxCount: 1 },
+]) ,async (req, res) => {
     try {
+        var fileValue = JSON.parse(JSON.stringify(req.files));
+        var courseImage = `http://127.0.0.1:${port}/images/${fileValue.courseImage[0].filename}`;
         const {
             courseTitle,
             instructorId,
@@ -1056,7 +1080,7 @@ app.post("/Course", async (req, res) => {
         let course = await Course.findOne({ courseTitle })
         if (course) {
             return (
-                res.status(400).send("Course with same name already exist")
+                res.status(400).send({message:"Course with same name already exist",status:false})
             )
         }
 
@@ -1066,13 +1090,14 @@ app.post("/Course", async (req, res) => {
             topicId,
             courseDesc,
             courseDateTime,
-            price
+            price,
+            courseImage
         })
         await course.save();
         res.status(200).send("Course Added")
     } catch (error) {
         console.log(error.message)
-        console.log("Server Error")
+        console.log({message:"Server Error",status:true})
     }
 })
 
@@ -1168,8 +1193,16 @@ app.get("/CourseFromIns/:insid", async (req, res) => {
 app.delete("/Course/:id", async (req, res) => {
     try {
         const { id } = req.params
-        const course = await Course.findByIdAndDelete(id)
-        res.status(200).send({ message: "Deletion Success" })
+        
+        const sections = await Section.find({courseId:id})
+
+        for(let section of sections)
+        {
+            await Material.deleteMany({sectionId:section._id})
+        }
+
+        await Section.deleteMany({courseId:id})
+        await Course.findByIdAndDelete(id)
     }
     catch (err) {
         console.log(err.message)
@@ -1201,7 +1234,20 @@ app.put("/Course/:id/edit", async (req, res) => {
     }
 })
 
+// Getting all course except purchased ones
 
+app.get("/Course/:userId/notPurchased",async(req,res)=>{
+    try {
+        const {userId} = req.params
+        const purchasedCourses = await Purchase.find({userId})
+        const purchasedCourseIds = purchasedCourses.map(course => course.courseId);
+        const courses = await Course.find({_id:{$nin:purchasedCourseIds}})
+        res.status(200).send(courses)
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})
 
 
 // SECTION
@@ -1770,7 +1816,7 @@ app.post("/wishlist", async (req, res) => {
 
         if (wish) {
             return (
-                res.status(400).send("Already Present in the wishlist")
+                res.send({message:"Already Present in the wishlist",status:false})
             )
         }
 
@@ -1779,7 +1825,7 @@ app.post("/wishlist", async (req, res) => {
             userId
         })
         await wishlist.save();
-        res.status(200).send("Added to Wishlist")
+        res.status(200).send({message:"Added to Wishlist",status:true})
     }
     catch (err) {
         console.log(err.message)
@@ -2672,6 +2718,9 @@ app.post("/Checkout", async (req, res) => {
         const course = await Course.findById(courseId)
 
         const existingBooking = await Booking.findByIdAndUpdate(savedBooking._id, { __v: 1, price: course.price, orderId }, { new: true })
+        const existingPurchase = await Purchase.findOne({userId,courseId})
+       if(!existingPurchase)
+       {
         const purchase = new Purchase({
             userId,
             courseId
@@ -2683,6 +2732,11 @@ app.post("/Checkout", async (req, res) => {
             courseId
         })
         await progress.save()
+       }
+       else
+       {
+            return res.send({message:"Course already bought",status:false})
+       }
         let content=` 
         <html>
        <head>
@@ -2744,7 +2798,7 @@ app.post("/Checkout", async (req, res) => {
        </html> `; 
         sendEmail(content);   
 
-        res.status(200).send({ message: "Checkout Complete" })
+        res.status(200).send({ message: "Checkout Complete",status:true })
 
     } catch (error) {
         console.log(error.message);
@@ -2759,10 +2813,18 @@ app.post("/Cartcheckout", async (req, res) => {
             bookingId
         } = req.body
 
+      
+
         let booking = await Booking.findById(bookingId)
         booking = await Booking.findByIdAndUpdate(booking._id, { __v: 1 }, { new: true })
         let carts = await Cart.find({ bookingId: booking._id })
         for (let cart of carts) {
+           const existingPurchase = await Purchase.findOne({
+            userId: booking.userId,
+            courseId: cart.courseId
+           })
+           if(!existingPurchase)
+           {
             const purchase = new Purchase({
                 userId: booking.userId,
                 courseId: cart.courseId
@@ -2774,6 +2836,7 @@ app.post("/Cartcheckout", async (req, res) => {
                 courseId: cart.courseId
             })
             await progress.save()
+           }
         }
 
         res.status(200).send({ message: "Purchase Successful" })
@@ -2865,7 +2928,7 @@ var transporter = mailer.createTransport({
   function sendEmail( content) {
     const mailOptions = {
         from: "curiosity2255@gmail.com", //from email Id for recipient can view
-        to:"abijoy611@gmail.com",
+        to:"bismisidhik789@gmail.com",
         subject: "Verification",
         html: content,
         

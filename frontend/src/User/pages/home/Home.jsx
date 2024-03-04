@@ -8,6 +8,7 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import Tooltip from '@mui/material/Tooltip';
 import { Link } from 'react-router-dom'
+import Courseholder from '../../../assets/Courseholder.png'
 
 
 const Home = () => {
@@ -18,7 +19,7 @@ const Home = () => {
 
 
   const fetchCourses = () => {
-    axios.get("http://localhost:5000/Course").then((res) => {
+    axios.get("http://localhost:5000/Course/" + uid + "/notPurchased").then((res) => {
       setShowCourse(res.data)
     })
   }
@@ -26,7 +27,12 @@ const Home = () => {
 
   const addToFavs = (courseId) => {
     axios.post("http://localhost:5000/wishlist", { courseId, userId: uid }).then((res) => {
-      alert("Item Added to wishlist")
+      if (res.data.status) {
+        alert("Item Added to wishlist")
+      }
+      else {
+        alert("Item aleady added to wishlist")
+      }
     })
   }
 
@@ -59,7 +65,7 @@ const Home = () => {
           <Link style={{ textDecoration: "none" }} to={"/user/course/" + row._id} >
             <Card className='courseCard' sx={{ width: "300px", height: "350px" }}>
               <CardContent sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <img style={{ width: "100%", height: "200px", objectFit: "cover" }} src="https://t4.ftcdn.net/jpg/05/99/25/47/360_F_599254718_4hsBO7IvKD8KN9T4Cv8utU37903QzZjA.jpg" alt="Cover" />
+                <img style={{ width: "100%", height: "200px", objectFit: "cover" }} src={row.courseImage || Courseholder} alt="Cover" />
                 <Typography sx={{ fontSize: "18px", fontWeight: "bold" }} variant='h3'>{row.courseTitle}</Typography>
                 <Typography sx={{ fontSize: "13px", color: "gray" }} component={"p"} variant='span'>{row.instructorId.instructorName}</Typography>
                 <Stack sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }} direction={"row"} spacing={1}>

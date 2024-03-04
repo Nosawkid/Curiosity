@@ -4,7 +4,22 @@ import { Box, Button, Card, CardContent, FormControl, MenuItem, Select, Stack, T
 import InputLabel from '@mui/material/InputLabel';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { styled } from '@mui/material/styles';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import {Server} from '../../../Server.js'
 
+
+const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+});
 
 
 const Newcourse = () => {
@@ -18,17 +33,38 @@ const Newcourse = () => {
     const [showTopic, setShowTopic] = useState([])
     const [topicId, setTopicId] = useState('')
     const [price, setPrice] = useState(0)
+    const [courseImage,setCourseImage] = useState("")
 
     const instructorId = sessionStorage.getItem("Iid")
 
-    const createCourse = (e) => {
-        e.preventDefault()
-        axios.post("http://localhost:5000/Course/", { courseTitle, courseDesc, topicId, instructorId,price }).then((res) => {
-            console.log(res.data)
-            navigate('/instructor/courses')
-        })
+    // const createCourse = (e) => {
+    //     e.preventDefault()
+    //     axios.post("http://localhost:5000/Course/", { courseTitle, courseDesc, topicId, instructorId, price }).then((res) => {
+    //         console.log(res.data)
+    //         navigate('/instructor/courses')
+    //     })
 
+    // }
+
+    const createCourse = (e)=>{
+        e.preventDefault()
+        const frm = new FormData()
+        frm.append("courseTitle",courseTitle)
+        frm.append("courseDesc",courseDesc)
+        frm.append("topicId",topicId)
+        frm.append("instructorId",instructorId)
+        frm.append("price",price)
+        frm.append("courseImage",courseImage)
+
+        axios.post(`${Server}/Course`,frm).then((res)=>{
+            if(res.data.status)
+            {
+                navigate('/instructor/course')
+            }
+        })
     }
+
+
 
     const fetchCategory = () => {
         axios.get("http://localhost:5000/Category/").then((res) => {
@@ -71,6 +107,19 @@ const Newcourse = () => {
                             <TextField onChange={(e) => setCourseDesc(e.target.value)} id='description' multiline minRows={3} ></TextField>
                         </Stack>
                         <Stack spacing={1} sx={{ mt: 2 }}>
+                            <Typography>Course Image:</Typography>
+                            <Button
+                                component="label"
+                                role={undefined}
+                                variant="outlined"
+                                tabIndex={-1}
+                                startIcon={<CloudUploadIcon />}
+                            >
+                                Upload file
+                                <VisuallyHiddenInput onChange={(e)=>setCourseImage(e.target.files[0])} type="file" />
+                            </Button>
+                        </Stack>
+                        <Stack spacing={1} sx={{ mt: 2 }}>
                             <FormControl fullWidth>
                                 <InputLabel id="demo-simple-select-label">Price Tier</InputLabel>
                                 <Select
@@ -86,8 +135,8 @@ const Newcourse = () => {
                                     <MenuItem value={1199}>&#8377;1,199 (Tier 3)</MenuItem>
                                     <MenuItem value={1299}>&#8377;1,299 (Tier 4)</MenuItem>
                                     <MenuItem value={1499}>&#8377;1,499 (Tier 5)</MenuItem>
-                                    
-                                    
+
+
                                 </Select>
                             </FormControl>
                         </Stack>

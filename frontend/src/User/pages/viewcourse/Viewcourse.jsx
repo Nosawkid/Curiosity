@@ -68,6 +68,7 @@ const Viewcourse = () => {
     const [totalDuration, setTotalDuration] = useState(0)
     const [progressData, setProgressData] = useState([])
     const [updatedProgress, setUpdatedProgress] = useState([])
+    const [progress,setProgress] = useState(0)
     let [count, setCount] = useState(0)
 
 
@@ -87,6 +88,7 @@ const Viewcourse = () => {
             if (res.data) {
                 setCount(res.data.materialIndex)
                 var materilCount = res.data.materialIndex
+                setProgress(res.data.materialProgress)
             }
 
 
@@ -113,6 +115,7 @@ const Viewcourse = () => {
             console.log(materialProgress);
             axios.patch(`${server}/progress/${progressData._id}`, { userId: uid, courseId, materialProgress, materialIndex: nextCount }).then((res) => {
                 setUpdatedProgress(res.data)
+                setProgress(res.data.materialProgress)
             })
         }
     }
@@ -150,10 +153,7 @@ const Viewcourse = () => {
 
 
 
-    const fetchProgress = () => {
-
-    }
-
+    
 
 
 
@@ -171,7 +171,6 @@ const Viewcourse = () => {
 
 
     useEffect(() => {
-        fetchProgress()
         getSections()
         getCourse()
     }, [])
@@ -203,7 +202,7 @@ const Viewcourse = () => {
                             <Typography sx={{ color: "gray", fontWeight: "bold", fontSize: "16px" }}> &rarr; {materialDetails && materialDetails.sectionId.sectionName} </Typography>
                         </Box>
                         <Box sx={{ ml: 50 }}>
-                            <CircularProgressWithLabel value={updatedProgress.materialProgress || 0} />
+                            <CircularProgressWithLabel value={progress || 0} />
                         </Box>
                     </Stack>
                     <Box sx={{ p: 2 }}>
@@ -215,7 +214,6 @@ const Viewcourse = () => {
                                     <Avatar sx={{ fontSize: "13px" }} alt="Cindy Baker" src="/static/images/avatar/3.jpg" />
                                     <Typography sx={{ fontSize: "15px", fontWeight: "bold", color: "gray" }}>{materialDetails && materialDetails.sectionId.courseId.instructorId.instructorName}</Typography>
                                 </Stack>
-
                             </Box>
                             <Stack direction={"row"} spacing={1}>
                                 <Tooltip title="Previous video">
@@ -230,7 +228,11 @@ const Viewcourse = () => {
                             <Typography>
                                 {materialDetails && materialDetails.materialDesc}
                             </Typography>
+                            {
+                                progress === 100 && <Button sx={{mt:2}} variant='contained'>View Certificate</Button>
+                            }
                         </Box>
+                        
                     </Box>
 
                 </Box>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import './subcategory.scss'
-import { Box, Button, Card, CardContent, Stack, TextField, Typography, InputLabel, MenuItem, Select, FormControl } from '@mui/material'
+import { Box, Button, Card, CardContent, Stack, TextField, Typography, InputLabel, MenuItem, Select, FormControl, IconButton } from '@mui/material'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import axios from 'axios';
 import Table from '@mui/material/Table';
@@ -10,6 +10,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const Subcategory = () => {
 
@@ -31,6 +32,13 @@ const Subcategory = () => {
   const fetchSubCategory = ()=>{
     axios.get("http://localhost:5000/Subcategory").then((res)=>{
       setshowSubCategory(res.data)
+    })
+  }
+
+
+  const deleteSubCategory = (id)=>{
+    axios.delete("http://localhost:5000/Subcategory/"+id).then((res)=>{
+      fetchCategory()
     })
   }
 
@@ -107,7 +115,11 @@ const Subcategory = () => {
               <TableCell align="center">{i + 1}</TableCell>
               <TableCell align="center">{row.subCategoryName}</TableCell>
               <TableCell align="center">{row.categoryId.categoryName}</TableCell>
-              <TableCell align="center">Delete</TableCell>
+              <TableCell align="center">
+                <IconButton onClick={()=>deleteSubCategory(row._id)} sx={{color:"red"}}>
+                  <DeleteIcon/>
+                </IconButton>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
