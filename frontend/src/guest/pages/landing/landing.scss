@@ -1,0 +1,73 @@
+.webLanding
+{
+    width: 100%;
+    scroll-behavior: smooth;
+    .btnPrimary
+    {
+      background-color: #003f88;
+    }
+    .btnSecondary
+    {
+      border-color: #003f88;
+      color: #003f88;
+    }
+    .topMost
+    {
+        height: 10px;
+        width: 100%;
+        background-color: #ffd500;
+    }
+  .navbar
+  {
+    padding: 10px 50px;
+    .logo
+    {
+        color:#003f88
+    }
+
+    .headerNav
+    {
+      list-style: none;
+      display: flex;
+      align-items:center ;
+      gap: 20px;
+      li 
+      {
+        a 
+        {
+          color: #003f88;
+          text-decoration: none;
+          font-size: 17px;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+  .heroSection
+  {
+    max-height: 90vh;
+    max-width: 100%;
+    padding: 100px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .heroSecond
+    {
+      position: absolute;
+      width: 450px;
+      top: 215px;
+      left: -150px;
+    }
+  }
+  .about
+  {
+    height: 100vh;
+    width: 100%;
+  }
+}
+
+html
+{
+  scroll-behavior: smooth;
+}

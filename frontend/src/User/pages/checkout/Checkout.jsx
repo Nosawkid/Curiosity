@@ -93,7 +93,7 @@ const Checkout = () => {
   }
 
   const uid = sessionStorage.getItem("Uid")
-  let { courseId, type } = useParams()
+  let { courseId, type } = useParams() 
   let bookingId = ""
 
   if (type === "multiple") {

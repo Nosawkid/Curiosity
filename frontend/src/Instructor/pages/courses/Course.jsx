@@ -28,12 +28,21 @@ const Course = () => {
   }
 
 
-  const deleteCourse = (id) => {
-    axios.delete("http://localhost:5000/Course/" + id).then((res) => {
-      alert(`Course deleted`)
+  const publishCourse = (id)=>{
+    axios.put("http://localhost:5000/Course/"+id+"/publish").then((res)=>{
       fetchCourse()
     })
   }
+
+
+  // const deleteCourse = (id) => {
+  //   axios.delete("http://localhost:5000/Course/" + id).then((res) => {
+  //     alert(`Course deleted`)
+  //     fetchCourse()
+  //   }).catch((err)=>{
+  //     console.log(err)
+  //   })
+  // }
 
   const formatDate = (dateString) => {
     const date = new Date(dateString)
@@ -107,7 +116,7 @@ const Course = () => {
               <Stack direction={"column"} sx={{ py: 3, display: "flex", gap: "90px", width: "250px" }}>
                 <Typography variant='h5'>{row.courseTitle}</Typography>
                 <Stack>
-                  <Typography variant='p'>Unpublished</Typography>
+                  <Typography variant='p'>{row.__v === 0 ? "Unpublished" : "Published"}</Typography>
 
                   <Typography component={"p"} sx={{ fontSize: "15px", mt: 1 }} variant='p'>Creation Date:{formatDate(row.courseDateTime)}</Typography>
                 </Stack>
@@ -116,7 +125,9 @@ const Course = () => {
               <Link to={`/instructor/courses/${row._id}`}>
                 <Button style={{ marginLeft: "150px", width: "55%", height: "50px" }} variant='outlined'>Edit/Manage Course</Button>
               </Link>
-              <Button onClick={()=>deleteCourse(row._id)} variant='contained' sx={{margin:"0",backgroundColor:"red",height:"50px"}}>Delete</Button>
+             {
+              row.__v === 0 &&  <Button onClick={()=>publishCourse(row._id)} style={{  width: "20%", height: "50px" }} variant='contained'>Publish</Button>
+             }
             </Stack>
           </CardContent>
         </Card>

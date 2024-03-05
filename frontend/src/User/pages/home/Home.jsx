@@ -15,7 +15,7 @@ const Home = () => {
   const [showCourses, setShowCourse] = useState([])
   const [value, setValue] = useState(3.5)
 
-  const uid = sessionStorage.getItem("Uid")
+  const uid = sessionStorage.getItem("Uid") 
 
 
   const fetchCourses = () => {

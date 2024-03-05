@@ -4,7 +4,7 @@ import './single.scss'
 import Chart from '../../components/chart/Chart'
 import {useParams,Link} from 'react-router-dom'
 import axios from 'axios'
-import { Button, Stack } from '@mui/material'
+import { Button, IconButton, Stack, TextField } from '@mui/material'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -14,6 +14,8 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Skeleton from '@mui/material/Skeleton';
+import Courseholder from '../../../assets/Courseholder.png'
+import Chip from '@mui/material/Chip';
 
 
 
@@ -29,6 +31,10 @@ const [loading, setLoading] = useState(true);
   const [course, setCourse] = useState(null);
   const [showSection,setShowSection] = useState([])
   const [showFullDesc,setShowFullDesc] = useState(false)
+  const [isEditing,setIsEditing] = useState(false)
+  const [courseTitle,setCourseTitle] = useState("")
+  const [courseDesc,setCourseDesc] = useState("")
+  const [isSectionEditing,setIsSectionEditing] = useState(false)
 
 
 const fetchCourse = async (id)=>{
@@ -36,6 +42,8 @@ const fetchCourse = async (id)=>{
  {
   const response = await axios.get("http://localhost:5000/Course/"+id)
   setCourse(response.data)
+  setCourseTitle(response.data.courseTitle)
+  setCourseDesc(response.data.courseDesc)
  }
  catch(err)
  {
@@ -64,6 +72,26 @@ const deleteSection = (sid)=>{
 
 const fullDesc = ()=>{
   setShowFullDesc(!showFullDesc)
+}
+
+
+const startEditing = ()=>{
+  setIsEditing(!isEditing)
+}
+
+const startSectionEditing = ()=>{
+  setIsSectionEditing(!isSectionEditing)
+}
+
+
+const editCourseBasics = ()=>{
+  axios.put("http://localhost:5000/Course/"+course._id+"/edit",{courseTitle,courseDesc}).then((res)=>{
+    setCourseTitle(res.data.courseTitle)
+    setCourseDesc(res.data.courseDesc)
+    setIsEditing(!isEditing)
+  }).catch((err)=>{
+    console.log(err.message)
+  })
 }
 
 useEffect(()=>{
@@ -97,15 +125,16 @@ if(error)
       <div className="singleContainer">
         <div className="top">
           <div className="left">
-            <div className="editButton">Edit</div>
+            {!isEditing ? <div onClick={startEditing} className="editButton">Edit</div> : <div onClick={startEditing} className="editButton">Cancel</div> }
             <h1 className="title">Information</h1>
             <div className="item">
-              <img  src={course.instructorId.instructorPhoto ? course.instructorId.instructorPhoto : "https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png"} alt="" className="itemImg" />
+             <img src={course.courseImage || Courseholder} alt="course" className='itemImg' />
               <div className="details">
-                <h1 className="itemTitle">{course.courseTitle}</h1>
-                <div className="itemDetail">
+                {!isEditing ? <h1 className="itemTitle">{courseTitle}</h1> : <TextField onChange={(e)=>setCourseTitle(e.target.value)} variant='standard' defaultValue={course.courseTitle}></TextField>}
+                <div  className={!isEditing ? "itemDetail" : "itemDesc"}>
                   <span className="itemKey">Desc: </span>
-                  <span  style={{cursor:"pointer"}} className="itemValue desc" onClick={fullDesc}>{showFullDesc ? course.courseDesc: course.courseDesc.length>100 ? course.courseDesc.slice(0,100)+"..." : course.courseDesc}</span>
+                  
+                  {!isEditing ? <span  style={{cursor:"pointer"}} className="itemValue desc" onClick={fullDesc}>{showFullDesc ? courseDesc: courseDesc.length>100 ? courseDesc.slice(0,100)+"..." : courseDesc}</span>: <TextField multiline minRows={2} variant='filled' onChange={(e)=> setCourseDesc(e.target.value)} defaultValue={courseDesc}></TextField>}
                 </div>
                 <div className="itemDetail">
                   <span className="itemKey">Instructor: </span>
@@ -117,7 +146,10 @@ if(error)
                 </div>
                 <div className="itemDetail">
                   <span className="itemKey">Category: </span>
-                  <span className="itemValue">{course.topicId.subCategoryId.categoryId.categoryName}</span>
+                  <span className="itemValue">{course && course.topicId.subCategoryId.categoryId.categoryName}</span>
+                </div>
+                <div>
+                  {isEditing && <Button onClick={editCourseBasics} variant='contained'>Submit</Button>}
                 </div>
               </div>
             </div>
@@ -151,7 +183,7 @@ if(error)
               <TableCell align='center' component="th" scope="row">
                 {key + 1}
               </TableCell>
-              <TableCell align="center">{row.sectionName}</TableCell>
+              <TableCell align="center">{!isSectionEditing ? row.sectionName : <TextField variant='standard' defaultValue={row.sectionName}></TextField>} <IconButton onClick={startSectionEditing}><Chip sx={{cursor:"pointer"}} label={!isSectionEditing ? "Edit" : "Cancel" }/></IconButton> </TableCell>
               <TableCell align="center">{row.courseId.courseTitle}</TableCell>
               <TableCell align="center">
                <Button onClick={()=>{

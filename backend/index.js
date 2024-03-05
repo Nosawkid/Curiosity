@@ -183,7 +183,7 @@ app.get("/progress/:userId/:courseId", async (req, res) => {
             userId,
             courseId
         } = req.params
-        const progress = await Progress.findOne({userId,courseId})
+        const progress = await Progress.findOne({ userId, courseId })
         res.status(200).send(progress)
     } catch (error) {
         console.log(error.message);
@@ -203,7 +203,7 @@ const purchaseSchema = new Schema({
     }
 })
 
-const Purchase = mongoose.model("schemaPurchase", purchaseSchema)     
+const Purchase = mongoose.model("schemaPurchase", purchaseSchema)
 
 
 
@@ -347,14 +347,13 @@ app.get('/Category', async (req, res) => {
 app.delete("/Category/:id", async (req, res) => {
     try {
         const { id } = req.params
-        const subcategories = await Subcategory.find({categoryId:id})
-        for(let sub of subcategories)
-        {
-            await Topic.deleteMany({subCategoryId:sub._id})
+        const subcategories = await Subcategory.find({ categoryId: id })
+        for (let sub of subcategories) {
+            await Topic.deleteMany({ subCategoryId: sub._id })
         }
-        await Subcategory.deleteMany({categoryId:id})
+        await Subcategory.deleteMany({ categoryId: id })
         await Category.findByIdAndDelete(id)
-        res.status(200).send({message:"Category Deleted"})
+        res.status(200).send({ message: "Category Deleted" })
     }
     catch (err) {
         console.log(err.message)
@@ -445,15 +444,15 @@ app.get("/Subcategory/:id", async (req, res) => {
     }
 })
 
-app.delete("/Subcategory/:id",async(req,res)=>{
-   try {
-    const {id} = req.params
-    await Topic.deleteMany({subCategoryId:id})
-    await Subcategory.findByIdAndDelete(id)
-   } catch (error) {
-    console.log(error);
-    console.log("Server Error");
-   }
+app.delete("/Subcategory/:id", async (req, res) => {
+    try {
+        const { id } = req.params
+        await Topic.deleteMany({ subCategoryId: id })
+        await Subcategory.findByIdAndDelete(id)
+    } catch (error) {
+        console.log(error);
+        console.log("Server Error");
+    }
 })
 
 
@@ -615,7 +614,7 @@ app.post("/User", async (req, res) => {
         const ins = await Instructor.findOne({ instructorEmail: userEmail })
         const portal = await JobPortal.findOne({ jobPortalEmail: userEmail })
         let user = await User.findOne({ userEmail })
-        vdvfb
+        
 
         if (admin || user || ins || portal) {
             return res
@@ -1048,8 +1047,8 @@ const courseSchema = new Schema({
         type: Number,
         required: true
     },
-    courseImage:{
-        type:String
+    courseImage: {
+        type: String
     }
 })
 
@@ -1061,12 +1060,15 @@ const Course = mongoose.model("schemaCourse", courseSchema)
 
 // Create
 
-app.post("/Course",upload.fields([
+app.post("/Course", upload.fields([
     { name: "courseImage", maxCount: 1 },
-]) ,async (req, res) => {
+]), async (req, res) => {
     try {
-        var fileValue = JSON.parse(JSON.stringify(req.files));
-        var courseImage = `http://127.0.0.1:${port}/images/${fileValue.courseImage[0].filename}`;
+        let courseImage = ""
+        if (req.files && req.files.courseImage && req.files.courseImage[0]) {
+            var fileValue = JSON.parse(JSON.stringify(req.files));
+            courseImage = `http://127.0.0.1:${port}/images/${fileValue.courseImage[0].filename}`;
+        }
         const {
             courseTitle,
             instructorId,
@@ -1080,7 +1082,7 @@ app.post("/Course",upload.fields([
         let course = await Course.findOne({ courseTitle })
         if (course) {
             return (
-                res.status(400).send({message:"Course with same name already exist",status:false})
+                res.status(400).send({ message: "Course with same name already exist", status: false })
             )
         }
 
@@ -1094,10 +1096,10 @@ app.post("/Course",upload.fields([
             courseImage
         })
         await course.save();
-        res.status(200).send("Course Added")
+        res.status(200).send({ message: "Course Added", status: true })
     } catch (error) {
         console.log(error.message)
-        console.log({message:"Server Error",status:true})
+        console.log({ message: "Server Error", status: false })
     }
 })
 
@@ -1193,16 +1195,16 @@ app.get("/CourseFromIns/:insid", async (req, res) => {
 app.delete("/Course/:id", async (req, res) => {
     try {
         const { id } = req.params
-        
-        const sections = await Section.find({courseId:id})
 
-        for(let section of sections)
-        {
-            await Material.deleteMany({sectionId:section._id})
+        const sections = await Section.find({ courseId: id })
+
+        for (let section of sections) {
+            await Material.deleteMany({ sectionId: section._id })
         }
 
-        await Section.deleteMany({courseId:id})
+        await Section.deleteMany({ courseId: id })
         await Course.findByIdAndDelete(id)
+        res.status(200).send({ message: "Course Deleted", status: true })
     }
     catch (err) {
         console.log(err.message)
@@ -1234,14 +1236,25 @@ app.put("/Course/:id/edit", async (req, res) => {
     }
 })
 
+app.put("/Course/:id/publish", async (req, res) => {
+    try {
+        const { id } = req.params
+        const course = await Course.findByIdAndUpdate(id, { __v: 1 }, { new: true })
+        res.status(200).send({ message: "Course Published Successfully", status: true })
+    } catch (error) {
+        console.log(error.message)
+        res.send({ message: error.message, status: false })
+    }
+})
+
 // Getting all course except purchased ones
 
-app.get("/Course/:userId/notPurchased",async(req,res)=>{
+app.get("/Course/:userId/notPurchased", async (req, res) => {
     try {
-        const {userId} = req.params
-        const purchasedCourses = await Purchase.find({userId})
+        const { userId } = req.params
+        const purchasedCourses = await Purchase.find({ userId })
         const purchasedCourseIds = purchasedCourses.map(course => course.courseId);
-        const courses = await Course.find({_id:{$nin:purchasedCourseIds}})
+        const courses = await Course.find({ _id: { $nin: purchasedCourseIds }, __v: 1 })
         res.status(200).send(courses)
     } catch (error) {
         console.log(error.message);
@@ -1383,6 +1396,8 @@ app.put("/Section/:id/edit", async (req, res) => {
         console.log("Server Error");
     }
 })
+
+
 
 // MATERIAL
 
@@ -1816,7 +1831,7 @@ app.post("/wishlist", async (req, res) => {
 
         if (wish) {
             return (
-                res.send({message:"Already Present in the wishlist",status:false})
+                res.send({ message: "Already Present in the wishlist", status: false })
             )
         }
 
@@ -1825,7 +1840,7 @@ app.post("/wishlist", async (req, res) => {
             userId
         })
         await wishlist.save();
-        res.status(200).send({message:"Added to Wishlist",status:true})
+        res.status(200).send({ message: "Added to Wishlist", status: true })
     }
     catch (err) {
         console.log(err.message)
@@ -2713,92 +2728,179 @@ app.post("/Checkout", async (req, res) => {
             courseId,
             bookingId: savedBooking._id
         })
-
         const savedCart = await cart.save()
         const course = await Course.findById(courseId)
-
+        const user = await User.findById(userId)
         const existingBooking = await Booking.findByIdAndUpdate(savedBooking._id, { __v: 1, price: course.price, orderId }, { new: true })
-        const existingPurchase = await Purchase.findOne({userId,courseId})
-       if(!existingPurchase)
-       {
-        const purchase = new Purchase({
-            userId,
-            courseId
-        })
-        await purchase.save()
+        const existingPurchase = await Purchase.findOne({ userId, courseId })
+        if (!existingPurchase) {
+            const purchase = new Purchase({
+                userId,
+                courseId
+            })
+            await purchase.save()
 
-        const progress = new Progress({
-            userId,
-            courseId
-        })
-        await progress.save()
-       }
-       else
-       {
-            return res.send({message:"Course already bought",status:false})
-       }
-        let content=` 
-        <html>
-       <head>
-           <title>OTP Email</title>
-           <style>
-               /* Define the style for the container */
-               .container {
-                   width: 90%;
-                   max-width: 600px;
-                   margin: 0 auto;
-                   padding: 20px;
-                   background-color: #f2f2f2;
-                   font-family: Arial, sans-serif;
-               }
-       
-               /* Define the style for the OTP box */
-               .otp-box {
-                   width: 90%;
-                    max-width: 600px;
-                   background-color: #ffffff;
-                   padding: 20px;
-                   border-radius: 5px;
-                   text-align: center;
-               }
-       
-               /* Define the style for the OTP text */
-               .otp-text {
-                   font-size: 24px;
-                   font-weight: bold;
-                   color: #333333;
-               }
-       
-               /* Define the style for the OTP number */
-               .otp-number {
-                   font-size: 48px;
-                   font-weight: bold;
-                   color: #007bff;
-                   margin-top: 10px;
-               }
-       
-               /* Define the style for the instructions text */
-               .instructions {
-                   font-size: 14px;
-                   color: #666666;
-                   margin-top: 10px;
-               }
-           </style>
-       </head>
-       <body>
-           <!-- Display OTP in an improved email view -->
-           <div class="container">
-               <div class="otp-box">
-                   <div class="otp-text">One-Time Password (OTP)</div>
-                   <div class="otp-number">12345678</div>
-                   <div class="instructions">Please use the above OTP to verify your account.</div>
+            const progress = new Progress({
+                userId,
+                courseId
+            })
+            await progress.save()
+        }
+        else {
+            return res.send({ message: "Course already bought", status: false })
+        }
+        const date = new Date();
+        const months = [
+            "January", "February", "March", "April", "May", "June", "July",
+            "August", "September", "October", "November", "December"
+        ];
+        const monthIndex = date.getMonth();
+        const month = months[monthIndex];
+        const day = date.getDate();
+        const year = date.getFullYear();
+
+        const formattedDate = `${month} ${day}, ${year}`;
+        const prefix = "CUR";
+        const length = 8; // Change this to adjust the length of the random numbers portion
+        let invoiceCode = prefix;
+
+        for (let i = 0; i < length - prefix.length; i++) {
+            const randomNumber = Math.floor(Math.random() * 10); // Generates a random number between 0 and 9
+            invoiceCode += randomNumber;
+        }
+        let content = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate</title>
+    <style>
+        body {
+            width: 100%;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: "Ubuntu", sans-serif;
+            color: #003f88;
+        }
+        
+        .main-container {
+            margin: 10px auto;
+            width: 40%;
+            background-color: #fff;
+            -webkit-box-shadow: 0px 2px 18px 3px rgba(0, 0, 0, 0.25);
+            -moz-box-shadow: 0px 2px 18px 3px rgba(0, 0, 0, 0.25);
+            box-shadow: 0px 2px 18px 3px rgba(0, 0, 0, 0.25);
+        }
+        .company-name
+        {
+            text-align: center;
+            padding: 20px 50px;
+        }
+        .top-content,.bottom-content
+        {
+            padding: 5px 50px;
+            color: #00000097;
+        }
+        .c-blue
+        {
+            color: #003f88;
+        }
+        .user-name
+        {
+            font-weight: 500;
+        }
+        .price
+        {
+            font-weight: bold;
+            font-size: 30px;
+        }
+        .border
+        {
+            width: 100%;
+            border: 1px solid rgba(0, 0, 0, 0.605);
+        }
+        .receipt-content
+        {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .circle
+        {
+            width: 10px;
+            height: 10px;
+            background-color: rgb(240, 238, 238);
+            border-radius: 50%;
+        }
+        .divider
+        {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .receiptno
+        {
+            font-weight: bold;
+        }
+        .items
+        {
+            font-size: 15px;
+            font-weight: bold;
+        }
+        .bottom-content
+        {
+            padding-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-container">
+        <h1 class="company-name">CURIOSITY</h1>
+        <div class="content">
+            <div class="top-content">
+               <p> Hello <span class="user-name c-blue">${user.userName}</span>,</p>
+               <p>You have successfully paid for the order <span class="orderId">${orderId}</span></p>
+               <p>Receipt from Curiosity</p>
+               <p class="price c-blue">₹${existingBooking.price}</p>
+               <p class="date">Paid ${formattedDate}</p>
+               <div class="border"></div>
+               <div class="receipt-content">
+                    <p>Receipt number</p>
+                    <p>${orderId}</p>
                </div>
-           </div>
-       </body>
-       </html> `; 
-        sendEmail(content);   
+               <div class="receipt-content">
+                    <p>Invoice number</p>
+                    <p>${invoiceCode}</p>
+               </div>
+            </div>
+            <div class="bottom-content">
+                <p class="receiptno c-blue">Receipt ${orderId}</p>
+                <p class="date">${formattedDate}</p>
+                <div class="item-container">
+                    <div class="items receipt-content">
+                        <p>${course.courseTitle}</p>
+                        <p class="item-price">₹${course.price}</p>
+                    </div>
+                </div>
+                <div class="border"></div>
+                <div class="total-container items">
+                    <div class="total receipt-content">
+                        <p>Total</p>
+                        <p>₹${course.price}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
+`;
 
-        res.status(200).send({ message: "Checkout Complete",status:true })
+        sendEmail(user.userEmail,content);
+
+        res.status(200).send({ message: "Checkout Complete", status: true })
 
     } catch (error) {
         console.log(error.message);
@@ -2813,31 +2915,193 @@ app.post("/Cartcheckout", async (req, res) => {
             bookingId
         } = req.body
 
-      
 
+        let arr = []
         let booking = await Booking.findById(bookingId)
+        const user = await User.findById(booking.userId)
         booking = await Booking.findByIdAndUpdate(booking._id, { __v: 1 }, { new: true })
         let carts = await Cart.find({ bookingId: booking._id })
+        const courseIds = carts.map((course)=> course.courseId)
         for (let cart of carts) {
-           const existingPurchase = await Purchase.findOne({
-            userId: booking.userId,
-            courseId: cart.courseId
-           })
-           if(!existingPurchase)
-           {
-            const purchase = new Purchase({
+            const existingPurchase = await Purchase.findOne({
                 userId: booking.userId,
                 courseId: cart.courseId
             })
-            await purchase.save()
+            if (!existingPurchase) {
+                const purchase = new Purchase({
+                    userId: booking.userId,
+                    courseId: cart.courseId
+                })
+                await purchase.save()
 
-            const progress = new Progress({
-                userId: booking.userId,
-                courseId: cart.courseId
-            })
-            await progress.save()
-           }
+                const progress = new Progress({
+                    userId: booking.userId,
+                    courseId: cart.courseId
+                })
+                await progress.save()
+            }
         }
+        for (let ele of courseIds)
+        {
+            const course = await Course.findById(ele)
+            arr.push(course)
+        }
+        let courseContent = '';
+        arr.forEach((course) => {
+            courseContent += `
+                <div class="items receipt-content">
+                    <p>${course.courseTitle}</p>
+                    <p class="item-price">₹${course.price}</p>
+                </div>
+            `;
+        });
+        const date = new Date();
+        const months = [
+            "January", "February", "March", "April", "May", "June", "July",
+            "August", "September", "October", "November", "December"
+        ];
+        const monthIndex = date.getMonth();
+        const month = months[monthIndex];
+        const day = date.getDate();
+        const year = date.getFullYear();
+
+        const formattedDate = `${month} ${day}, ${year}`;
+        const prefix = "CUR";
+        const length = 8; // Change this to adjust the length of the random numbers portion
+        let invoiceCode = prefix;
+
+        for (let i = 0; i < length - prefix.length; i++) {
+            const randomNumber = Math.floor(Math.random() * 10); // Generates a random number between 0 and 9
+            invoiceCode += randomNumber;
+        }
+        let content = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Certificate</title>
+            <style>
+                body {
+                    width: 100%;
+                    height: 100vh;
+                    margin: 0;
+                    padding: 0;
+                    font-family: "Ubuntu", sans-serif;
+                    color: #003f88;
+                }
+                
+                .main-container {
+                    margin: 10px auto;
+                    width: 40%;
+                    background-color: #fff;
+                    -webkit-box-shadow: 0px 2px 18px 3px rgba(0, 0, 0, 0.25);
+                    -moz-box-shadow: 0px 2px 18px 3px rgba(0, 0, 0, 0.25);
+                    box-shadow: 0px 2px 18px 3px rgba(0, 0, 0, 0.25);
+                }
+                .company-name
+                {
+                    text-align: center;
+                    padding: 20px 50px;
+                }
+                .top-content,.bottom-content
+                {
+                    padding: 5px 50px;
+                    color: #00000097;
+                }
+                .c-blue
+                {
+                    color: #003f88;
+                }
+                .user-name
+                {
+                    font-weight: 500;
+                }
+                .price
+                {
+                    font-weight: bold;
+                    font-size: 30px;
+                }
+                .border
+                {
+                    width: 100%;
+                    border: 1px solid rgba(0, 0, 0, 0.605);
+                }
+                .receipt-content
+                {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                }
+                .circle
+                {
+                    width: 10px;
+                    height: 10px;
+                    background-color: rgb(240, 238, 238);
+                    border-radius: 50%;
+                }
+                .divider
+                {
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                }
+                .receiptno
+                {
+                    font-weight: bold;
+                }
+                .items
+                {
+                    font-size: 15px;
+                    font-weight: bold;
+                }
+                .bottom-content
+                {
+                    padding-bottom: 20px;
+                }
+            </style>
+        </head>
+        <body>
+            <main class="main-container">
+                <h1 class="company-name">CURIOSITY</h1>
+                <div class="content">
+                    <div class="top-content">
+                       <p> Hello <span class="user-name c-blue">${user.userName}</span>,</p>
+                       <p>You have successfully paid for the order <span class="orderId">${booking.orderId}</span></p>
+                       <p>Receipt from Curiosity</p>
+                       <p class="price c-blue">₹${booking.price}</p>
+                       <p class="date">Paid ${formattedDate}</p>
+                       <div class="border"></div>
+                       <div class="receipt-content">
+                            <p>Receipt number</p>
+                            <p>${booking.orderId}</p>
+                       </div>
+                       <div class="receipt-content">
+                            <p>Invoice number</p>
+                            <p>${invoiceCode}</p>
+                       </div>
+                    </div>
+                    <div class="bottom-content">
+                        <p class="receiptno c-blue">Receipt ${booking.orderId}</p>
+                        <p class="date">${formattedDate}</p>
+                        <div class="item-container">
+                           ${courseContent}
+                        </div>
+                        <div class="border"></div>
+                        <div class="total-container items">
+                            <div class="total receipt-content">
+                                <p>Total</p>
+                                <p>₹${booking.price}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </body>
+        </html>
+        `;
+
+        sendEmail(user.userEmail,content);
 
         res.status(200).send({ message: "Purchase Successful" })
     } catch (error) {
@@ -2924,14 +3188,14 @@ var transporter = mailer.createTransport({
         user: "curiosity2255@gmail.com", //from email Id
         pass: "izuvpenxjegowfcw", // App password created from google account
     },
-  });
-  function sendEmail( content) {
+});
+function sendEmail(to,content) {
     const mailOptions = {
         from: "curiosity2255@gmail.com", //from email Id for recipient can view
-        to:"bismisidhik789@gmail.com",
-        subject: "Verification",
+        to,
+        subject: "Purchase Successful",
         html: content,
-        
+
     };
     transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
@@ -2940,4 +3204,4 @@ var transporter = mailer.createTransport({
             console.log("Email sented");
         }
     });
-  }
+}

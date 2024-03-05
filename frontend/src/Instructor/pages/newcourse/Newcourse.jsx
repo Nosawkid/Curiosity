@@ -56,10 +56,10 @@ const Newcourse = () => {
         frm.append("price",price)
         frm.append("courseImage",courseImage)
 
-        axios.post(`${Server}/Course`,frm).then((res)=>{
+        axios.post(`http://localhost:5000/Course`,frm).then((res)=>{
             if(res.data.status)
             {
-                navigate('/instructor/course')
+                navigate('/instructor/courses')
             }
         })
     }
