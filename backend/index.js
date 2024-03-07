@@ -581,7 +581,7 @@ const userSchema = new Schema({
         required: true
     },
     userContact: {
-        type: String,
+        type: Number,
         required: true
     },
     userHeadLine: {

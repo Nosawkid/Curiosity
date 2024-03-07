@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Box, Button, Card, CardContent, FormLabel, Stack, TextField, Typography, Select, MenuItem, FormControl, InputLabel, IconButton, InputAdornment, Input } from '@mui/material'
+import { Box, Button, Card, CardContent, FormLabel, Stack, TextField, Typography, Select, MenuItem, FormControl, InputLabel, IconButton, InputAdornment, Input, FormHelperText } from '@mui/material'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Navbar from '../../components/navbar/Navbar';
 import Footer from '../../components/footer/Footer';
@@ -11,6 +11,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useNavigate } from 'react-router-dom';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+
 
 
 
@@ -43,13 +44,27 @@ const Hirer = () => {
     const [showPassword, setShowPassword] = React.useState(false);
     const [showConfirm, setShowConfirm] = React.useState(false);
     const [open, setOpen] = React.useState(false);
-    const [message,setMessage] = useState("")
-    const [severity,setSeverity] = useState("")
-   
-    
+    const [message, setMessage] = useState("")
+    const [severity, setSeverity] = useState("")
+    const [contactError, setContactError] = useState(false)
+    const [passwordError, setPasswordError] = useState(false)
+
 
     const registerPortal = (e) => {
         e.preventDefault()
+        if (contactError) {
+            setOpen(true)
+            setMessage("Enter a valid contact number")
+            setSeverity("error")
+            return
+        }
+
+        if (passwordError) {
+            setOpen(true)
+            setMessage("Enter a strong password")
+            setSeverity("error")
+            return
+        }
         if (jobPortalPassword === cPassword) {
             const frm = new FormData()
             frm.append("jobPortalName", firstName + " " + lastName)
@@ -64,27 +79,46 @@ const Hirer = () => {
                     setSeverity("success")
                     setOpen(true)
                     setMessage(res.data.message)
-                    setTimeout(()=>{
+                    setTimeout(() => {
                         navigate("/guest")
-                    },2000)
+                    }, 2000)
                 }
-                else
-                {
+                else {
                     setSeverity("error")
                     setOpen(res.data.message)
                     setOpen(true)
-                
+
                 }
-               
+
             }).catch((err) => {
                 setSeverity("error")
                 setOpen(err.message)
                 setOpen(true)
-            
+
             })
         }
         else {
-            alert("Password Mismatch")
+            setOpen(true)
+            setMessage("Password Mismatch")
+            setSeverity("error")
+        }
+    }
+
+    const validateContact = () => {
+        const indianPhoneNumberRegex = /^[6-9]\d{9}$/;
+        if (!indianPhoneNumberRegex.test(jobPortalContact)) {
+            setContactError("Please enter a valid  contact number");
+        } else {
+            setContactError("");
+        }
+    };
+
+    const validatePassword = () => {
+        if (jobPortalPassword.length < 8) {
+            setPasswordError(true)
+        }
+        else {
+            setPasswordError(false)
         }
     }
 
@@ -98,11 +132,11 @@ const Hirer = () => {
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
-          return;
+            return;
         }
-    
+
         setOpen(false);
-      };
+    };
 
 
 
@@ -118,19 +152,33 @@ const Hirer = () => {
                             Hirer Registration
                             <Stack onSubmit={registerPortal} component="form" direction="column" spacing={2} sx={{ mt: 3 }}>
                                 <Stack direction="row" spacing={3}>
-                                    <TextField onChange={(e) => setFirstName(e.target.value)} id='firstName' label="First Name" variant='standard' />
-                                    <TextField onChange={(e) => setLastName(e.target.value)} id='lastName' label="Last Name" variant='standard' />
+                                    <TextField required onChange={(e) => setFirstName(e.target.value)} id='firstName' label="First Name" variant='standard' />
+                                    <TextField required onChange={(e) => setLastName(e.target.value)} id='lastName' label="Last Name" variant='standard' />
                                 </Stack>
-                                <TextField onChange={(e) => setJobPortalEmail(e.target.value)} type='email' id='email' label="Email" variant='standard' />
-                                <TextField onChange={(e) => setJobPortalCompanyName(e.target.value)} type='text' id='companyName' label="Company Name" variant='standard' />
-                                <TextField onChange={(e) => setJobPortalContact(e.target.value)} type='contact' id='contact' label="Contact" variant='standard' />
+                                <TextField required onChange={(e) => setJobPortalEmail(e.target.value)} type='email' id='email' label="Email" variant='standard' />
+                                <TextField required onChange={(e) => setJobPortalCompanyName(e.target.value)} type='text' id='companyName' label="Company Name" variant='standard' />
+
+                                <FormControl sx={{ m: 1, width: "100%" }} variant="standard">
+                                    <InputLabel htmlFor="standard-adornment-contact">Contact</InputLabel>
+                                    <Input
+                                        required
+                                        error={!!contactError}
+                                        onBlur={validateContact}
+                                        onChange={(e) => setJobPortalContact(e.target.value)}
+                                        id="standard-adornment-contact"
+                                        type='text'
+                                        startAdornment={<InputAdornment position="start">+91</InputAdornment>}
+                                    />
+                                    <FormHelperText error={!!contactError && contactError}>{contactError}</FormHelperText>
+                                </FormControl>
                                 <FormControl sx={{ m: 1 }} variant="standard">
                                     <InputLabel htmlFor="standard-adornment-password">Password</InputLabel>
                                     <Input
-
+                                        required
                                         id="standard-adornment-password"
                                         type={showPassword ? 'text' : 'password'}
                                         onChange={(e) => setJobPortalPassword(e.target.value)}
+                                        onBlur={validatePassword}
                                         endAdornment={
                                             <InputAdornment position="end">
                                                 <IconButton
@@ -143,11 +191,12 @@ const Hirer = () => {
                                             </InputAdornment>
                                         }
                                     />
+                                    {passwordError && <FormHelperText error={!!passwordError && passwordError}>Password isn't strong enough</FormHelperText>}
                                 </FormControl>
                                 <FormControl sx={{ m: 1 }} variant="standard">
                                     <InputLabel htmlFor="standard-adornment-password">Confirm Password</InputLabel>
                                     <Input
-
+                                        required
                                         id="standard-adornment-password"
                                         type={showConfirm ? 'text' : 'password'}
                                         onChange={(e) => setCPassword(e.target.value)}
@@ -171,6 +220,7 @@ const Hirer = () => {
                                         <FormControl fullWidth>
                                             <InputLabel id="demo-simple-select-label">ID Type</InputLabel>
                                             <Select
+                                                required
                                                 onChange={(e) => setJobPortalIdType(e.target.value)}
                                                 labelId="demo-simple-select-label"
                                                 id="demo-simple-select"
@@ -193,7 +243,7 @@ const Hirer = () => {
                                         startIcon={<CloudUploadIcon />}
                                     >
                                         Upload file
-                                        <VisuallyHiddenInput onChange={(e) => setJobPortalProof(e.target.files[0])} type="file" />
+                                        <VisuallyHiddenInput required onChange={(e) => setJobPortalProof(e.target.files[0])} type="file" />
                                     </Button>
                                 </Stack>
                                 <Button type='submit' variant='contained'>Submit</Button>

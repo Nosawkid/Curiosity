@@ -1,12 +1,16 @@
 import React, { useState } from 'react'
-import { Box, Button, Card, CardContent, Stack, TextField, Typography } from '@mui/material'
+import { Box, Button, Card, CardContent, FormControl, FormHelperText, IconButton, Input, InputAdornment, InputLabel, Stack, TextField, Typography } from '@mui/material'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Navbar from '../../components/navbar/Navbar';
 import { styled } from '@mui/material/styles';
 import Footer from '../../components/footer/Footer';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import axios from 'axios'
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 
 
@@ -35,12 +39,29 @@ const Instructor = () => {
     const [instructorProof, setInstructorProof] = useState('')
     const [instructorQualification, setInstructorQualification] = useState('')
     const [instructorField, setInstructorField] = useState('')
-    const [passwordVisible,setPasswordVisible] = useState(false)
+    const [passwordVisible, setPasswordVisible] = useState(false)
     const [confirmPassVisible, setConfirmPassVisible] = useState(false)
-
+    const [passwordError, setPasswordError] = useState("")
+    const [contactError, setContactError] = useState("")
+    const [open, setOpen] = useState(false)
+    const [message, setMessage] = useState("")
+    const [severity, setSeverity] = useState("")
     // Function to add send data to database
     const registerInstructor = (e) => {
         e.preventDefault()
+        if (contactError) {
+            setOpen(true)
+            setMessage("Enter a valid contact number")
+            setSeverity("error")
+            return
+        }
+
+        if (passwordError) {
+            setOpen(true)
+            setMessage("Enter a strong password")
+            setSeverity("error")
+            return
+        }
         if (instructorPassword === confirmPassword) {
 
             const frm = new FormData()
@@ -56,27 +77,54 @@ const Instructor = () => {
             axios.post("http://localhost:5000/Instructor", frm).then((res) => {
                 console.log(res.data)
                 navigate("/guest/")
-             
+
             }).catch((err) => {
                 console.log(err.message)
             })
         }
         else {
-            alert("Password Mismatch")
+            setOpen(true)
+            setMessage("Password Mismatch")
+            setSeverity("error")
         }
 
     }
 
-    
-    const passShow = ()=>{
+
+    const validateContact = () => {
+        const indianPhoneNumberRegex = /^[6-9]\d{9}$/;
+        if (!indianPhoneNumberRegex.test(instructorContact)) {
+            setContactError("Please enter a valid  contact number");
+        } else {
+            setContactError("");
+        }
+    };
+
+
+    const passShow = () => {
         setPasswordVisible(!passwordVisible)
     }
 
-    const confirmPassShow = ()=>{
+    const confirmPassShow = () => {
         setConfirmPassVisible(!confirmPassVisible)
     }
 
+    const validatePassword = () => {
+        if (instructorPassword.length < 8) {
+            setPasswordError(true)
+        }
+        else {
+            setPasswordError(false)
+        }
+    }
 
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpen(false);
+    };
 
 
 
@@ -84,7 +132,7 @@ const Instructor = () => {
     return (
         <div className='instructor'>
             <Navbar />
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", minHeight: "100vh" }} component={'form'} onSubmit={registerInstructor}>
+            <Box sx={{mt:2, display: "flex", alignItems: "center", justifyContent: "center", width: "100%", minHeight: "100vh" }} component={'form'} onSubmit={registerInstructor}>
                 <Card sx={{ minWidth: "500px" }}>
                     <CardContent sx={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
                         <AccountCircleIcon sx={{ fontSize: "75px" }} />
@@ -92,27 +140,91 @@ const Instructor = () => {
                             Instructor Registration
                             <Stack direction="column" spacing={2} sx={{ mt: 3 }}>
                                 <Stack direction="row" spacing={3}>
-                                    <TextField onChange={(e) => setFirstName(e.target.value)} id='firstName' label="First Name" variant='standard' />
-                                    <TextField onChange={(e) => setLastName(e.target.value)} id='lastName' label="Last Name" variant='standard' />
+                                    <TextField required onChange={(e) => setFirstName(e.target.value)} id='firstName' label="First Name" variant='standard' />
+                                    <TextField required onChange={(e) => setLastName(e.target.value)} id='lastName' label="Last Name" variant='standard' />
                                 </Stack>
-                                <TextField onChange={(e) => setInstructorEmail(e.target.value)} type='email' id='email' label="Email" variant='standard' />
-                                <TextField onChange={(e) => setInstructorContact(e.target.value)} type='text' id='contact' label="Contact" variant='standard' />
-                                <Stack direction="row" sx={{display:"flex",alignItems:"center"}} spacing={3}>
-                                    <TextField onChange={(e) => setInstructorPassword(e.target.value)} type={passwordVisible?"text":"password"} id='password' label="Password" variant='standard' />
-                                    <Button onClick={passShow} variant='text' sx={{fontSize:"10px"}}>Show Password</Button>
+                                <TextField required onChange={(e) => setInstructorEmail(e.target.value)} type='email' id='email' label="Email" variant='standard' />
+                                <Stack>
+                                    <FormControl sx={{ m: 1, width: "100%" }} variant="standard">
+                                        <InputLabel htmlFor="standard-adornment-contact">Contact</InputLabel>
+                                        <Input
+                                        required
+                                            error={!!contactError}
+                                            onBlur={validateContact}
+                                            onChange={(e) => setInstructorContact(e.target.value)}
+                                            id="standard-adornment-contact"
+                                            type='text'
+                                            startAdornment={<InputAdornment position="start">+91</InputAdornment>}
+                                        />
+                                        <FormHelperText error={!!contactError && contactError}>{contactError}</FormHelperText>
+                                    </FormControl>
                                 </Stack>
-                                <Stack direction={"row"} sx={{display:"flex",alignItems:"center"}} spacing={3}>
-                                    <TextField onChange={(e) => setConfirmPassword(e.target.value)} type={confirmPassVisible ? "text" :"password"} id='password' label="Confirm password" variant='standard' />
-                                    <Button onClick={confirmPassShow} variant='text' sx={{fontSize:"10px"}}>Show Password</Button>
+                                <Stack direction="row" sx={{ display: "flex", alignItems: "center" }} spacing={3}>
+                                    <FormControl sx={{ m: 1, width: "100%" }} variant="standard">
+                                        <InputLabel htmlFor="standard-adornment-password">Password</InputLabel>
+                                        <Input 
+                                        required
+                                            fullWidth
+                                            onChange={(e) => {
+                                                setInstructorPassword(e.target.value)
+
+                                            }}
+                                            onBlur={validatePassword}
+                                            id="standard-adornment-password"
+                                            type={passwordVisible ? 'text' : 'password'}
+                                            endAdornment={
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        aria-label="toggle password visibility"
+                                                        onClick={passShow}
+
+                                                    >
+                                                        {passwordVisible ? <VisibilityOff /> : <Visibility />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            }
+                                        />
+                                        {passwordError && <FormHelperText error={!!passwordError && passwordError}>Password isn't strong enough</FormHelperText>}
+
+                                    </FormControl>
                                 </Stack>
-                                <TextField onChange={(e) => setInstructorQualification(e.target.value)} type='text' id='qualification' label="Qualification" variant='standard' />
-                                <TextField onChange={(e) => setInstructorField(e.target.value)} type='text' id='field' label="Field of expertise" variant='standard' />
+                                <Stack direction={"row"} sx={{ display: "flex", alignItems: "center" }} spacing={3}>
+                                    <FormControl sx={{ m: 1, width: "100%" }} variant="standard">
+                                        <InputLabel htmlFor="standard-adornment-password">Confirm Password</InputLabel>
+                                        <Input
+                                        required
+                                            fullWidth
+                                            onChange={(e) => {
+                                                setConfirmPassword(e.target.value)
+
+                                            }}
+
+                                            id="standard-adornment-password"
+                                            type={confirmPassVisible ? 'text' : 'password'}
+                                            endAdornment={
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        aria-label="toggle password visibility"
+                                                        onClick={confirmPassShow}
+
+                                                    >
+                                                        {confirmPassVisible ? <VisibilityOff /> : <Visibility />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            }
+                                        />
+
+
+                                    </FormControl>
+                                </Stack>
+                                <TextField required onChange={(e) => setInstructorQualification(e.target.value)} type='text' id='qualification' label="Qualification" variant='standard' />
+                                <TextField required onChange={(e) => setInstructorField(e.target.value)} type='text' id='field' label="Field of expertise" variant='standard' />
                                 <Stack direction="column" spacing={1} sx={{ pt: 2, pb: 2 }} >
                                     <Box sx={{ display: "flex", gap: "20px", alignItems: "center" }}>
                                         <Typography component="span">Upload Id proof:</Typography>
                                         <Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
                                             Upload file
-                                            <VisuallyHiddenInput onChange={(e) => setInstructorProof(e.target.files[0])} type="file" />
+                                            <VisuallyHiddenInput required onChange={(e) => setInstructorProof(e.target.files[0])} type="file" />
                                         </Button>
                                     </Box>
                                 </Stack>
@@ -121,6 +233,18 @@ const Instructor = () => {
                         </Typography>
                     </CardContent>
                 </Card>
+                <Stack>
+                    <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                        <Alert
+                            onClose={handleClose}
+                            severity={severity}
+                            variant="filled"
+                            sx={{ width: '100%' }}
+                        >
+                            {message}
+                        </Alert>
+                    </Snackbar>
+                </Stack>
             </Box>
             <Footer />
         </div>

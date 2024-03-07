@@ -19,8 +19,8 @@ const Landing = () => {
         <Stack direction={"row"} sx={{ alignItems: "center" }}>
           <Typography className='logo' sx={{ fontSize: "25px", fontWeight: "bold" }}>CURIOSITY</Typography>
           <ul className='headerNav'>
-            <li><a href="#about">About Us</a></li>
-            <li><a href="#">Our Vision</a></li>
+            <li><a style={{textTransform:"uppercase"}} href="#about">About Us</a></li>
+            <li><a style={{textTransform:"uppercase"}} href="#">Our Vision</a></li>
           </ul>
         </Stack>
         <Stack direction={"row"} spacing={1} className='logreg'>

@@ -162,6 +162,8 @@ const Settings = () => {
     await axios.put("http://localhost:5000/User/" + uid + "/edit", data).then((res) => {
       console.log("Data Updated")
       fetchUserDetails()
+    }).catch((err)=>{
+      console.log(err.message)
     })
 
   }
