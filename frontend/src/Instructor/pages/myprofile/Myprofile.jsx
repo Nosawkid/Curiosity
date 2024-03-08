@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import './myprofile.scss'
-
 import Chart from '../../components/chart/Chart'
 import axios from 'axios'
 import Card from '@mui/material/Card';
 // import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import { Box, Typography } from '@mui/material';
+import Placeholder from '../../components/placeholder/Placeholder';
+
+
 
 
 
 
 const Myprofile = () => {
+
 
   const Id = sessionStorage.getItem("Iid")
   const [instructorData,setInstructorData] = useState([])
@@ -41,7 +44,8 @@ const Myprofile = () => {
             <div className="editButton">Edit</div>
             <h1 className="title">Information</h1>
             <div className="item">
-              <img  src={instructorData.instructorPhoto} alt="" className="itemImg" />
+            {instructorData.instructorPhoto ? <img className='itemImg' src={instructorData.instructorPhoto} alt="profile" /> :
+                 <Placeholder className='itemImg'  username={instructorData.instructorName}/> }
               <div className="details">
                 <h1 className="itemTitle">{instructorData.instructorName}</h1>
                 <div className="itemDetail">

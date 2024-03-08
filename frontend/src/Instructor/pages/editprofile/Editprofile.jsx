@@ -4,15 +4,20 @@ import { Box, Button, Stack, Typography } from '@mui/material'
 import axios from 'axios';
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import Placeholder from '../../components/placeholder/Placeholder';
+import {useNavigate} from "react-router-dom"
+
 
 const Editprofile = () => {
-
+  const navigate = useNavigate()
   const [instructorName, setInstructorName] = useState("")
   const [instructorField, setInstructorField] = useState("")
   const [instructorEmail, setInstructorEmail] = useState("")
   const [instructorHeadLine, setInstructorHeadLine] = useState("")
   const [instructorQualification, setInstructorQualification] = useState("")
   const [photo, setPhoto] = useState("")
+  const [instructorPhoto, setInstructorPhoto] = useState("")
+  const [imgUrl, setImgUrl] = useState("")
   const [isEditing, setIsEditing] = useState(false)
   const Id = sessionStorage.getItem("Iid")
 
@@ -23,7 +28,7 @@ const Editprofile = () => {
       setInstructorEmail(res.data.instructorEmail)
       setInstructorHeadLine(res.data.instructorHeadLine)
       setInstructorQualification(res.data.instructorQualification)
-      setPhoto(res.instructorPhoto)
+      setInstructorPhoto(res.data.instructorPhoto)
     })
   }
 
@@ -33,10 +38,15 @@ const Editprofile = () => {
 
   const updateInfo = (e) => {
     e.preventDefault()
-    
-    var data = { instructorName, instructorEmail, instructorHeadLine, instructorQualification, instructorField }
-    console.log(data);
-    axios.patch("http://localhost:5000/Instructor/" + Id + "/edit",data).then((res) => {
+
+    const frm = new FormData()
+    frm.append("instructorName",instructorName)
+    frm.append("instructorEmail",instructorEmail)
+    frm.append("instructorHeadLine",instructorHeadLine)
+    frm.append("instructorQualification",instructorQualification)
+    frm.append("instructorField",instructorField)
+    frm.append("instructorPhoto",instructorPhoto)
+    axios.patch("http://localhost:5000/Instructor/" + Id + "/edit", frm).then((res) => {
       setIsEditing(false)
       alert("Details Updated")
     }).catch((err) => {
@@ -44,6 +54,12 @@ const Editprofile = () => {
     })
   }
 
+
+  const handleFileChange = (e) => {
+    setInstructorPhoto(e.target.files[0])
+    const url = URL.createObjectURL(e.target.files[0])
+    setImgUrl(url)
+  }
 
   const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -75,9 +91,19 @@ const Editprofile = () => {
           <Stack direction={"column"} spacing={3} sx={{ mt: 3 }}>
             <Box>
               <Typography className='detailName'>Profile Picture</Typography>
-              <img className='profilePic' src={photo || "https://e00-marca.uecdn.es/assets/multimedia/imagenes/2023/06/17/16870061670094.jpg"} alt="" />
+              {
+                imgUrl ? (
+                  <img src={imgUrl} alt="instructor profile" className='profilePic' />
+                ) : (
+                  instructorPhoto ? (
+                    <img src={instructorPhoto} alt='instructor dp' className='profilePic' />
+                  ) : (
+                    <Placeholder className='profilePic' username={instructorName} />
+                  )
+                )
+              }
               <Button
-                sx={{ mt: 2 }}
+                sx={{ mt: 3 }}
                 component="label"
                 role={undefined}
                 variant="contained"
@@ -85,7 +111,7 @@ const Editprofile = () => {
                 startIcon={<CloudUploadIcon />}
               >
                 Upload file
-                <VisuallyHiddenInput disabled={!isEditing} type="file" />
+                <VisuallyHiddenInput type="file" onChange={handleFileChange} />
               </Button>
               <Typography className='info'>Your profile picture is used to identify you.</Typography>
             </Box>
@@ -136,9 +162,10 @@ const Editprofile = () => {
             </Box>
 
           </Stack>
-          <Stack direction={"row"} spacing={4} sx={{ mt: 3 }}>
+          <Stack direction={"row"} spacing={4} sx={{ mt: 3,alignItems:"center" }}>
             <Button id='edit' onClick={enableSubmit} variant='contained' type='button'>{isEditing ? "Cancel" : "Edit"}</Button>
             {isEditing && <Button id='submit' variant='contained' type='submit'>Submit</Button>}
+              <Typography onClick={()=>navigate("/instructor/changepassword")} sx={{color:"#003f88",cursor:"pointer",'&:hover':{textDecoration:"underline"}}}>Change Password</Typography>
           </Stack>
         </Stack>
       </Box>

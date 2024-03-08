@@ -133,7 +133,6 @@ const Settings = () => {
     console.log(userPhoto);
      const frm = new FormData()
      frm.append("userPhoto",userPhoto)
-
     axios.put("http://localhost:5000/User/" + uid + "/editPhoto",frm).then((res) => {
       console.log("Data Updated")
       // fetchUserDetails()
@@ -161,6 +160,7 @@ const Settings = () => {
     // console.log(data);
     await axios.put("http://localhost:5000/User/" + uid + "/edit", data).then((res) => {
       console.log("Data Updated")
+      setIsEditing(false)
       fetchUserDetails()
     }).catch((err)=>{
       console.log(err.message)

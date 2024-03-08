@@ -976,20 +976,57 @@ app.delete("/Instructor/:id", async (req, res) => {
 
 // Update
 
-app.patch("/Instructor/:id/edit", async (req, res) => {
+app.patch("/Instructor/:id/changepassword",async(req,res)=>{
     try {
+        const {id} = req.params
+        const {
+            instructorPassword,
+            currentPassword
+        } = req.body
+        const instructor = await Instructor.findById(id)
+        const isValidPassword = await argon2.verify(instructor.instructorPassword,currentPassword)
+        if(!isValidPassword)
+        {
+            console.log("Mismatch")
+            return res.send({message:"Current Password Mismatch",status:false})
+        }
+        const salt = 12
+        const hashedPassword = await argon2.hash(instructorPassword,salt)
+        await Instructor.findByIdAndUpdate(id,{instructorPassword:hashedPassword},{new:true})
+        res.status(200).send({message:"Password Updated Successfully",status:true})
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})
+
+app.patch("/Instructor/:id/edit", upload.fields([
+    { name: "instructorPhoto", maxCount: 1 },
+]), async (req, res) => {
+    try {
+    
+      
+       
         const { id } = req.params
         let instructor = await Instructor.findById(id)
         if (!instructor) {
             return res.status(400).send({ message: "Instructor doesn't exist" })
         }
+
+        let instructorPhoto = instructor.instructorPhoto
+        if (req.files && req.files.instructorPhoto && req.files.instructorPhoto[0]) {
+            var fileValue = JSON.parse(JSON.stringify(req.files));
+            instructorPhoto = `http://127.0.0.1:${port}/images/${fileValue.instructorPhoto[0].filename}`;
+        }
+
         const {
             instructorName,
             instructorEmail,
             instructorContact,
             instructorHeadLine,
             instructorQualification,
-            instructorField
+            instructorField,
+            
         } = req.body
 
         const existingInstructorEmail = await Instructor.findOne({ instructorEmail, _id: { $ne: id } })
@@ -1006,7 +1043,8 @@ app.patch("/Instructor/:id/edit", async (req, res) => {
             instructorContact,
             instructorHeadLine,
             instructorQualification,
-            instructorField
+            instructorField,
+            instructorPhoto
         }, { new: true })
         res.status(200).send(instructor)
 

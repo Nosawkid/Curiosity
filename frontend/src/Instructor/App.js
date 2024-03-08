@@ -20,6 +20,7 @@ import Single from './pages/single/Single';
 import Myprofile from './pages/myprofile/Myprofile';
 import Editprofile from './pages/editprofile/Editprofile';
 import Footer from './pages/footer/footer';
+import Changepassword from './pages/changepassword/Changepassword';
 
 
 
@@ -52,6 +53,7 @@ function App() {
               <Route path='/Section' element = {<Section/>} />
               <Route path='/Material' element={<Material/>}/>
               <Route path='/Settings' element={<Editprofile/>}/>
+              <Route path='/changepassword' element={<Changepassword/>}/>
               
             </Routes>
 
