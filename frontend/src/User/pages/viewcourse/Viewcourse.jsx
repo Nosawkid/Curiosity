@@ -1,5 +1,5 @@
 import { Avatar, Box, Button, Card, CardContent, FormControl, InputAdornment, InputLabel, OutlinedInput, Stack, Tooltip, Typography } from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import ChatIcon from '@mui/icons-material/Chat';
@@ -10,9 +10,11 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import CircularProgress from '@mui/material/CircularProgress';
+import { SetSocket } from '../../../Context/Context'
 
 
 function CircularProgressWithLabel(props) {
+
     return (
         <Box sx={{ position: 'relative', display: 'inline-flex' }}>
             <CircularProgress variant="determinate" {...props} />
@@ -68,8 +70,31 @@ const Viewcourse = () => {
     const [totalDuration, setTotalDuration] = useState(0)
     const [progressData, setProgressData] = useState([])
     const [updatedProgress, setUpdatedProgress] = useState([])
-    const [progress,setProgress] = useState(0)
+    const [progress, setProgress] = useState(0)
     let [count, setCount] = useState(0)
+    const [message, setMessage] = useState('')
+    const [messageData, setMessageData] = useState([])
+
+    const socket = useContext(SetSocket)
+
+
+    useEffect(() => {
+        if(!socket) return
+        
+        socket.on("DataFromServer", (arg, callback) => {
+            console.log(arg); // "world"
+            callback("got it");
+          });
+       
+    }, [socket])
+
+
+    const SendMessage = () => {
+        
+        socket.emit("DataFromClient", {message}, (response) => {
+            console.log(response); // "got it"
+        });
+    }
 
 
 
@@ -153,7 +178,7 @@ const Viewcourse = () => {
 
 
 
-    
+
 
 
 
@@ -229,10 +254,10 @@ const Viewcourse = () => {
                                 {materialDetails && materialDetails.materialDesc}
                             </Typography>
                             {
-                                progress === 100 && <Button sx={{mt:2}} variant='contained'>View Certificate</Button>
+                                progress === 100 && <Button sx={{ mt: 2 }} variant='contained'>View Certificate</Button>
                             }
                         </Box>
-                        
+
                     </Box>
 
                 </Box>
@@ -270,11 +295,13 @@ const Viewcourse = () => {
                                         placeholder='type here...'
                                         id="filled-adornment-password"
                                         type="text"
+                                        onChange={(event) => setMessage(event.target.value)}
                                         endAdornment={
                                             <InputAdornment position="end">
                                                 <IconButton
                                                     aria-label="toggle password visibility"
                                                     edge="end"
+                                                    onClick={SendMessage}
                                                 >
                                                     <SendIcon />
                                                 </IconButton>

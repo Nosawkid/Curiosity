@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Courseholder from '../../../assets/Courseholder.png'
 
 
+
 const Mylearning = () => {
   const navigate = useNavigate()
   const [courses, setCourses] = useState([])
@@ -51,7 +52,7 @@ const Mylearning = () => {
               <Typography sx={{ fontSize: "25px", fontWeight: "bold" }} component={"p"} variant='h3'>{row.courseId.price}</Typography>
             </Stack>
           </CardContent>
-        </Card>: <Typography sx={{mt:5,fontWeight:"bold",fontSize:"30px",color:"gray"}}>No Courses here</Typography>
+        </Card>: ""
          }
          </>
         )):<Typography sx={{mt:5,fontWeight:"bold",fontSize:"30px",color:"gray"}}>No Courses here</Typography>
@@ -63,3 +64,5 @@ const Mylearning = () => {
 }
 
 export default Mylearning
+
+

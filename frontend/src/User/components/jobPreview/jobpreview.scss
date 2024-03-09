@@ -1,6 +1,6 @@
 .jobPreview
 {
-    
+   width: 100%; 
 
     .jobPreviewLeft
     {
@@ -41,6 +41,11 @@
                 padding:5px 10px;
                 font-weight: bold;
                 border-radius: 10px;
+            }
+            #timePreview
+            {
+                background-color: yellow;
+                color: black;
             }
 
             .jobApplyBtn

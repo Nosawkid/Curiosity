@@ -8,10 +8,19 @@ const argon2 = require("argon2")
 const jwt = require("jsonwebtoken")
 const multer = require("multer");
 const mailer = require('nodemailer');
+const { createServer } = require('http')
+const { Server } = require('socket.io')
 
 
 
 const app = express();
+
+const httpServer = createServer(app)
+const io = new Server(httpServer, {
+    cors: {
+        origin: 'http://localhost:3000',
+    },
+})
 
 const PATH = "./public/images";
 const upload = multer({
@@ -37,7 +46,7 @@ app.use(express.static('./public'))
 
 
 
-app.listen(port, async () => {
+httpServer.listen(port, async () => {
     try {
         await mongoose.connect('mongodb+srv://Curiosity:Curiosity%401122@cluster0.swekyn2.mongodb.net/dbCuriosity')
         console.log(`server is running in ${port}`);
@@ -49,6 +58,16 @@ app.listen(port, async () => {
 
 
 })
+
+
+
+
+io.on("connection", (socket) => {
+    socket.on("DataFromClient", (arg) => {
+        console.log(arg); // "world"
+
+    });
+});
 
 // Schemas
 
@@ -614,7 +633,7 @@ app.post("/User", async (req, res) => {
         const ins = await Instructor.findOne({ instructorEmail: userEmail })
         const portal = await JobPortal.findOne({ jobPortalEmail: userEmail })
         let user = await User.findOne({ userEmail })
-        
+
 
         if (admin || user || ins || portal) {
             return res
@@ -976,24 +995,23 @@ app.delete("/Instructor/:id", async (req, res) => {
 
 // Update
 
-app.patch("/Instructor/:id/changepassword",async(req,res)=>{
+app.patch("/Instructor/:id/changepassword", async (req, res) => {
     try {
-        const {id} = req.params
+        const { id } = req.params
         const {
             instructorPassword,
             currentPassword
         } = req.body
         const instructor = await Instructor.findById(id)
-        const isValidPassword = await argon2.verify(instructor.instructorPassword,currentPassword)
-        if(!isValidPassword)
-        {
+        const isValidPassword = await argon2.verify(instructor.instructorPassword, currentPassword)
+        if (!isValidPassword) {
             console.log("Mismatch")
-            return res.send({message:"Current Password Mismatch",status:false})
+            return res.send({ message: "Current Password Mismatch", status: false })
         }
         const salt = 12
-        const hashedPassword = await argon2.hash(instructorPassword,salt)
-        await Instructor.findByIdAndUpdate(id,{instructorPassword:hashedPassword},{new:true})
-        res.status(200).send({message:"Password Updated Successfully",status:true})
+        const hashedPassword = await argon2.hash(instructorPassword, salt)
+        await Instructor.findByIdAndUpdate(id, { instructorPassword: hashedPassword }, { new: true })
+        res.status(200).send({ message: "Password Updated Successfully", status: true })
     } catch (error) {
         console.log(error.message);
         console.log("Server Error");
@@ -1004,9 +1022,9 @@ app.patch("/Instructor/:id/edit", upload.fields([
     { name: "instructorPhoto", maxCount: 1 },
 ]), async (req, res) => {
     try {
-    
-      
-       
+
+
+
         const { id } = req.params
         let instructor = await Instructor.findById(id)
         if (!instructor) {
@@ -1026,7 +1044,7 @@ app.patch("/Instructor/:id/edit", upload.fields([
             instructorHeadLine,
             instructorQualification,
             instructorField,
-            
+
         } = req.body
 
         const existingInstructorEmail = await Instructor.findOne({ instructorEmail, _id: { $ne: id } })
@@ -2586,7 +2604,11 @@ app.post("/Vacancy", async (req, res) => {
 
 app.get("/Vacancy", async (req, res) => {
     try {
-        const vacancies = await Vacancy.find()
+        const vacancies = await Vacancy.find().populate({
+            path:"categoryId",
+            model:"schemaCategory"
+        })
+        console.log(vacancies);
         res.status(200).send(vacancies)
     } catch (error) {
         console.log(error.message);
@@ -2711,11 +2733,17 @@ app.post("/Login", async (req, res) => {
                 console.log("Invalid Login Credentials")
             }
         }
+
         else if (instructor) {
+
             isValidPassword = await argon2.verify(instructor.instructorPassword, Password)
             if (isValidPassword) {
+                if (instructor.__v === 0) {
+                    return res.send({ message: "You haven't been verified yet" })
+                }
                 id = instructor._id
                 type = "Instructor"
+
             }
         }
         else if (portal) {
@@ -2936,7 +2964,7 @@ app.post("/Checkout", async (req, res) => {
 </html>
 `;
 
-        sendEmail(user.userEmail,content);
+        sendEmail(user.userEmail, content);
 
         res.status(200).send({ message: "Checkout Complete", status: true })
 
@@ -2959,7 +2987,7 @@ app.post("/Cartcheckout", async (req, res) => {
         const user = await User.findById(booking.userId)
         booking = await Booking.findByIdAndUpdate(booking._id, { __v: 1 }, { new: true })
         let carts = await Cart.find({ bookingId: booking._id })
-        const courseIds = carts.map((course)=> course.courseId)
+        const courseIds = carts.map((course) => course.courseId)
         for (let cart of carts) {
             const existingPurchase = await Purchase.findOne({
                 userId: booking.userId,
@@ -2979,8 +3007,7 @@ app.post("/Cartcheckout", async (req, res) => {
                 await progress.save()
             }
         }
-        for (let ele of courseIds)
-        {
+        for (let ele of courseIds) {
             const course = await Course.findById(ele)
             arr.push(course)
         }
@@ -3139,7 +3166,7 @@ app.post("/Cartcheckout", async (req, res) => {
         </html>
         `;
 
-        sendEmail(user.userEmail,content);
+        sendEmail(user.userEmail, content);
 
         res.status(200).send({ message: "Purchase Successful" })
     } catch (error) {
@@ -3227,7 +3254,7 @@ var transporter = mailer.createTransport({
         pass: "izuvpenxjegowfcw", // App password created from google account
     },
 });
-function sendEmail(to,content) {
+function sendEmail(to, content) {
     const mailOptions = {
         from: "curiosity2255@gmail.com", //from email Id for recipient can view
         to,
@@ -3239,7 +3266,137 @@ function sendEmail(to,content) {
         if (error) {
             console.log(error);
         } else {
-            console.log("Email sented");
+            console.log("Email sent");
         }
     });
 }
+
+// function sendConfirmationMail(to,content)
+// {
+//     const mailOptions = {
+//         from:"curiosity2255@gmail.com",
+//         to,
+//         subject:"Approved",
+//         html:content
+//     };
+//     transporter.sendConfirmationMail(mailOptions,function(err,info){
+//         if(err)
+//         {
+//             console.log(err);
+//         }
+//         else
+//         {
+//             console.log("Email Sent");
+//         }
+//     })
+// }
+
+
+// Verifying Instructor
+
+app.get("/Instructors/verify", async (req, res) => {
+    try {
+
+        const instructors = await Instructor.find({ __v: 0 })
+        res.status(200).send(instructors)
+    } catch (error) {
+        console.log(error.message);
+        log("Something went wrong")
+    }
+})
+
+// Accept
+
+app.put("/Instructor/:id/accept", async (req, res) => {
+    try {
+        const { id } = req.params
+        const intendInstructor = await Instructor.findById(id)
+        const instructor = await Instructor.findByIdAndUpdate(id, { __v: 1 }, { new: true })
+        const content = `<!DOCTYPE html>
+    <html lang="en">
+    
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Confirmation</title>
+    </head>
+    
+    <body style="margin: 0; padding: 0; width: 100%; background-color: #f4f4f4;">
+        <table align="center" border="0" cellpadding="0" cellspacing="0" width="500" style="margin-top: 10px;">
+            <tr>
+                <td bgcolor="#ffffff" style="padding: 20px 0; text-align: center;">
+                    <h2 style="color: #003f88; font-family: Arial, Helvetica, sans-serif; font-size: 30px; margin: 0;">CURIOSITY</h2>
+                    <h3 style="color: #003f88; font-family: Arial, Helvetica, sans-serif; font-size: 30px; margin: 10px 0;">Dear <span style="font-weight: bold;">${intendInstructor.instructorName}</span></h3>
+                </td>
+            </tr>
+            <tr>
+                <td bgcolor="#ffffff" style="padding: 20px 0; text-align: center;">
+                    <div style="background-color: #003f88; width: 100px; height: 100px; border-radius: 50%; margin: auto;">
+                        <span style="color: #ffffff; font-size: 50px; font-weight: bold; line-height: 100px;">&#10003;</span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td bgcolor="#ffffff" style="padding: 20px; text-align: center;">
+                    <p style="color: #003f88; font-family: Arial, Helvetica, sans-serif; font-size: 16px; margin: 0;">Your instructor account at CURIOSITY has been approved</p>
+                    <p style="color: #003f88; font-family: Arial, Helvetica, sans-serif; font-size: 16px; margin: 10px 0;text-align: justify;">We're thrilled to have you join our community of passionate educators and learners. Your expertise and enthusiasm are valuable assets that will enrich the learning experiences of our users.</p>
+                </td>
+            </tr>
+        </table>
+    </body>
+    
+    </html>
+    `
+
+        sendEmail(intendInstructor.instructorEmail, content)
+        res.status(200).send(instructor)
+    } catch (error) {
+        console.log(error.message);
+    }
+})
+app.put("/Instructor/:id/reject", async (req, res) => {
+    try {
+        const { id } = req.params
+        const rejectIns = await Instructor.findById(id)
+        const instructor = await Instructor.findByIdAndUpdate(id, { __v: 2 }, { new: true })
+        const content = `<!DOCTYPE html>
+        <html lang="en">
+        
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Rejection</title>
+        </head>
+        
+        <body style="margin: 0; padding: 0; width: 100%; background-color: #f4f4f4;">
+            <table align="center" border="0" cellpadding="0" cellspacing="0" width="500" style="margin-top: 10px;">
+                <tr>
+                    <td bgcolor="#ffffff" style="padding: 20px 0; text-align: center;">
+                        <h2 style="color: #003f88; font-family: Arial, Helvetica, sans-serif; font-size: 30px; margin: 0;">CURIOSITY</h2>
+                        <h3 style="color: #003f88; font-family: Arial, Helvetica, sans-serif; font-size: 30px; margin: 10px 0;">Dear <span style="font-weight: bold;">${rejectIns.instructorName}</span></h3>
+                    </td>
+                </tr>
+                <tr>
+                    <td bgcolor="#ffffff" style="padding: 20px 0; text-align: center;">
+                        <div style="background-color: #ff6347; width: 100px; height: 100px; border-radius: 50%; margin: auto;">
+                            <span style="color: #ffffff; font-size: 50px; font-weight: bold; line-height: 100px;">&#10007;</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td bgcolor="#ffffff" style="padding: 20px; text-align: center;">
+                        <p style="color: #003f88; font-family: Arial, Helvetica, sans-serif; font-size: 16px; margin: 0;">We regret to inform you that your instructor account at CURIOSITY has been rejected</p>
+                        <p style="color: #003f88; font-family: Arial, Helvetica, sans-serif; font-size: 16px; margin: 10px 0;text-align: justify;">Thank you for your interest. Unfortunately, your application does not meet our current requirements. We appreciate your understanding.</p>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        
+        </html>
+        `
+        sendEmail(rejectIns.instructorEmail, content)
+        res.status(200).send(instructor)
+    } catch (error) {
+        console.log(error.message);
+    }
+})

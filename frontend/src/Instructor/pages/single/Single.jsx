@@ -16,6 +16,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Skeleton from '@mui/material/Skeleton';
 import Courseholder from '../../../assets/Courseholder.png'
 import Chip from '@mui/material/Chip';
+import {Server} from '../../../Server.js'
 
 
 
@@ -35,6 +36,7 @@ const [loading, setLoading] = useState(true);
   const [courseTitle,setCourseTitle] = useState("")
   const [courseDesc,setCourseDesc] = useState("")
   const [isSectionEditing,setIsSectionEditing] = useState(false)
+  const [sectionName,setSectionName] = useState("")
 
 
 const fetchCourse = async (id)=>{
@@ -81,6 +83,16 @@ const startEditing = ()=>{
 
 const startSectionEditing = ()=>{
   setIsSectionEditing(!isSectionEditing)
+}
+
+const editSection = (id)=>{
+  axios.put(`${Server}/Section/${id}/edit`,{sectionName}).then((res)=>{
+    console.log(res.data)
+    fetchSections()
+    setIsSectionEditing(!isSectionEditing)
+  }).catch((err)=>{
+    console.log(err.message)
+  })
 }
 
 
@@ -183,7 +195,7 @@ if(error)
               <TableCell align='center' component="th" scope="row">
                 {key + 1}
               </TableCell>
-              <TableCell align="center">{!isSectionEditing ? row.sectionName : <TextField variant='standard' defaultValue={row.sectionName}></TextField>} <IconButton onClick={startSectionEditing}><Chip sx={{cursor:"pointer"}} label={!isSectionEditing ? "Edit" : "Cancel" }/></IconButton> </TableCell>
+              <TableCell align="center">{!isSectionEditing ? row.sectionName : <TextField onChange={(e)=>setSectionName(e.target.value)} variant='standard' defaultValue={row.sectionName}></TextField>} <IconButton onClick={startSectionEditing}><Chip sx={{cursor:"pointer"}} label={!isSectionEditing ? "Edit" : "Cancel" }/></IconButton> {isSectionEditing && <IconButton onClick={()=>editSection(row._id)}><Chip label="Submit"></Chip></IconButton>} </TableCell>
               <TableCell align="center">{row.courseId.courseTitle}</TableCell>
               <TableCell align="center">
                <Button onClick={()=>{
