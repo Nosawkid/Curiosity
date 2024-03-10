@@ -2,9 +2,10 @@ import { Box, Button, Card, CardContent, CardMedia, Stack, TextField, Typography
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import {Server} from '../../../Server.js'
-import {useParams} from 'react-router-dom'
+import {useParams,useNavigate} from 'react-router-dom'
 
 const Resume = () => {
+    const navigate = useNavigate()
     const [qualificationValue,setQualificationValue] = useState("")
     const [qualifications,setQualifications] = useState([])
     const [experienceValue,setExperienceValue] = useState("")
@@ -25,7 +26,12 @@ const Resume = () => {
 
     const submitApplication = ()=>{
         axios.post(`${Server}/Application`,{jobVacancyId,userId:uid,qualifications,experience,skills:skill}).then((res)=>{
+            if(!res.data.status)
+            {
+               return console.log(res.data.message)
+            }
             console.log("Resume Submitted")
+            navigate("/user/jobs")
         }).catch((err)=>{
             console.log(err.message)
         })

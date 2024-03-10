@@ -2681,7 +2681,11 @@ app.post("/Application", async (req, res) => {
             qualifications,
             skills
         } = req.body
-
+        const existing = await Application.findOne({userId,jobVacancyId})
+        if(existing)
+        {
+            return res.send({message:"Already Applied for this job",status:false})
+        }
         const newApplication = new Application({
             jobVacancyId,
             userId,
@@ -2691,7 +2695,7 @@ app.post("/Application", async (req, res) => {
         })
 
         await newApplication.save()
-        res.status(200).send({ message: "Application Added" })
+        res.status(200).send({ message: "Application Added",status:true })
     } catch (err) {
         console.log(err.message);
         console.log("Server Error");
@@ -3534,5 +3538,23 @@ app.get("/Rejected/:jobVacancyId", async (req, res) => {
 })
 
 
+// Get Applied Jobs
+app.get("/Applied/:userId",async(req,res)=>{
+    try {
+        const {userId} = req.params
+        const applied = await Application.find({userId}).populate({
+            path:"jobVacancyId",
+            model:"schemaVacancy",
+            populate:{
+                path:"jobPortalId",
+                model:"schemaJobPortal"
+            }
+        })
+        res.status(200).send(applied)
+    } catch (error) {
+        console.log(error.message);
+        res.send({message:"Something Went wrong",status:false})
+    }
+})
 
 
