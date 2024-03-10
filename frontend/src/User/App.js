@@ -15,6 +15,7 @@ import Course from './pages/course/Course'
 import { Box } from '@mui/material'
 import Checkout from './pages/checkout/Checkout'
 import Viewcourse from './pages/viewcourse/Viewcourse'
+import Resume from './pages/resume/Resume'
 
 
 
@@ -37,6 +38,7 @@ const App = () => {
               <Route path='/mylearning' element={<Mylearning/>}/>
               <Route path='/viewcourse/:courseId' element={<Viewcourse/>}/>
               <Route path='/jobs' element={<Job/>} />
+              <Route path='/resume/:id' element={<Resume/>}/>
           </Route>
       </Routes>
       </Box>

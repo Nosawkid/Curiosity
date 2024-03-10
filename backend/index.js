@@ -2607,6 +2607,9 @@ app.get("/Vacancy", async (req, res) => {
         const vacancies = await Vacancy.find().populate({
             path:"categoryId",
             model:"schemaCategory"
+        }).populate({
+            path:"jobPortalId",
+            model:"schemaJobPortal"
         })
         console.log(vacancies);
         res.status(200).send(vacancies)
@@ -2653,12 +2656,12 @@ const jobApplicationSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "schemaUser"
     },
-    resumeFile: {
-        type: String,
-        required: true
-    },
-    experience: {
-        type: String
+    experience: [String],
+    qualifications:[String],
+    skills:[String],
+    applicationDate:{
+        type:Date,
+        default: Date.now()
     }
 
 })
@@ -2670,15 +2673,17 @@ app.post("/Application", async (req, res) => {
         const {
             jobVacancyId,
             userId,
-            resumeFile,
-            experience
+            experience,
+            qualifications,
+            skills
         } = req.body
 
         const newApplication = new Application({
             jobVacancyId,
             userId,
-            resumeFile,
-            experience
+            experience,
+            qualifications,
+            skills
         })
 
         await newApplication.save()
@@ -2689,15 +2694,37 @@ app.post("/Application", async (req, res) => {
     }
 })
 
-app.get("/Application", async (req, res) => {
+app.get("/Application/:vacancyId", async (req, res) => {
     try {
-        const applications = await Application.find()
+        const {vacancyId} = req.params
+        const applications = await Application.find({jobVacancyId:vacancyId}).populate({
+            path:"userId",
+            model:"schemaUser"
+        })
+        console.log(applications)
         res.status(200).send(applications)
     } catch (error) {
         console.log(error.message);
         console.log("Server Error");
     }
 })
+// Individual application
+app.get("/Application/:appId/userApplication", async (req, res) => {
+    try {
+        const {appId} = req.params
+        const applications = await Application.findById(appId).populate({
+            path:"userId",
+            model:"schemaUser"
+        })
+        console.log(applications)
+        res.status(200).send(applications)
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})
+
+
 
 app.delete("/Application/:id", async (req, res) => {
     try {

@@ -6,6 +6,7 @@ import axios from 'axios'
 import { Server } from '../../../Server.js'
 import Skeleton from '@mui/material/Skeleton';
 import moment from "moment"
+import { Link } from 'react-router-dom';
 
 
 const Course = () => {
@@ -88,11 +89,14 @@ const getDuration = (date) => {
                   <Typography>Max Salary: <span style={{fontWeight:"bold"}}>{row.maxSalary}</span></Typography>
                   </Stack>
                  <Stack  direction={"row"} sx={{alignItems:"center",width:"250px"}} spacing={1}>
+                 <Link to={"/HiringPortal/Applications/"+row._id}>
                  <Button variant='contained'>View</Button>
+                 </Link>
                  <Button variant='contained' color='error'>Delete</Button>
                  <Button variant='outlined'color='error'>Expire</Button>
                  </Stack>
                 </Stack>
+                 <Typography>{row.vacancyDesc}</Typography>
               </CardContent>
             </Card>
           ))

@@ -25,7 +25,7 @@ const Job = () => {
 
       <div className="jobContainer">
         {jobs && jobs.map((row, key) => (
-          <Jobpreview vacancyTitle={row.vacancyTitle} vacancyDesc={row.vacancyDesc} minSalary={row.minSalary} maxSalary={row.maxSalary} category={ row.categoryId && row.categoryId.categoryName}  />
+          <Jobpreview link={row._id} companyName={row.jobPortalId.jobPortalName} vacancyTitle={row.vacancyTitle} vacancyRequirement={row.vacancyRequirement} minSalary={row.minSalary} maxSalary={row.maxSalary} category={ row.categoryId && row.categoryId.categoryName} vacancyTime={row.vacancyTime}  />
         ))}
       </div>
 

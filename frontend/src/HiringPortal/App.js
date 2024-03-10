@@ -14,6 +14,8 @@ import Wishlist from './pages/wishlist/Wishlist';
 import Complaint from './pages/complaint/Complaint';
 import Profile from './pages/profile/Profile';
 import './App.scss'
+import Applications from './pages/applications/Applications';
+import Single from './pages/single/Single';
 
 
 
@@ -38,6 +40,9 @@ function App() {
               <Route path='/Newvacancy' element={<Newcourse />} />
               <Route path='/Wishlist' element={<Wishlist />} />
               <Route path='/Complaints' element={<Complaint />} />
+              <Route path='/Applications/:jobId' element={<Applications/>} />
+              <Route path='/Application/:appId' element={<Single/>} />
+
             </Routes>
 
           </div>

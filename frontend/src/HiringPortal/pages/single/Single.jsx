@@ -1,49 +1,103 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import './single.scss'
+import { Box, Button, Card, CardContent, CardMedia, Stack, Typography } from '@mui/material'
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import Divider from '@mui/material/Divider';
+import { Server } from '../../../Server.js';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
 
-import Chart from '../../components/chart/Chart'
-import Tables from '../../components/table/Table'
+
 
 const Single = () => {
+  const [candidate, setCandidate] = useState("")
+  const { appId } = useParams()
+
+  const fetchApplication = () => {
+    axios.get(`${Server}/Application/${appId}/userApplication`).then((res) => {
+      setCandidate(res.data)
+    })
+  }
+
+
+  useEffect(() => {
+    fetchApplication()
+  }, [])
+
+
   return (
-    <div className='hiringSingle'>
-      <div className="singleContainer">
-        <div className="top">
-          <div className="left">
-            <div className="editButton">Edit</div>
-            <h1 className="title">Information</h1>
-            <div className="item">
-              <img  src="https://hips.hearstapps.com/hmg-prod/images/sadie-w-1528062024.jpg?resize=2048:*" alt="" className="itemImg" />
-              <div className="details">
-                <h1 className="itemTitle">Sadie Sink</h1>
-                <div className="itemDetail">
-                  <span className="itemKey">Email: </span>
-                  <span className="itemValue">sadiesink@gmail.com</span>
-                </div>
-                <div className="itemDetail">
-                  <span className="itemKey">Phone: </span>
-                  <span className="itemValue">+1 1234 56 78</span>
-                </div>
-                <div className="itemDetail">
-                  <span className="itemKey">Address: </span>
-                  <span className="itemValue">American Junction, Hollywood, USA</span>
-                </div>
-                <div className="itemDetail">
-                  <span className="itemKey">Country: </span>
-                  <span className="itemValue">USA</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="right">
-            <Chart aspect={3/1} title={"User Spending"}/>
-          </div>
-        </div>
-        <div className="bottom">
-          <div className="title">Last Transaction</div>
-          <Tables/>
-        </div>
-      </div>
+    <div className='singleApplication'>
+      {
+        candidate && <Box sx={{ p: 3 }}>
+        <Typography sx={{ fontSize: "25px", fontWeight: "bold", textAlign: "center" }}>Applicant Details</Typography>
+        <Card sx={{mt:2}}>
+          <CardContent>
+            <Stack direction={"row"} spacing={2} sx={{ alignItems: "center", px: 10 }}>
+              <CardMedia
+                component={"img"}
+                image={candidate.userId.userPhoto}
+                sx={{ width: "400px", height: "400px", objectFit: "cover", borderRadius: "50%", border: "10px solid #e9ecef" }}
+              >
+
+              </CardMedia>
+              <Box>
+                <Typography sx={{ fontSize: "20px", color: "gray" }}>{candidate.userId.userHeadLine}</Typography>
+                <Typography sx={{ fontSize: "30px", fontWeight: "bold" }}>{candidate.userId.userName}</Typography>
+                <Typography sx={{ fontSize: "12px", color: "gray" }}> {candidate.userId.userBiography} </Typography>
+                <Stack direction={"row"} spacing={2} alignItems={"center"} sx={{ mt: 2 }}>
+                  <Button color='success' variant='contained'>Shortlist Candidate</Button>
+                  <Button color='error' variant='contained'>Reject Candidate</Button>
+                </Stack>
+              </Box>
+
+            </Stack>
+            <Stack sx={{ p: 3, justifyContent: "space-evenly" }} direction={"row"} >
+              <Box>
+                <Typography sx={{ color: "#003f88", fontWeight: "bold", fontSize: "20px" }}>Qualifications</Typography>
+                <Divider />
+                <List>
+                  {
+                    candidate && candidate.qualifications.map((row, key) => (
+                      <ListItem key={key}>
+                        <ListItemText primary={row}></ListItemText>
+                      </ListItem>
+                    ))
+                  }
+                </List>
+              </Box>
+              <Box>
+                <Typography sx={{ color: "#003f88", fontWeight: "bold", fontSize: "20px" }}>Experience</Typography>
+                <Divider />
+                <List>
+                  {
+                    candidate && candidate.experience.map((row, key) => (
+                      <ListItem key={key}>
+                        <ListItemText primary={row}></ListItemText>
+                      </ListItem>
+                    ))
+                  }
+                </List>
+              </Box>
+              <Box>
+                <Typography sx={{ color: "#003f88", fontWeight: "bold", fontSize: "20px" }}>Skills</Typography>
+                <Divider />
+                <List>
+                  {
+                    candidate.skills.map((row,key)=>(
+                      <ListItem key={key}>
+                        <ListItemText primary={row}></ListItemText>
+                      </ListItem>
+                    ))
+                  }
+                </List>
+              </Box>
+            </Stack>
+          </CardContent>
+        </Card>
+      </Box>
+      }
     </div>
   )
 }
