@@ -10,6 +10,7 @@ const multer = require("multer");
 const mailer = require('nodemailer');
 const { createServer } = require('http')
 const { Server } = require('socket.io')
+const moment = require("moment")
 
 
 
@@ -2564,6 +2565,8 @@ const vacancySchema = new Schema({
 
 const Vacancy = mongoose.model("schemaVacancy", vacancySchema)
 
+
+
 // Crud
 
 app.post("/Vacancy", async (req, res) => {
@@ -2605,11 +2608,11 @@ app.post("/Vacancy", async (req, res) => {
 app.get("/Vacancy", async (req, res) => {
     try {
         const vacancies = await Vacancy.find().populate({
-            path:"categoryId",
-            model:"schemaCategory"
+            path: "categoryId",
+            model: "schemaCategory"
         }).populate({
-            path:"jobPortalId",
-            model:"schemaJobPortal"
+            path: "jobPortalId",
+            model: "schemaJobPortal"
         })
         console.log(vacancies);
         res.status(200).send(vacancies)
@@ -2635,6 +2638,7 @@ app.get("/Vacancy/:jobPortalId", async (req, res) => {
 
 app.delete("/Vacancy/:id", async (req, res) => {
     try {
+        await Application.deleteMany({ jobVacancyId: req.params.id });
         const vacancy = await Vacancy.findByIdAndDelete(req.params.id)
         res.status(200).send({ message: "Deletion Success" })
     } catch (error) {
@@ -2657,10 +2661,10 @@ const jobApplicationSchema = new Schema({
         ref: "schemaUser"
     },
     experience: [String],
-    qualifications:[String],
-    skills:[String],
-    applicationDate:{
-        type:Date,
+    qualifications: [String],
+    skills: [String],
+    applicationDate: {
+        type: Date,
         default: Date.now()
     }
 
@@ -2696,10 +2700,10 @@ app.post("/Application", async (req, res) => {
 
 app.get("/Application/:vacancyId", async (req, res) => {
     try {
-        const {vacancyId} = req.params
-        const applications = await Application.find({jobVacancyId:vacancyId}).populate({
-            path:"userId",
-            model:"schemaUser"
+        const { vacancyId } = req.params
+        const applications = await Application.find({ jobVacancyId: vacancyId, __v: 0 }).populate({
+            path: "userId",
+            model: "schemaUser"
         })
         console.log(applications)
         res.status(200).send(applications)
@@ -2711,10 +2715,10 @@ app.get("/Application/:vacancyId", async (req, res) => {
 // Individual application
 app.get("/Application/:appId/userApplication", async (req, res) => {
     try {
-        const {appId} = req.params
+        const { appId } = req.params
         const applications = await Application.findById(appId).populate({
-            path:"userId",
-            model:"schemaUser"
+            path: "userId",
+            model: "schemaUser"
         })
         console.log(applications)
         res.status(200).send(applications)
@@ -3427,3 +3431,108 @@ app.put("/Instructor/:id/reject", async (req, res) => {
         console.log(error.message);
     }
 })
+
+
+// Shortlist candidate
+app.patch("/Shortlist/:appId", async (req, res) => {
+    try {
+        const { appId } = req.params
+        const application = await Application.findByIdAndUpdate(appId, { __v: 1 }, { new: true }).populate({
+            path: "userId",
+            model: "schemaUser"
+        }).populate({
+            path: "jobVacancyId",
+            model: "schemaVacancy",
+            populate: {
+                path: "jobPortalId",
+                model: "schemaJobPortal"
+            }
+        })
+        const content = `
+        <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shortlisted for Job Interview</title>
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f7f7f7; color: #333; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh;">
+    <div style="max-width: 600px; padding: 20px; background-color: rgba(255, 255, 255, 0.9); border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); text-align: center;">
+        <h1 style="color: #003f88; margin-top: 0;">Curiosity</h1>
+        <p style="font-size: 18px; line-height: 1.6; margin-bottom: 20px;">Dear ${application.userId.userName},</p>
+        <p style="font-size: 18px; line-height: 1.6; margin-bottom: 20px;">We are pleased to inform you that you have been shortlisted for the upcoming job interview. Your qualifications and experience are impressive, and we believe you would be a great fit for the position.</p>
+        <p style="font-size: 18px; line-height: 1.6; margin-bottom: 20px;">Our team will be reaching out to you shortly to provide further details about the interview process and next steps. In the meantime, if you have any questions, feel free to contact us.</p>
+        <p style="font-weight: bold; font-size: 20px; margin-bottom: 10px;">Best regards,</p>
+        <p style="font-weight: bold; font-size: 20px; margin-bottom: 10px;">${application.jobVacancyId.jobPortalId.jobPortalCompanyName}</p>
+        <p style="font-style: italic; font-size: 14px; color: #666;">Date: ${moment().format('YYYY-MM-DD')}</p>
+    </div>
+</body>
+</html>
+
+        `
+        sendEmail(application.userId.userEmail, content)
+        res.status(200).send({ message: "Candidate Added to shortlist", status: true })
+    } catch (error) {
+        console.log(error.message);
+        res.send({ message: "Shortlisting failed", status: false })
+    }
+})
+
+
+// Reject Candidates
+app.patch("/Reject/:appId", async (req, res) => {
+    try {
+        const { appId } = req.params
+        const application = await Application.findByIdAndUpdate(appId, { __v: 2 }, { new: true }).populate({
+            path: "userId",
+            model: "schemaUser"
+        }).populate({
+            path: "jobVacancyId",
+            model: "schemaVacancy",
+            populate: {
+                path: "jobPortalId",
+                model: "schemaJobPortal"
+            }
+        })
+        res.status(200).send({message:"Candidate Rejected",status:true})
+    } catch (error) {
+        console.log(error.message);
+        res.send({ message: "Something Went wrong", status: false })
+    }
+})
+
+
+// Get shortlisted candidates
+app.get("/Shortlisted/:jobVacancyId", async (req, res) => {
+    try {
+        const { jobVacancyId } = req.params
+        const applications = await Application.find({ jobVacancyId, __v: 1 }).populate({
+            path: "userId",
+            model: "schemaUser"
+        })
+
+        res.status(200).send(applications)
+    } catch (error) {
+        console.log(error.message);
+        res.send({ message: "Something went wrong", status: false })
+    }
+})
+// Get Rejected candidates
+app.get("/Rejected/:jobVacancyId", async (req, res) => {
+    try {
+        const { jobVacancyId } = req.params
+        const applications = await Application.find({ jobVacancyId, __v: 2 }).populate({
+            path: "userId",
+            model: "schemaUser"
+        })
+
+        res.status(200).send(applications)
+    } catch (error) {
+        console.log(error.message);
+        res.send({ message: "Something went wrong", status: false })
+    }
+})
+
+
+
+

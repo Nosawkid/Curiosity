@@ -23,6 +23,14 @@ const Course = () => {
     })
   }
 
+
+  const deleteJobs = (id)=>{
+    axios.delete(`${Server}/Vacancy/${id}`).then((res)=>{
+      console.log(res.data)
+      fetchJobs()
+    })
+  }
+
   // const getTime = (pastDate)=>{
   //   const currDate = new Date()
   //   const timeDiff = currDate.getTime() - pastDate.getTime()
@@ -92,8 +100,8 @@ const getDuration = (date) => {
                  <Link to={"/HiringPortal/Applications/"+row._id}>
                  <Button variant='contained'>View</Button>
                  </Link>
-                 <Button variant='contained' color='error'>Delete</Button>
-                 <Button variant='outlined'color='error'>Expire</Button>
+                 <Button onClick={()=>deleteJobs(row._id)} variant='contained' color='error'>Delete</Button>
+                 
                  </Stack>
                 </Stack>
                  <Typography>{row.vacancyDesc}</Typography>

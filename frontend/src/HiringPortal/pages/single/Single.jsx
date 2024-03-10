@@ -6,18 +6,37 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import { Server } from '../../../Server.js';
-import { useParams } from 'react-router-dom';
+import { useParams,useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 
 
 const Single = () => {
+  const navigate = useNavigate()
   const [candidate, setCandidate] = useState("")
   const { appId } = useParams()
 
   const fetchApplication = () => {
     axios.get(`${Server}/Application/${appId}/userApplication`).then((res) => {
       setCandidate(res.data)
+    })
+  }
+
+  const shortListCandidate = ()=>{
+   axios.patch(`${Server}/Shortlist/${appId}`).then((res)=>{
+    console.log(res.data.message)
+    navigate("/HiringPortal/Applications/"+candidate.jobVacancyId)
+   }).catch((err)=>{
+    console.log(err.message)
+   })
+  }
+
+  const rejectCandiate = ()=>{
+    axios.patch(`${Server}/Reject/${appId}`).then((res)=>{
+      console.log(res.data.message)
+      navigate("/HiringPortal/Applications/"+candidate.jobVacancyId)
+    }).catch((err)=>{
+      console.log(err.message)
     })
   }
 
@@ -47,8 +66,8 @@ const Single = () => {
                 <Typography sx={{ fontSize: "30px", fontWeight: "bold" }}>{candidate.userId.userName}</Typography>
                 <Typography sx={{ fontSize: "12px", color: "gray" }}> {candidate.userId.userBiography} </Typography>
                 <Stack direction={"row"} spacing={2} alignItems={"center"} sx={{ mt: 2 }}>
-                  <Button color='success' variant='contained'>Shortlist Candidate</Button>
-                  <Button color='error' variant='contained'>Reject Candidate</Button>
+                  <Button onClick={shortListCandidate} color='success' variant='contained'>Shortlist Candidate</Button>
+                  <Button onClick={rejectCandiate} color='error' variant='contained'>Reject Candidate</Button>
                 </Stack>
               </Box>
 
