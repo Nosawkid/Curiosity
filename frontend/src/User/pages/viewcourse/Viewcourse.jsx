@@ -61,6 +61,7 @@ CircularProgressWithLabel.propTypes = {
 
 const Viewcourse = () => {
     const { courseId } = useParams()
+    const uid = sessionStorage.getItem("Uid")
     const [material, setMaterial] = useState([])
     const [sectionLength, setSectionLength] = useState(0)
     const [showVideo, setShowVideo] = useState(null);
@@ -79,26 +80,36 @@ const Viewcourse = () => {
 
 
     useEffect(() => {
-        if(!socket) return
-        
-        socket.on("DataFromServer", (arg, callback) => {
-            console.log(arg); // "world"
-            callback("got it");
-          });
-       
+        if (!socket) return
+        socket.emit("JoinRoomFromClient", { courseId });
+
+
+        socket.on("chatContentFromServer", ({chatData}) => {
+            setMessageData(chatData)
+
+        });
+
     }, [socket])
+
+  const fetchChat = () => {
+    axios.get(`${server}/Chat/${courseId}`).then((res) => {
+        setMessageData(res.data)
+    })
+  }
+
 
 
     const SendMessage = () => {
-        
-        socket.emit("DataFromClient", {message}, (response) => {
+
+        socket.emit("DataFromClient", { message, courseId, uid }, (response) => {
             console.log(response); // "got it"
         });
     }
 
 
 
-    const uid = sessionStorage.getItem("Uid")
+
+
     const server = "http://localhost:5000"
 
     const getCourse = () => {
@@ -198,6 +209,8 @@ const Viewcourse = () => {
     useEffect(() => {
         getSections()
         getCourse()
+        fetchChat()
+
     }, [])
 
 
@@ -231,7 +244,7 @@ const Viewcourse = () => {
                         </Box>
                     </Stack>
                     <Box sx={{ p: 2 }}>
-                        <video onTimeUpdate={getCurrentTime} onLoadedMetadata={getDuration} autoPlay style={{ width: "100%", height: "500px" }} controls src={showVideo && showVideo}></video>
+                        <video onTimeUpdate={getCurrentTime} onLoadedMetadata={getDuration} autoPlay style={{ width: "100%", height: "500px" }} controls controlsList="nodownload" src={showVideo && showVideo}></video>
                         <Stack direction={"row"} spacing={2} sx={{ alignItems: "center", mt: 2, justifyContent: "space-between" }}>
                             <Box>
                                 <Typography sx={{ fontSize: "25px", fontWeight: "bold" }}>{materialDetails && materialDetails.materialTitle}</Typography>
@@ -268,8 +281,21 @@ const Viewcourse = () => {
                                 <Typography sx={{ fontWeight: "bold" }}>Chat  </Typography>
                                 <ChatIcon />
                             </Stack>
-                            <Box className="chatBox" sx={{ height: "540px", overflowY: "scroll" }}></Box>
+                            <Box className="chatBox" sx={{ height: "540px", overflowY: "scroll", display: 'flex', flexDirection: 'column' }}>
+                            {
+                                messageData.map((chat,key) => (
+                                    <Card sx={{width:"fit-content",mx:2}}>
+                                        <CardContent>
+                                        <Typography key={key}>{chat.chatContent}</Typography>
+                                        </CardContent>
+                                    </Card>
+                                ))
+                            }
+                               
+                               
+                            </Box>
                             <Box className="chatForm" sx={{ pr: 4, width: "100%" }}>
+
 
                                 {/* <Stack direction={"row"} sx={{
                                         alignItems:"center",

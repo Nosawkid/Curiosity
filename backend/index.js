@@ -10,7 +10,8 @@ const multer = require("multer");
 const mailer = require('nodemailer');
 const { createServer } = require('http')
 const { Server } = require('socket.io')
-const moment = require("moment")
+const moment = require("moment");
+const { log } = require("console");
 
 
 
@@ -64,8 +65,27 @@ httpServer.listen(port, async () => {
 
 
 io.on("connection", (socket) => {
-    socket.on("DataFromClient", (arg) => {
-        console.log(arg); // "world"
+    socket.on("JoinRoomFromClient", ({ courseId }) => {
+        socket.join(courseId);
+        console.log(courseId);
+    })
+
+    socket.on("DataFromClient", async ({ message, courseId, uid }) => {
+
+        socket.join(courseId);
+
+
+        const newChat = new Chat({
+            courseId,
+            userId: uid,
+            chatContent: message,
+        })
+
+       await newChat.save();
+
+        const chatData = await Chat.find({courseId})
+
+        socket.broadcast.to(courseId).emit('chatContentFromServer', ({ chatData }))
 
     });
 });
@@ -2190,29 +2210,6 @@ const Chat = mongoose.model("schemaChat", chatSchema)
 // Crud
 // Create
 
-app.post("/Chat", async (req, res) => {
-    try {
-        const {
-            courseId,
-            userId,
-            chatContent,
-            chatDateTime
-        } = req.body
-
-        const newChat = new Chat({
-            courseId,
-            userId,
-            chatContent,
-            chatDateTime
-        })
-
-        await newChat.save();
-        res.status(200).send({ message: "Message Sent" })
-    } catch (error) {
-        console.log(error.message);
-        console.log("Server Error");
-    }
-})
 
 app.get("/Chat", async (req, res) => {
     try {
@@ -2231,6 +2228,17 @@ app.get("/Chat", async (req, res) => {
     } catch (error) {
         console.log(error.message)
         console.log("Server Error");
+    }
+})
+
+app.get("/Chat/:courseId",async(req,res)=>{
+    try {
+        const {courseId} = req.params
+        const chats = await Chat.find({courseId})
+        res.status(200).send(chats)
+    } catch (error) {
+        console.log(error.message);
+        res.send({message:error.message,status:false})
     }
 })
 
@@ -2468,7 +2476,7 @@ app.post("/Jobportal", upload.fields([
 // })
 app.get("/Jobportal/:id", async (req, res) => {
     try {
-        const {id} = req.params
+        const { id } = req.params
         const portals = await JobPortal.findById(id)
         res.status(200).send(portals)
     } catch (error) {
@@ -2691,10 +2699,9 @@ app.post("/Application", async (req, res) => {
             qualifications,
             skills
         } = req.body
-        const existing = await Application.findOne({userId,jobVacancyId})
-        if(existing)
-        {
-            return res.send({message:"Already Applied for this job",status:false})
+        const existing = await Application.findOne({ userId, jobVacancyId })
+        if (existing) {
+            return res.send({ message: "Already Applied for this job", status: false })
         }
         const newApplication = new Application({
             jobVacancyId,
@@ -2705,7 +2712,7 @@ app.post("/Application", async (req, res) => {
         })
 
         await newApplication.save()
-        res.status(200).send({ message: "Application Added",status:true })
+        res.status(200).send({ message: "Application Added", status: true })
     } catch (err) {
         console.log(err.message);
         console.log("Server Error");
@@ -3508,7 +3515,7 @@ app.patch("/Reject/:appId", async (req, res) => {
                 model: "schemaJobPortal"
             }
         })
-        res.status(200).send({message:"Candidate Rejected",status:true})
+        res.status(200).send({ message: "Candidate Rejected", status: true })
     } catch (error) {
         console.log(error.message);
         res.send({ message: "Something Went wrong", status: false })
@@ -3549,21 +3556,21 @@ app.get("/Rejected/:jobVacancyId", async (req, res) => {
 
 
 // Get Applied Jobs
-app.get("/Applied/:userId",async(req,res)=>{
+app.get("/Applied/:userId", async (req, res) => {
     try {
-        const {userId} = req.params
-        const applied = await Application.find({userId}).populate({
-            path:"jobVacancyId",
-            model:"schemaVacancy",
-            populate:{
-                path:"jobPortalId",
-                model:"schemaJobPortal"
+        const { userId } = req.params
+        const applied = await Application.find({ userId }).populate({
+            path: "jobVacancyId",
+            model: "schemaVacancy",
+            populate: {
+                path: "jobPortalId",
+                model: "schemaJobPortal"
             }
         })
         res.status(200).send(applied)
     } catch (error) {
         console.log(error.message);
-        res.send({message:"Something Went wrong",status:false})
+        res.send({ message: "Something Went wrong", status: false })
     }
 })
 
