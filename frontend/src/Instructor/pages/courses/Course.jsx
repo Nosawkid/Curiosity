@@ -30,6 +30,7 @@ const Course = () => {
 
   const publishCourse = (id)=>{
     axios.put("http://localhost:5000/Course/"+id+"/publish").then((res)=>{
+      console.log(res.data)
       fetchCourse()
     })
   }

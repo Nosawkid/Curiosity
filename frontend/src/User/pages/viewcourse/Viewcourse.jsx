@@ -6,7 +6,7 @@ import ChatIcon from '@mui/icons-material/Chat';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import SendIcon from '@mui/icons-material/Send';
 import IconButton from '@mui/material/IconButton';
-import { useParams } from 'react-router-dom';
+import { useParams,useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -75,6 +75,7 @@ const Viewcourse = () => {
     let [count, setCount] = useState(0)
     const [message, setMessage] = useState('')
     const [messageData, setMessageData] = useState([])
+    const navigate = useNavigate()
 
     const socket = useContext(SetSocket)
 
@@ -84,18 +85,18 @@ const Viewcourse = () => {
         socket.emit("JoinRoomFromClient", { courseId });
 
 
-        socket.on("chatContentFromServer", ({chatData}) => {
+        socket.on("chatContentFromServer", ({ chatData }) => {
             setMessageData(chatData)
 
         });
 
     }, [socket])
 
-  const fetchChat = () => {
-    axios.get(`${server}/Chat/${courseId}`).then((res) => {
-        setMessageData(res.data)
-    })
-  }
+    const fetchChat = () => {
+        axios.get(`${server}/Chat/${courseId}`).then((res) => {
+            setMessageData(res.data)
+        })
+    }
 
 
 
@@ -187,6 +188,10 @@ const Viewcourse = () => {
     }
 
 
+    const viewCertificate = ()=>{
+        navigate("/user/certificate/"+courseId+"/"+uid)
+    }
+
 
 
 
@@ -239,8 +244,16 @@ const Viewcourse = () => {
                             <Typography sx={{ color: "#2b2d42", fontWeight: "bold", fontSize: "18px" }}>{course && course.courseTitle}</Typography>
                             <Typography sx={{ color: "gray", fontWeight: "bold", fontSize: "16px" }}> &rarr; {materialDetails && materialDetails.sectionId.sectionName} </Typography>
                         </Box>
-                        <Box sx={{ ml: 50 }}>
-                            <CircularProgressWithLabel value={progress || 0} />
+                        <Box sx={{ display: "flex", alignItems: "center",justifyContent:"center",gap:"20px" }}>
+                            <Box sx={{mt:2}}>
+                                <CircularProgressWithLabel value={progress || 0} />
+
+                            </Box>
+                            <Box>
+                                {
+                                    progress === 100 && <Button onClick={viewCertificate} sx={{ mt: 2 }} variant='contained'>View Certificate</Button>
+                                }
+                            </Box>
                         </Box>
                     </Stack>
                     <Box sx={{ p: 2 }}>
@@ -266,9 +279,7 @@ const Viewcourse = () => {
                             <Typography>
                                 {materialDetails && materialDetails.materialDesc}
                             </Typography>
-                            {
-                                progress === 100 && <Button sx={{ mt: 2 }} variant='contained'>View Certificate</Button>
-                            }
+
                         </Box>
 
                     </Box>
@@ -282,17 +293,17 @@ const Viewcourse = () => {
                                 <ChatIcon />
                             </Stack>
                             <Box className="chatBox" sx={{ height: "540px", overflowY: "scroll", display: 'flex', flexDirection: 'column' }}>
-                            {
-                                messageData.map((chat,key) => (
-                                    <Card sx={{width:"fit-content",mx:2}}>
-                                        <CardContent>
-                                        <Typography key={key}>{chat.chatContent}</Typography>
-                                        </CardContent>
-                                    </Card>
-                                ))
-                            }
-                               
-                               
+                                {
+                                    messageData.map((chat, key) => (
+                                        <Card sx={{ width: "fit-content", mx: 2 }}>
+                                            <CardContent>
+                                                <Typography key={key}>{chat.chatContent}</Typography>
+                                            </CardContent>
+                                        </Card>
+                                    ))
+                                }
+
+
                             </Box>
                             <Box className="chatForm" sx={{ pr: 4, width: "100%" }}>
 

@@ -1316,6 +1316,13 @@ app.put("/Course/:id/edit", async (req, res) => {
 app.put("/Course/:id/publish", async (req, res) => {
     try {
         const { id } = req.params
+        const sections = await Section.find({courseId:id})
+        const sectionIds = sections.map(section => section._id)
+        const materials = await Material.find({sectionId:{$in:sectionIds}})
+        if(materials.length <5)
+        {
+            return res.send({message:"You need atleast 5 materials to publish this course",status:false})
+        }
         const course = await Course.findByIdAndUpdate(id, { __v: 1 }, { new: true })
         res.status(200).send({ message: "Course Published Successfully", status: true })
     } catch (error) {
