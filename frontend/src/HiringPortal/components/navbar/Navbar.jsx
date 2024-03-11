@@ -1,54 +1,106 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import './navbar.scss'
-import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
-import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
-import FullscreenExitOutlinedIcon from '@mui/icons-material/FullscreenExitOutlined';
-import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
-import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
-import ReorderOutlinedIcon from '@mui/icons-material/ReorderOutlined';
+import SearchIcon from '@mui/icons-material/Search';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import { Link } from 'react-router-dom';
+import Button from '@mui/material/Button';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import axios from 'axios';
+import Placeholder from '../placeholder/Placeholder';
+import { Typography } from '@mui/material';
+
 
 const Navbar = () => {
-  return (
-    <div className='hiringNavbar'>
-      <div className="wrapper">
-        <div className="search">
-          <input type="text" placeholder='Search...' />
-          <SearchOutlinedIcon className="icon" />
+    const [hirer,setHirer] = useState(null)
+    const [anchorEl, setAnchorEl] = useState(null)
+    const open = Boolean(anchorEl)
+    const handleClick = (e) => {
+        setAnchorEl(e.currentTarget)
+    }
+
+    const handleClose = (e) => {
+        setAnchorEl(null)
+    }
+
+    const hid = sessionStorage.getItem("Jid")
+
+    const fetchHirer = ()=>{
+      axios.get("http://localhost:5000/JobPortal/"+hid).then((res)=>{
+        setHirer(res.data)
+      })
+    }
+
+
+
+   
+
+
+    // const logout = ()=>{
+    //     axios.post("http://localhost:5000/logout").then((res)=>{
+    //         console.log(res.data)
+    //     })
+    // }
+
+
+    useEffect(()=>{
+       fetchHirer()
+    },[])
+    
+
+    return (
+        <div className="hirerNavbar">
+            <Link to="/hiringportal" style={{ textDecoration: "none", color: "black" }}>
+                <h1 className="siteLogo">CURIOSITY</h1>
+            </Link>
+            
+          
+            <div className="userNavLinkContainer">
+                <Link to="/HiringPortal/NewVacancy" style={{ textDecoration: "none", color: "black" }}>
+                    <p className="userNavLink">Add Vacancy </p>
+                </Link>
+                <Link to="/HiringPortal/myposts" style={{ textDecoration: "none", color: "black" }}>
+                    <p className="userNavLink">My Posts</p>
+                </Link>
+                
+               
+                <NotificationsIcon className='userNavIcon' />
+                <div className='userNavCounterContainer'>
+                    <Button
+                        id='basic-button'
+                        onClick={handleClick}
+                        aria-controls={open ? 'basic-menu' : undefined}
+                        aria-expanded={open ? true : undefined}
+                    >
+                       {hirer && hirer.jobPortalPhoto ? <img style={{ width: "50px", height: "50px", borderRadius: "50%", objectFit: "cover" }} src={hirer.jobPortalPhoto} alt="profile" /> :
+                 <Placeholder   username={hirer && hirer.jobPortalName}/> }
+                    </Button>
+                    <Menu
+                        id='basic-menu'
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleClose}
+                        MenuListProps={{
+                            'aria-labelledby': 'basic-button',
+                        }}
+                    >
+                        <MenuItem onClick={handleClose}>
+                            <Link  style={{ textDecoration: "none", color: "black" }} to={"/HiringPortal/profile"}>My Profile</Link>
+                        </MenuItem>
+
+                        <MenuItem onClick={handleClose}>
+                            <Link style={{ textDecoration: "none", color: "black" }} to={"/HiringPortal/settings"}>Account Settings</Link>
+                        </MenuItem>
+                        <MenuItem>
+                            <Typography>Logout</Typography>
+                        </MenuItem>
+                    </Menu>
+                </div>
+            </div>
         </div>
-
-        <div className="items">
-          <div className="item">
-            <LanguageOutlinedIcon className="icon" />
-            English
-          </div>
-          <div className="item">
-            <DarkModeOutlinedIcon className="icon" />
-          </div>
-          <div className="item">
-            <FullscreenExitOutlinedIcon className="icon" />
-
-          </div>
-          <div className="item">
-            <NotificationsNoneOutlinedIcon className="icon" />
-              <div className="counter">1</div>
-          </div>
-          <div className="item">
-            <ChatBubbleOutlinedIcon className="icon" />
-              <div className="counter">2</div>
-          </div>
-          <div className="item">
-            <ReorderOutlinedIcon className="icon" />
-
-          </div>
-          <div className="item">
-            <img src="https://i.pinimg.com/originals/0a/6c/ae/0a6caeadd01eb5d9ca8ebb69d71c1fed.jpg" alt="" className='avatar' />
-
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+    )
 }
 
 export default Navbar

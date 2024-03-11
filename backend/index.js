@@ -2457,9 +2457,19 @@ app.post("/Jobportal", upload.fields([
 
 // Read
 
-app.get("/Jobportal", async (req, res) => {
+// app.get("/Jobportal", async (req, res) => {
+//     try {
+//         const portals = await JobPortal.find()
+//         res.status(200).send(portals)
+//     } catch (error) {
+//         console.log(error.message);
+//         console.log("Server Error");
+//     }
+// })
+app.get("/Jobportal/:id", async (req, res) => {
     try {
-        const portals = await JobPortal.find()
+        const {id} = req.params
+        const portals = await JobPortal.findById(id)
         res.status(200).send(portals)
     } catch (error) {
         console.log(error.message);

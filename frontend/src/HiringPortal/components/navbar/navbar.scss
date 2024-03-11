@@ -1,85 +1,75 @@
-.hiringNavbar
-{
-    height: 50px;
-    border-bottom: 0.5px solid rgb(230, 227, 227);
+.hirerNavbar {
     display: flex;
     align-items: center;
-    font-size: 14px;
-    color: #555;
+    justify-content: space-around;
+    padding: 10px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.389);
+    
 
-    .wrapper
-    {
-        width: 100%;
-        padding: 20px;
+    .siteLogo {
+        color: #023e8a;
+        letter-spacing: 3px;
+    }
+
+    gap: 20px;
+
+    .userNavSearch {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        border-bottom: none;
+        background-color: aliceblue;
+        padding: 10px 5px;
+        width: 45%;
+        border-radius: 45px;
 
-
-        .search
-        {
-            display: flex;
-            align-items: center;
-            border: 0.5px solid lightgray;
-            padding: 5px;
-            
-
-            input
-            {
-                border: none;
-                outline: transparent;
-                background: transparent;
-
-                &::placeholder{
-                    font-size: 13px;
-                }
-            }
+        input {
+            width: 100%;
+            padding: 10px;
+            background-color: aliceblue;
+            border: none;
+            outline: transparent;
         }
+    }
 
-        .items
-        {
-            display: flex;
-            align-items: center;
-            gap: 20px;
+    .userNavLinkContainer {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
 
-            .item
-            {
-                display: flex;
-                align-items: center;
-                gap: 2px;
-                cursor: pointer;
-                position: relative;
 
-               .icon
-               {
-                font-size: 20px;
-               }
 
-               .avatar
-               {
-                width: 30px;
-                height: 30px;
-                border-radius: 50%;
-               }
+    .userNavProfile {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+    }
 
-               .counter
-               {
-                width: 15px;
-                height: 15px;
-                background-color: red;
-                border-radius: 50%;
-                color: white;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 10px;
-                font-weight: bold;
-                position: absolute;
-                top: -5px;
-                right: -5px;
-               }
-            }
+    .userNavCounterContainer {
+        display: flex;
+        align-items: center;
+        position: relative;
+
+        .userNavCounter {
+            background-color: #023e8a;
+            color: #ffff;
+            padding: 5px;
+            border-radius: 50%;
+            width: 10px;
+            height: 10px;
+            font-size: 10px;
+            text-align: center;
+            font-weight: bold;
+            position: absolute;
+            top: -13px;
+            right: -5px;
+        }
+    }
+
+    .userNavLink,
+    .userNavIcon {
+        &:hover {
+            color: #023e8a;
+            cursor: pointer;
         }
     }
 }

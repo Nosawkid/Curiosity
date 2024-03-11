@@ -21,13 +21,14 @@ import Myprofile from './pages/myprofile/Myprofile';
 import Editprofile from './pages/editprofile/Editprofile';
 import Footer from './pages/footer/footer';
 import Changepassword from './pages/changepassword/Changepassword';
+import { Card } from '@mui/material';
 
 
 
 
 function App() {
 
-  
+
 
 
   return (
@@ -37,31 +38,37 @@ function App() {
         <Sidebar />
         <div className="homeContainer">
           <Navbar />
-          <div style={{minHeight:"100vh"}}>
+          <Card sx={{
+            height: '77vh', overflowY: 'scroll', m: 2, borderRadius: 5, py: 3,px:2, scrollbarWidth: 'none',
+            '-ms-overflow-style': 'none',
+            '&::-webkit-scrollbar': {
+              display: 'none',
+            },
+          }}>
             <Routes>
               <Route path='/' element={<Home />} />
-              <Route path='/Myprofile' element={<Myprofile/>}/>
+              <Route path='/Myprofile' element={<Myprofile />} />
               <Route path='/Drafts' element={<Draft />} />
               <Route path='/Courses' element={<Course />} />
-              <Route path='/Courses/:id' element={<Single/>}/>
-              <Route path='/Courses/:courseId/section' element={<Section/>}/>
-              <Route path='/Section/:sid/material' element={<Material/>}/>
+              <Route path='/Courses/:id' element={<Single />} />
+              <Route path='/Courses/:courseId/section' element={<Section />} />
+              <Route path='/Section/:sid/material' element={<Material />} />
               <Route path='/Newcourse' element={<Newcourse />} />
-              <Route path='/Cart' element = {<Cart/>}/>
-              <Route path='/Wishlist' element = {<Wishlist/>}/>
-              <Route path='/Complaints' element = {<Complaint/>}/>
-              <Route path='/Section' element = {<Section/>} />
-              <Route path='/Material' element={<Material/>}/>
-              <Route path='/Settings' element={<Editprofile/>}/>
-              <Route path='/changepassword' element={<Changepassword/>}/>
-              
+              <Route path='/Cart' element={<Cart />} />
+              <Route path='/Wishlist' element={<Wishlist />} />
+              <Route path='/Complaints' element={<Complaint />} />
+              <Route path='/Section' element={<Section />} />
+              <Route path='/Material' element={<Material />} />
+              <Route path='/Settings' element={<Editprofile />} />
+              <Route path='/changepassword' element={<Changepassword />} />
+
             </Routes>
 
-          </div>
-          <Footer/>
+            <Footer />
+          </Card>
         </div>
       </div>
-      
+
 
 
     </div>

@@ -16,6 +16,7 @@ import Profile from './pages/profile/Profile';
 import './App.scss'
 import Applications from './pages/applications/Applications';
 import Single from './pages/single/Single';
+import Footer from './components/footer/footer'
 
 
 
@@ -46,6 +47,7 @@ function App() {
             </Routes>
 
           </div>
+        <Footer/>
         </div>
       </div>
 

@@ -7,21 +7,18 @@ import FullscreenExitOutlinedIcon from '@mui/icons-material/FullscreenExitOutlin
 import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
 import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
 import ReorderOutlinedIcon from '@mui/icons-material/ReorderOutlined';
+import { Card } from '@mui/material';
 
 const Navbar = () => {
   return (
-    <div className='navbar'>
+    <Card className='navbar'  sx={{m:2,borderRadius:5,py:1}}>
       <div className="wrapper">
         <div className="search">
-          <input type="text" placeholder='Search...' />
-          <SearchOutlinedIcon className="icon" />
+       
         </div>
 
         <div className="items">
-          <div className="item">
-            <LanguageOutlinedIcon className="icon" />
-            English
-          </div>
+         
           <div className="item">
             <DarkModeOutlinedIcon className="icon" />
           </div>
@@ -47,7 +44,7 @@ const Navbar = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Card>
   )
 }
 

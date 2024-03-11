@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { FaChalkboardTeacher, FaClipboardList } from "react-icons/fa";
 import RemoveFromQueueIcon from '@mui/icons-material/RemoveFromQueue';
+import { Card } from '@mui/material';
 
 
 const Sidebar = () => {
@@ -18,7 +19,7 @@ const Sidebar = () => {
 
 
   return (
-    <div className='sidebar'>
+    <Card className='sidebar' sx={{m:2,borderRadius:5,height:'85vh',py:4}}>
       <div className="top">
         <Link to="/instructor" style={{ textDecoration: "none" }}>
           <span className="logo">INSTRUCTOR</span>
@@ -29,10 +30,10 @@ const Sidebar = () => {
         <ul>
           <p className="title">MAIN</p>
           <Link to="/instructor/myprofile" style={{ textDecoration: "none" }}>
-          <li> <AccountCircleIcon className='icon' /> <span>My Profile</span></li>
+            <li> <AccountCircleIcon className='icon' /> <span>My Profile</span></li>
           </Link>
           <Link to="/instructor/settings" style={{ textDecoration: "none" }}>
-          <li> <SettingsIcon className='icon' /> <span>Account Settings</span></li>
+            <li> <SettingsIcon className='icon' /> <span>Account Settings</span></li>
           </Link>
           <p className="title">LISTS</p>
           <Link to="/instructor/Courses" style={{ textDecoration: "none" }}>
@@ -45,7 +46,7 @@ const Sidebar = () => {
             <li><FaClipboardList className='icon' /> <span>Wishlist</span></li>
           </Link>
           <Link to="/instructor/Complaints" style={{ textDecoration: "none" }} >
-          <li><RemoveFromQueueIcon className='icon' /><span>Complaints</span></li>
+            <li><RemoveFromQueueIcon className='icon' /><span>Complaints</span></li>
           </Link>
           <p className="title">SERVICE</p>
           <li><MonitorHeartIcon className='icon' /> <span>System Health</span></li>
@@ -58,8 +59,8 @@ const Sidebar = () => {
       {/* <div className="bottom">
         <div className="colorOption" onClick={() => dispatch({ type: "LIGHT" })}></div>
         <div className="colorOption" onClick={() => dispatch({ type: "DARK" })} ></div>
-      </div> */}    
-    </div>
+      </div> */}
+    </Card>
   )
 }
 
