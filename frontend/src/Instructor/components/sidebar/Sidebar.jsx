@@ -39,19 +39,11 @@ const Sidebar = () => {
           <Link to="/instructor/Courses" style={{ textDecoration: "none" }}>
             <li> <FaChalkboardTeacher className='icon' /> <span>Courses</span></li>
           </Link>
-          <Link to="/instructor/Cart" style={{ textDecoration: "none" }}>
-            <li><ShoppingCartIcon className='icon' /> <span>Cart</span></li>
-          </Link>
-          <Link to="/instructor/Wishlist" style={{ textDecoration: "none" }}>
-            <li><FaClipboardList className='icon' /> <span>Wishlist</span></li>
-          </Link>
+          
           <Link to="/instructor/Complaints" style={{ textDecoration: "none" }} >
             <li><RemoveFromQueueIcon className='icon' /><span>Complaints</span></li>
           </Link>
-          <p className="title">SERVICE</p>
-          <li><MonitorHeartIcon className='icon' /> <span>System Health</span></li>
-          <li><AddLinkIcon className='icon' /> <span>Logs</span></li>
-          <li><SettingsIcon className='icon' /> <span>Settings</span></li>
+        
           <p className="title">User</p>
           <li><LogoutIcon className='icon' /><span> Logout</span></li>
         </ul>

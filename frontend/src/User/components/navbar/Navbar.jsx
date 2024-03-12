@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import './navbar.scss'
 import SearchIcon from '@mui/icons-material/Search';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import { Link } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
@@ -11,11 +10,14 @@ import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios';
 import Placeholder from '../placeholder/Placeholder';
 import { Typography } from '@mui/material';
+import { SetCart } from '../../../Context/Context'
 
 
 const Navbar = () => {
-    const [user,setUser] = useState(null)
+    const { count } = useContext(SetCart)
+    const [user, setUser] = useState(null)
     const [anchorEl, setAnchorEl] = useState(null)
+    const [cartCount, setCartCount] = useState(0)
     const open = Boolean(anchorEl)
     const handleClick = (e) => {
         setAnchorEl(e.currentTarget)
@@ -27,11 +29,13 @@ const Navbar = () => {
 
     const uid = sessionStorage.getItem("Uid")
 
-    const fetchCourse = ()=>{
-        axios.get("http://localhost:5000/User/"+uid).then((res)=>{
+    const fetchCourse = () => {
+        axios.get("http://localhost:5000/User/" + uid).then((res) => {
             setUser(res.data)
         })
     }
+
+
 
 
     // const logout = ()=>{
@@ -41,10 +45,11 @@ const Navbar = () => {
     // }
 
 
-    useEffect(()=>{
+    useEffect(() => {
         fetchCourse()
-    },[])
-    
+
+    }, [])
+
 
     return (
         <div className="userNavbar">
@@ -70,9 +75,12 @@ const Navbar = () => {
                     <Link to="/user/cart" style={{ textDecoration: "none", color: "black" }}>
                         <ShoppingCartIcon className='userNavIcon' />
                     </Link>
-                    <div className="userNavCounter">{5}</div>
+                    {
+                        count && <div className="userNavCounter">{count}</div>
+
+                    }
                 </div>
-                <NotificationsIcon className='userNavIcon' />
+
                 <div className='userNavCounterContainer'>
                     <Button
                         id='basic-button'
@@ -80,8 +88,8 @@ const Navbar = () => {
                         aria-controls={open ? 'basic-menu' : undefined}
                         aria-expanded={open ? true : undefined}
                     >
-                       {user && user.userPhoto ? <img style={{ width: "50px", height: "50px", borderRadius: "50%", objectFit: "cover" }} src={user.userPhoto} alt="profile" /> :
-                 <Placeholder   username={user && user.userName}/> }
+                        {user && user.userPhoto ? <img style={{ width: "50px", height: "50px", borderRadius: "50%", objectFit: "cover" }} src={user.userPhoto} alt="profile" /> :
+                            <Placeholder username={user && user.userName} />}
                     </Button>
                     <Menu
                         id='basic-menu'
@@ -93,7 +101,7 @@ const Navbar = () => {
                         }}
                     >
                         <MenuItem onClick={handleClose}>
-                            <Link  style={{ textDecoration: "none", color: "black" }} to={"/user/profile"}>My Profile</Link>
+                            <Link style={{ textDecoration: "none", color: "black" }} to={"/user/profile"}>My Profile</Link>
                         </MenuItem>
 
                         <MenuItem onClick={handleClose}>

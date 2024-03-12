@@ -72,7 +72,7 @@ io.on("connection", (socket) => {
 
     socket.on("DataFromClient", async ({ message, courseId, uid }) => {
 
-        socket.join(courseId);
+        // socket.join(courseId);
 
 
         const newChat = new Chat({
@@ -81,11 +81,22 @@ io.on("connection", (socket) => {
             chatContent: message,
         })
 
-       await newChat.save();
+        await newChat.save();
 
-        const chatData = await Chat.find({courseId})
+        const chatData = await Chat.find({ courseId }).populate({
+            path: "courseId",
+            model: "schemaCourse",
+            populate: {
+                path: "instructorId",
+                model: "schemaInstructor"
+            }
+        }).populate({
+            path: "userId",
+            model: "schemaUser"
+        })
 
         socket.broadcast.to(courseId).emit('chatContentFromServer', ({ chatData }))
+        socket.emit('chatContentFromServer', ({ chatData }))
 
     });
 });
@@ -1235,6 +1246,43 @@ app.get("/Course/:id", async (req, res) => {
     }
 })
 
+// Course based on category
+app.get("/Course/:categoryId/:userId/category", async (req, res) => {
+    try {
+        const { categoryId,userId } = req.params;
+       
+
+        
+        const subcategories = await Subcategory.find({ categoryId });
+        const subCatIds = subcategories.map(sub => sub._id);
+
+      
+        const topics = await Topic.find({ subCategoryId: { $in: subCatIds } });
+
+      
+        const topicIds = topics.map(topic => topic._id);
+
+      
+        const purchasedCourses = await Purchase.find({ userId });
+        const purchasedCourseIds = purchasedCourses.map(course => course.courseId);
+
+        
+        const courses = await Course.find({
+            topicId: { $in: topicIds },
+            _id: { $nin: purchasedCourseIds },
+            __v: 1
+        }).populate({
+            path: 'instructorId',
+            model: 'schemaInstructor'
+        });
+
+        res.status(200).send(courses);
+
+    } catch (error) {
+        console.log(error.message);
+    }
+})
+
 // Course from instructor
 
 app.get("/CourseFromIns/:insid", async (req, res) => {
@@ -1316,12 +1364,11 @@ app.put("/Course/:id/edit", async (req, res) => {
 app.put("/Course/:id/publish", async (req, res) => {
     try {
         const { id } = req.params
-        const sections = await Section.find({courseId:id})
+        const sections = await Section.find({ courseId: id })
         const sectionIds = sections.map(section => section._id)
-        const materials = await Material.find({sectionId:{$in:sectionIds}})
-        if(materials.length <5)
-        {
-            return res.send({message:"You need atleast 5 materials to publish this course",status:false})
+        const materials = await Material.find({ sectionId: { $in: sectionIds } })
+        if (materials.length < 5) {
+            return res.send({ message: "You need atleast 5 materials to publish this course", status: false })
         }
         const course = await Course.findByIdAndUpdate(id, { __v: 1 }, { new: true })
         res.status(200).send({ message: "Course Published Successfully", status: true })
@@ -1663,6 +1710,29 @@ const Booking = mongoose.model("schemaBooking", bookingSchema)
 
 // crud
 // // create
+
+app.get("/Totalbooking",async(req,res)=>{
+    try {
+        const sum = await Booking.aggregate([
+            {
+                $match:{
+                    __v:1
+                }
+            },
+            {
+                $group:{
+                    _id:null,
+                    total:{
+                        $sum:"$price"
+                    }
+                }
+            }
+        ])
+        res.status(200).send({total:sum[0].total})
+    } catch (error) {
+        console.log(error.message);
+    }
+})
 
 app.post("/Booking", async (req, res) => {
     try {
@@ -2238,14 +2308,24 @@ app.get("/Chat", async (req, res) => {
     }
 })
 
-app.get("/Chat/:courseId",async(req,res)=>{
+app.get("/Chat/:courseId", async (req, res) => {
     try {
-        const {courseId} = req.params
-        const chats = await Chat.find({courseId})
+        const { courseId } = req.params
+        const chats = await Chat.find({ courseId }).populate({
+            path: "courseId",
+            model: "schemaCourse",
+            populate: {
+                path: "instructorId",
+                model: "schemaInstructor"
+            }
+        }).populate({
+            path: "userId",
+            model: "schemaUser"
+        })
         res.status(200).send(chats)
     } catch (error) {
         console.log(error.message);
-        res.send({message:error.message,status:false})
+        res.send({ message: error.message, status: false })
     }
 })
 
@@ -2472,15 +2552,16 @@ app.post("/Jobportal", upload.fields([
 
 // Read
 
-// app.get("/Jobportal", async (req, res) => {
-//     try {
-//         const portals = await JobPortal.find()
-//         res.status(200).send(portals)
-//     } catch (error) {
-//         console.log(error.message);
-//         console.log("Server Error");
-//     }
-// })
+app.get("/Jobportal", async (req, res) => {
+    try {
+        const portals = await JobPortal.find()
+        res.status(200).send(portals)
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})
+
 app.get("/Jobportal/:id", async (req, res) => {
     try {
         const { id } = req.params

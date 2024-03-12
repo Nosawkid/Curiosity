@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import './navbar.scss'
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
@@ -8,8 +8,22 @@ import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNone
 import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
 import ReorderOutlinedIcon from '@mui/icons-material/ReorderOutlined';
 import { Card } from '@mui/material';
+import axios from 'axios';
 
 const Navbar = () => {
+  const iid = sessionStorage.getItem("Iid")
+  const [ins,setIns] = useState("")
+
+
+  const fetchInstructor = ()=>{
+    axios.get("http://localhost:5000/Instructor/"+iid).then((res)=>{
+      setIns(res.data)
+    })
+  }
+
+  useEffect(()=>{
+    fetchInstructor()
+  })
   return (
     <Card className='navbar'  sx={{m:2,borderRadius:5,py:1}}>
       <div className="wrapper">
@@ -39,7 +53,7 @@ const Navbar = () => {
 
           </div>
           <div className="item">
-            <img src="https://i.pinimg.com/originals/0a/6c/ae/0a6caeadd01eb5d9ca8ebb69d71c1fed.jpg" alt="" className='avatar' />
+            <img src={ins && ins.instructorPhoto} alt="" className='avatar' />
 
           </div>
         </div>

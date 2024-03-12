@@ -1,20 +1,36 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import './topsuggestion.scss'
 import {  Stack } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { Server } from '../../../Server.js'
 
 const Topsuggestion = () => {
+  const [category,setCategory] = useState([])
+  const navigate = useNavigate()
+  const destination = "/user/coursefromcategory"
+
+  const viewFromCategory = (id)=>{
+    navigate(`${destination}/${id}`)
+  }
+
+  const fetchCategories = ()=>{
+    axios.get(`${Server}/Category`).then((res)=>{
+      setCategory(res.data)
+    })
+  }
+
+  useEffect(()=>{
+    fetchCategories()
+  },[])
   return (
     <Stack className='userTopsuggestion' sx={{padding:"20px 0", display:"flex",alignItems:"center", justifyContent:"center"}} spacing={3} direction="row">
-        <div className='topSuggestionItem'>Development</div>
-        <div className='topSuggestionItem'>Business</div>
-        <div className='topSuggestionItem'>Finance & Accounting</div>
-        <div className='topSuggestionItem'>IT & Software</div>
-        <div className='topSuggestionItem'>Office Productivity</div>
-        <div className='topSuggestionItem'>Personal Development</div>
-        <div className='topSuggestionItem'>Design</div>
-        <div className='topSuggestionItem'>Marketing</div>
-        <div className='topSuggestionItem'>Health & Fitness</div>
-        <div className='topSuggestionItem'>Music</div>
+       {
+        category && category.map((row,key)=>(
+          <div onClick={()=>viewFromCategory(row._id)} className='topSuggestionItem'>{row.categoryName}</div>
+        ))
+       }
+       
     </Stack>
   )
 }

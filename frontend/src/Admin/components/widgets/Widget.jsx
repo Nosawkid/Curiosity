@@ -7,7 +7,7 @@ import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 
 
-const Widget = ({type}) => {
+const Widget = ({type,userCount}) => {
   let data;
 
   // Temporary data to fill in percentage and amount
@@ -19,47 +19,40 @@ const Widget = ({type}) => {
     case 'user':
       data = {
         title:"USERS",
+        count:userCount,
         isMoney:false,
-        link:"See all users",
+        link:"Till today  ",
         icon: <Person2OutlinedIcon className='icon' style={{
           color:"crimson",
           backgroundColor:'rgba(255,0,0,0.2)'
         }} />
       }
       break;
-    case 'order':
+    case 'instructor':
       data = {
-        title:"ORDERS",
+        title:"INSTRUCTORS",
         isMoney:false,
-        link:"See all orders",
-        icon: <LocalShippingOutlinedIcon className='icon' style={{
-          color:"goldenrod",
-          backgroundColor:'rgba(218,135,62,0.2)'
+        count:userCount,
+        link:"Till today",
+        icon: <Person2OutlinedIcon className='icon' style={{
+          color:"crimson",
+          backgroundColor:'rgba(255,0,0,0.2)'
         }} />
       }
       break;
-    case 'earning':
+    case 'hirer':
       data = {
-        title:"EARNINGS",
-        isMoney:true,
-        link:"View Income",
-        icon: <AttachMoneyOutlinedIcon className='icon' style={{
-          color:"green",
-          backgroundColor:'rgba(0,128,0,0.2)'
+        title:"HIRING PORTAL",
+        isMoney:false,
+        count:userCount,
+        link:"Till today",
+        icon: <Person2OutlinedIcon className='icon' style={{
+          color:"crimson",
+          backgroundColor:'rgba(255,0,0,0.2)'
         }} />
       }
       break;
-    case 'balance':
-      data = {
-        title:"BALANCE",
-        isMoney:true,
-        link:"View Balance",
-        icon: <MonetizationOnIcon className='icon' style={{
-          color:"purple",
-          backgroundColor:'rgba(128,0,128,0.2)'
-        }} />
-      }
-      break;
+ 
       default:
         break;
   }
@@ -69,13 +62,11 @@ const Widget = ({type}) => {
     <div className='adminWidget'>
         <div className="left">
           <span className="title">{data.title}</span>
-          <span className="counter">{data.isMoney && '$'} {amt}</span>
+          <span className="counter">{data.count}</span>
           <span className="link">{data.link}</span>
         </div>
         <div className="right">
-          <div className="percentage positive">
-          <ArrowDropUpOutlinedIcon/>
-            {percentage}%</div>
+        
           {data.icon}
         </div>
     </div>

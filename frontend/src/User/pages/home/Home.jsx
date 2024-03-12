@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import './home.scss'
 import Topsuggestion from '../../components/topsuggestion/Topsuggestion'
 import Hero from '../../components/hero/Hero'
@@ -9,9 +9,11 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import Tooltip from '@mui/material/Tooltip';
 import { Link } from 'react-router-dom'
 import Courseholder from '../../../assets/Courseholder.png'
+import { SetCart } from '../../../Context/Context'
 
 
 const Home = () => {
+  const {fetchCart} = useContext(SetCart)
   const [showCourses, setShowCourse] = useState([])
   const [value, setValue] = useState(3.5)
 
@@ -40,6 +42,8 @@ const Home = () => {
     axios.post("http://localhost:5000/Cart", { courseId, userId: uid }).then((res) => {
       if (res.data) {
         alert("Item Added to Cart")
+        fetchCart()
+
       }
       else {
         alert("Item already in the cart")

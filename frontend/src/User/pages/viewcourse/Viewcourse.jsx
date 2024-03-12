@@ -6,11 +6,24 @@ import ChatIcon from '@mui/icons-material/Chat';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import SendIcon from '@mui/icons-material/Send';
 import IconButton from '@mui/material/IconButton';
-import { useParams,useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import CircularProgress from '@mui/material/CircularProgress';
 import { SetSocket } from '../../../Context/Context'
+import { styled } from '@mui/material/styles';
+
+const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+});
 
 
 function CircularProgressWithLabel(props) {
@@ -76,6 +89,7 @@ const Viewcourse = () => {
     const [message, setMessage] = useState('')
     const [messageData, setMessageData] = useState([])
     const navigate = useNavigate()
+    const [chatImage, setChatImage] = useState("")
 
     const socket = useContext(SetSocket)
 
@@ -94,6 +108,7 @@ const Viewcourse = () => {
 
     const fetchChat = () => {
         axios.get(`${server}/Chat/${courseId}`).then((res) => {
+            console.log(res.data);
             setMessageData(res.data)
         })
     }
@@ -105,6 +120,8 @@ const Viewcourse = () => {
         socket.emit("DataFromClient", { message, courseId, uid }, (response) => {
             console.log(response); // "got it"
         });
+
+        setMessage("")
     }
 
 
@@ -188,8 +205,8 @@ const Viewcourse = () => {
     }
 
 
-    const viewCertificate = ()=>{
-        navigate("/user/certificate/"+courseId+"/"+uid)
+    const viewCertificate = () => {
+        navigate("/user/certificate/" + courseId + "/" + uid)
     }
 
 
@@ -218,6 +235,13 @@ const Viewcourse = () => {
 
     }, [])
 
+    useEffect(() => {
+        // Scroll to the end of the chat box when messageData changes
+        const chatBox = document.getElementById('chatBox');
+        if (chatBox) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    }, [messageData]);
 
 
 
@@ -244,8 +268,8 @@ const Viewcourse = () => {
                             <Typography sx={{ color: "#2b2d42", fontWeight: "bold", fontSize: "18px" }}>{course && course.courseTitle}</Typography>
                             <Typography sx={{ color: "gray", fontWeight: "bold", fontSize: "16px" }}> &rarr; {materialDetails && materialDetails.sectionId.sectionName} </Typography>
                         </Box>
-                        <Box sx={{ display: "flex", alignItems: "center",justifyContent:"center",gap:"20px" }}>
-                            <Box sx={{mt:2}}>
+                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "20px" }}>
+                            <Box sx={{ mt: 2 }}>
                                 <CircularProgressWithLabel value={progress || 0} />
 
                             </Box>
@@ -292,14 +316,42 @@ const Viewcourse = () => {
                                 <Typography sx={{ fontWeight: "bold" }}>Chat  </Typography>
                                 <ChatIcon />
                             </Stack>
-                            <Box className="chatBox" sx={{ height: "540px", overflowY: "scroll", display: 'flex', flexDirection: 'column' }}>
+                            <Box id="chatBox" className="chatBox" sx={{ height: "540px", overflowY: "scroll", display: 'flex', flexDirection: 'column' }}>
                                 {
                                     messageData.map((chat, key) => (
-                                        <Card sx={{ width: "fit-content", mx: 2 }}>
-                                            <CardContent>
-                                                <Typography key={key}>{chat.chatContent}</Typography>
-                                            </CardContent>
-                                        </Card>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                justifyContent: uid === chat.userId._id ? 'flex-end' : 'flex-start',
+                                                alignItems: 'flex-end', // Align items at the bottom to place profile picture properly
+                                            }}
+                                        >
+                                            {uid !== chat.userId && (
+                                                <Avatar
+                                                    src={chat.userId.userPhoto}
+                                                    sx={{ m: 1 }} // Add margin to Avatar for spacing
+                                                    alt={chat.userId.userName}
+                                                />
+                                            )}
+                                            <Card
+                                                sx={{
+                                                    width: "fit-content",
+                                                    m: 1,
+                                                    backgroundColor: uid === chat.userId._id ? "#d3e1f2" : "#ffffff",
+                                                    borderRadius: '16px',
+                                                    
+                                                }}
+                                            >
+                                                <CardContent
+                                                    sx={{maxWidth:"70%"}}
+                                                >
+                                                    <Typography>{chat.chatContent}</Typography>
+                                                    <Typography variant="caption" color="textSecondary" sx={{ mt: 1 }}>
+                                                    {new Date(chat.chatDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                                    </Typography>
+                                                </CardContent>
+                                            </Card>
+                                        </Box>
                                     ))
                                 }
 
@@ -333,11 +385,13 @@ const Viewcourse = () => {
                                         id="filled-adornment-password"
                                         type="text"
                                         onChange={(event) => setMessage(event.target.value)}
+                                        value={message}
                                         endAdornment={
                                             <InputAdornment position="end">
                                                 <IconButton
                                                     aria-label="toggle password visibility"
                                                     edge="end"
+                                                    
                                                     onClick={SendMessage}
                                                 >
                                                     <SendIcon />
@@ -345,8 +399,17 @@ const Viewcourse = () => {
                                             </InputAdornment>
                                         }
                                         startAdornment={<InputAdornment position="end">
-                                            <IconButton>
+                                            <IconButton
+                                                component="label"
+                                                role={undefined}
+                                                variant="contained"
+                                                tabIndex={-1}
+
+                                            >
                                                 <AddPhotoAlternateIcon />
+                                                <VisuallyHiddenInput
+                                                    onChange={(e) => setChatImage(e.target.files[0])}
+                                                    type="file" />
                                             </IconButton>
                                         </InputAdornment>}
                                     />
