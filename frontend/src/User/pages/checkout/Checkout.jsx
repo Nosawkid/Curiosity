@@ -9,7 +9,7 @@ import { Button, Card, CardContent, Stack, TextField } from '@mui/material';
 // import master from '../../../assets/Mastercard-Logo.png'
 // import ae from '../../../assets/americanExpress.png'
 import './checkout.scss'
-// import InputMask from 'react-input-mask';
+import InputMask from 'react-input-mask';
 // import placeholderog from '../../../assets/placeholderog.png'
 import { useParams } from 'react-router-dom'
 import axios from 'axios';
@@ -93,7 +93,7 @@ const Checkout = () => {
   }
 
   const uid = sessionStorage.getItem("Uid")
-  let { courseId, type } = useParams() 
+  let { courseId, type } = useParams()
   let bookingId = ""
 
   if (type === "multiple") {
@@ -107,8 +107,7 @@ const Checkout = () => {
         console.log(res.data.message)
         navigate("/user/viewcourse/" + courseId)
       }
-      else
-      {
+      else {
         alert("Course Already bought")
       }
     })
@@ -287,7 +286,7 @@ const Checkout = () => {
 
                       <TextField
                         sx={{ mt: 3 }}
-                        type="number"
+                        type="string"
                         name="number"
                         className="form-control"
                         placeholder="Card Number"
@@ -297,8 +296,9 @@ const Checkout = () => {
                         required
                         variant='outlined'
                         fullWidth
-                      >
-                      </TextField>
+                        inputProps={{ maxLength: 16 }} // Add maxLength attribute
+                      />
+                      
 
 
                       <TextField

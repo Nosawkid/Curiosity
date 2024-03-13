@@ -8,6 +8,7 @@ import { Server } from '../../../Server.js';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import moment from 'moment'
 
 const Certificate = () => {
     const { courseId, userId } = useParams()
@@ -88,7 +89,7 @@ const Certificate = () => {
                             </Box>
                             <Stack sx={{ mt: 5 }} direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
                                 <Box>
-                                    <Typography sx={{ fontWeight: "bold" }}> 11/10/24</Typography>
+                                    <Typography sx={{ fontWeight: "bold" }}>{moment().format("DD-MM-YYYY")}</Typography>
                                     <Typography sx={{ fontWeight: "bold" }}>DATE</Typography>
                                 </Box>
                                 <Box sx={{ mb: 1 }}>

@@ -26,8 +26,8 @@ const User = () => {
     const [contactError, setContactError] = useState("");
     const [passwordError, setPasswordError] = useState(false)
     const [open, setOpen] = React.useState(false);
-    const [message,setMessage] = useState("")
-    const [severity,setSeverity] = useState("")
+    const [message, setMessage] = useState("")
+    const [severity, setSeverity] = useState("")
 
 
 
@@ -98,11 +98,18 @@ const User = () => {
 
             // setUserName(firstName + " " + lastname)
             axios.post("http://localhost:5000/User", { userName: firstName + " " + lastname, userEmail, userContact, userPassword }).then((res) => {
-                console.log(res.data)
-                navigate("/guest/")
+                if (res.data.status) {
+                    console.log(res.data)
+                    navigate("/guest/")
+                }
+                else {
+                    setOpen(true)
+                    setMessage(res.data.message)
+                    setSeverity("error")
+                }
 
             }).catch((err) => {
-                console.log(err.message)
+                return console.log(err)
             })
 
 

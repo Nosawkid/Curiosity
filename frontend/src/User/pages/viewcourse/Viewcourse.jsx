@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Card, CardContent, FormControl, InputAdornment, InputLabel, OutlinedInput, Stack, Tooltip, Typography } from '@mui/material'
+import { Avatar, Box, Button, Card, CardContent, Divider, FormControl, InputAdornment, InputLabel, OutlinedInput, Rating, Stack, TextField, Tooltip, Typography } from '@mui/material'
 import React, { useContext, useEffect, useState } from 'react'
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
@@ -12,6 +12,9 @@ import PropTypes from 'prop-types';
 import CircularProgress from '@mui/material/CircularProgress';
 import { SetSocket } from '../../../Context/Context'
 import { styled } from '@mui/material/styles';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -88,8 +91,27 @@ const Viewcourse = () => {
     let [count, setCount] = useState(0)
     const [message, setMessage] = useState('')
     const [messageData, setMessageData] = useState([])
-    const navigate = useNavigate()
     const [chatImage, setChatImage] = useState("")
+    const [reviewTitle, setReviewTitle] = useState("")
+    const [reviewContent, setreviewContent] = useState("")
+    const [reviewRating, setreviewRating] = useState("")
+    const [reviews, setreviews] = useState([])
+    const navigate = useNavigate()
+    const [open, setOpen] = React.useState(false);
+    const [alertMessage,setAlertMessage] = useState("")
+    const [severity,setSeverity] = useState("")
+
+    const handleClick = () => {
+        setOpen(true);
+    };
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpen(false);
+    };
 
     const socket = useContext(SetSocket)
 
@@ -133,6 +155,25 @@ const Viewcourse = () => {
     const getCourse = () => {
         axios.get(`${server}/Course/${courseId}`).then((res) => {
             setCourse(res.data)
+        })
+    }
+
+    const submitReview = () => {
+        axios.post(`${server}/Review`, { reviewTitle, reviewContent, reviewRating, userId: uid, courseId }).then((res) => {  
+            setReviewTitle("")
+            setreviewContent("")
+            setreviewRating("")
+            fetchReviews()
+        }).catch((err) => {
+            setOpen(true)
+            setSeverity("error")
+            setAlertMessage("You have Already Reviewed this course")
+        })
+    }
+
+    const fetchReviews = () => {
+        axios.get(`${server}/Review/${uid}/${courseId}`).then((res) => {
+            setreviews(res.data)
         })
     }
 
@@ -232,6 +273,7 @@ const Viewcourse = () => {
         getSections()
         getCourse()
         fetchChat()
+        fetchReviews()
 
     }, [])
 
@@ -305,6 +347,65 @@ const Viewcourse = () => {
                             </Typography>
 
                         </Box>
+                        <Divider />
+                        <Box className="review" sx={{ mt: 3 }}>
+
+                            <Box>
+                                <Typography variant="h6" gutterBottom>
+                                    Write a Review
+                                </Typography>
+                                <TextField
+                                    label="Title"
+                                    variant="outlined"
+                                    fullWidth
+                                    value={reviewTitle}
+                                    sx={{ marginBottom: 2 }}
+                                    onChange={(e) => setReviewTitle(e.target.value)}
+                                />
+
+                                <TextField
+                                    label="Review Content"
+                                    variant="outlined"
+                                    fullWidth
+                                    multiline
+                                    rows={4}
+                                    value={reviewContent}
+                                    sx={{ marginBottom: 2 }}
+                                    onChange={(e) => setreviewContent(e.target.value)}
+                                />
+                                <Typography variant="body1" gutterBottom>
+                                    Rating:
+                                </Typography>
+                                <Rating
+                                    sx={{ marginBottom: 2 }}
+                                    onChange={(e) => setreviewRating(e.target.value)}
+                                    value={reviewRating}
+                                />
+
+                                <Button onClick={submitReview} sx={{ display: "block", mb: 3 }} variant="contained" color="primary">
+                                    Submit Review
+                                </Button>
+                            </Box>
+                            <Divider sx={{ m: 2 }}>My Reviews</Divider>
+                            <Box>
+
+                                {
+                                    reviews && reviews.map((row, key) => (
+                                        <Box key={key} sx={{ marginBottom: 2 }}>
+                                            <Typography variant="h6" sx={{ marginBottom: 1, fontWeight: 'bold' }}>
+                                                {row.reviewTitle}
+                                            </Typography>
+                                            <Typography variant="body1" sx={{ marginBottom: 1 }}>
+                                                {row.reviewContent}
+                                            </Typography>
+                                            <Rating value={row.reviewRating} readOnly />
+                                        </Box>
+                                    ))
+                                }
+
+                            </Box>
+
+                        </Box>
 
                     </Box>
 
@@ -339,15 +440,15 @@ const Viewcourse = () => {
                                                     m: 1,
                                                     backgroundColor: uid === chat.userId._id ? "#d3e1f2" : "#ffffff",
                                                     borderRadius: '16px',
-                                                    
+
                                                 }}
                                             >
                                                 <CardContent
-                                                    sx={{maxWidth:"70%"}}
+                                                    sx={{ maxWidth: "70%" }}
                                                 >
                                                     <Typography>{chat.chatContent}</Typography>
                                                     <Typography variant="caption" color="textSecondary" sx={{ mt: 1 }}>
-                                                    {new Date(chat.chatDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                                        {new Date(chat.chatDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                                                     </Typography>
                                                 </CardContent>
                                             </Card>
@@ -391,7 +492,7 @@ const Viewcourse = () => {
                                                 <IconButton
                                                     aria-label="toggle password visibility"
                                                     edge="end"
-                                                    
+
                                                     onClick={SendMessage}
                                                 >
                                                     <SendIcon />
@@ -420,6 +521,16 @@ const Viewcourse = () => {
                     </Card>
                 </Box>
             </Box>
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                <Alert
+                    onClose={handleClose}
+                    severity={severity}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {alertMessage}
+                </Alert>
+            </Snackbar>
         </div>
     )
 }

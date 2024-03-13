@@ -261,7 +261,7 @@ const Settings = () => {
 
               <Box>
                 <Typography sx={{ fontWeight: "bold" }} component={"p"} variant='p'>Biography</Typography>
-                <textarea onChange={(e) => setUserBiography(e.target.value)} defaultValue={userBiography} disabled={!isEditing} className="updateInput txtArea" />
+                <textarea  onChange={(e) => setUserBiography(e.target.value)} defaultValue={userBiography} disabled={!isEditing} className="updateInput txtArea" />
               </Box>
 
             </Stack>

@@ -14,6 +14,7 @@ const Editprofile = () => {
   const [instructorField, setInstructorField] = useState("")
   const [instructorEmail, setInstructorEmail] = useState("")
   const [instructorHeadLine, setInstructorHeadLine] = useState("")
+  const [instructorBio,setInstructorBio] = useState("")
   const [instructorQualification, setInstructorQualification] = useState("")
   const [photo, setPhoto] = useState("")
   const [instructorPhoto, setInstructorPhoto] = useState("")
@@ -27,6 +28,7 @@ const Editprofile = () => {
       setInstructorField(res.data.instructorField)
       setInstructorEmail(res.data.instructorEmail)
       setInstructorHeadLine(res.data.instructorHeadLine)
+      setInstructorBio(res.data.instructorBio)
       setInstructorQualification(res.data.instructorQualification)
       setInstructorPhoto(res.data.instructorPhoto)
     })
@@ -43,6 +45,7 @@ const Editprofile = () => {
     frm.append("instructorName",instructorName)
     frm.append("instructorEmail",instructorEmail)
     frm.append("instructorHeadLine",instructorHeadLine)
+    frm.append("instructorBio",instructorBio)
     frm.append("instructorQualification",instructorQualification)
     frm.append("instructorField",instructorField)
     frm.append("instructorPhoto",instructorPhoto)
@@ -131,13 +134,21 @@ const Editprofile = () => {
                 className='updateInput' placeholder='Email' defaultValue={instructorEmail} />
               <Typography className='info'>This mail id is used for your authentication and verification.</Typography>
             </Box>
-
             <Box>
-              <Typography className='detailName'>Description</Typography>
-              <textarea
+              <Typography className='detailName'>Headline </Typography>
+              <input
                 onChange={(e) => setInstructorHeadLine(e.target.value)}
                 disabled={!isEditing}
-                className='updateInput descInput' placeholder='Description' defaultValue={instructorHeadLine}>
+                className='updateInput' placeholder='Eg. Software Developer' defaultValue={instructorHeadLine} />
+              <Typography className='info'>This heading  is used to identify your title as a professional.</Typography>
+            </Box>
+
+            <Box>
+              <Typography className='detailName'>Bio</Typography>
+              <textarea
+                onChange={(e) => setInstructorBio(e.target.value)}
+                disabled={!isEditing}
+                className='updateInput descInput' placeholder='Description' defaultValue={instructorBio}>
 
               </textarea>
               <Typography className='info'>A brief Description about yourself for students to get to know you better.</Typography>

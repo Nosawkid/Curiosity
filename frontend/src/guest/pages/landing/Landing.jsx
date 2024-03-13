@@ -1,7 +1,10 @@
 import React from 'react'
 import './landing.scss'
-import { Box, Button, Stack, Typography } from '@mui/material'
+import { Box, Button, CardMedia, Stack, Typography } from '@mui/material'
 import {useNavigate} from "react-router-dom"
+import Logo from '../../../assets/LogoOg.png'
+
+
 
 const Landing = () => {
   const navigate = useNavigate()
@@ -17,9 +20,13 @@ const Landing = () => {
       <Box className="topMost"></Box>
       <Stack direction={"row"} sx={{ alignItems: "center", justifyContent: "space-between" }} className='navbar'>
         <Stack direction={"row"} sx={{ alignItems: "center" }}>
-          <Typography className='logo' sx={{ fontSize: "25px", fontWeight: "bold" }}>CURIOSITY</Typography>
-          <ul className='headerNav'>
-            <li><a style={{textTransform:"uppercase"}} href="#about">About Us</a></li>
+          <CardMedia
+            component={"img"}
+            image={Logo}
+            sx={{width:100}}
+          ></CardMedia>
+          <ul className='headerNav' style={{alignSelf:"flex-end"}}>
+            <li><a style={{textTransform:"uppercase"}} href="#about">Join Us</a></li>
             <li><a style={{textTransform:"uppercase"}} href="#">Our Vision</a></li>
           </ul>
         </Stack>
@@ -46,7 +53,7 @@ const Landing = () => {
         </div>
       </section>
       <section id='about' className="about">
-        <Typography sx={{fontWeight:"bold",fontSize:"30px",textAlign:"center",mt:2}}>About Us</Typography>
+        <Typography sx={{fontWeight:"bold",fontSize:"30px",textAlign:"center",mt:2,color:"#003f88"}}>JOIN US</Typography>
       </section>
     </div>
   )

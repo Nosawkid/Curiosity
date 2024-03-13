@@ -31,7 +31,7 @@ const Login = () => {
     const sendLoginDetails = (e) => {
         e.preventDefault();
         axios.post("http://localhost:5000/Login", { Email, Password }).then((res) => {
-            console.log(res.data)
+           
             const { id, type } = res.data.payload
             console.log(type);
             if (type === "Instructor") {
@@ -57,7 +57,9 @@ const Login = () => {
 
             // console.log(item)
         }).catch((err) => {
-            console.log(err.message)
+            setOpen(true)
+            setSeverity("error")
+            setMessage("Invalid Username or Password")
         })
     }
 

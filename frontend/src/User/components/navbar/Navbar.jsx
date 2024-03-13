@@ -9,8 +9,9 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios';
 import Placeholder from '../placeholder/Placeholder';
-import { Typography } from '@mui/material';
+import { CardMedia, Typography } from '@mui/material';
 import { SetCart } from '../../../Context/Context'
+import Logo from '../../../assets/LogoOg.png'
 
 
 const Navbar = () => {
@@ -54,7 +55,11 @@ const Navbar = () => {
     return (
         <div className="userNavbar">
             <Link to="/user" style={{ textDecoration: "none", color: "black" }}>
-                <h1 className="siteLogo">CURIOSITY</h1>
+                <CardMedia
+                    component={"img"}
+                    image={Logo}
+                    sx={{width:150}}
+                ></CardMedia>
             </Link>
             <p className="userNavLink">Category</p>
             <div className="userNavSearch">

@@ -20,6 +20,7 @@ import Certificate from './pages/certificate/Certificate'
 import Categorycourse from './pages/categorycourse/Categorycourse'
 import axios from 'axios'
 import { SetCart } from '../Context/Context'
+import Instructor from './pages/instructordetails/Instructor'
 
 
 
@@ -59,6 +60,7 @@ const App = () => {
               <Route path='/viewcourse/:courseId' element={<Viewcourse />} />
               <Route path='/jobs' element={<Job />} />
               <Route path='/resume/:id' element={<Resume />} />
+              <Route path='/instructor/:id' element={<Instructor />} />
               <Route path='/certificate/:courseId/:userId' element={<Certificate />} />
             </Route>
           </Routes>

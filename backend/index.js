@@ -668,9 +668,7 @@ app.post("/User", async (req, res) => {
 
 
         if (admin || user || ins || portal) {
-            return res
-                .status(400)
-                .json({ errors: [{ msg: 'User already exists' }] })
+            return res.send({ message: "The email address you entered is already registered with us", status: false })
         }
 
         user = new User({
@@ -683,7 +681,7 @@ app.post("/User", async (req, res) => {
         const salt = 12
         user.userPassword = await argon2.hash(userPassword, salt)
         await user.save();
-        res.status(200).send("Account creation success")
+        res.status(200).send({ message: "Account creation success", status: true })
     }
     catch (err) {
         console.log(err.message)
@@ -908,6 +906,9 @@ const instructorSchema = new Schema({
     instructorPhoto: {
         type: String,
     },
+    instructorBio: {
+        type: String
+    },
     instructorQualification: {
         type: String,
         required: true
@@ -1074,6 +1075,7 @@ app.patch("/Instructor/:id/edit", upload.fields([
             instructorEmail,
             instructorContact,
             instructorHeadLine,
+            instructorBio,
             instructorQualification,
             instructorField,
 
@@ -1092,6 +1094,7 @@ app.patch("/Instructor/:id/edit", upload.fields([
             instructorEmail,
             instructorContact,
             instructorHeadLine,
+            instructorBio,
             instructorQualification,
             instructorField,
             instructorPhoto
@@ -1249,24 +1252,24 @@ app.get("/Course/:id", async (req, res) => {
 // Course based on category
 app.get("/Course/:categoryId/:userId/category", async (req, res) => {
     try {
-        const { categoryId,userId } = req.params;
-       
+        const { categoryId, userId } = req.params;
 
-        
+
+
         const subcategories = await Subcategory.find({ categoryId });
         const subCatIds = subcategories.map(sub => sub._id);
 
-      
+
         const topics = await Topic.find({ subCategoryId: { $in: subCatIds } });
 
-      
+
         const topicIds = topics.map(topic => topic._id);
 
-      
+
         const purchasedCourses = await Purchase.find({ userId });
         const purchasedCourseIds = purchasedCourses.map(course => course.courseId);
 
-        
+
         const courses = await Course.find({
             topicId: { $in: topicIds },
             _id: { $nin: purchasedCourseIds },
@@ -1711,24 +1714,24 @@ const Booking = mongoose.model("schemaBooking", bookingSchema)
 // crud
 // // create
 
-app.get("/Totalbooking",async(req,res)=>{
+app.get("/Totalbooking", async (req, res) => {
     try {
         const sum = await Booking.aggregate([
             {
-                $match:{
-                    __v:1
+                $match: {
+                    __v: 1
                 }
             },
             {
-                $group:{
-                    _id:null,
-                    total:{
-                        $sum:"$price"
+                $group: {
+                    _id: null,
+                    total: {
+                        $sum: "$price"
                     }
                 }
             }
         ])
-        res.status(200).send({total:sum[0].total})
+        res.status(200).send({ total: sum[0].total })
     } catch (error) {
         console.log(error.message);
     }
@@ -2065,12 +2068,15 @@ const reviewSchema = new Schema({
     },
     reviewContent: {
         type: String,
-        required: true,
-        minlength: 50
+        required: true
     },
     reviewDateTime: {
         type: Date,
         default: Date.now()
+    },
+    reviewRating: {
+        type: Number,
+        required: true
     },
     userId: {
         type: Schema.Types.ObjectId,
@@ -2092,14 +2098,19 @@ app.post("/Review", async (req, res) => {
             reviewTitle,
             reviewContent,
             reviewDateTime,
+            reviewRating,
             userId,
             courseId
         } = req.body
-
+        const existingReview = await Review.findOne({ userId, courseId })
+        if (existingReview) {
+            return res.status(400).send({ message: "You have already reviewed this course", status: false })
+        }
         const newReview = new Review({
             reviewTitle,
             reviewContent,
             reviewDateTime,
+            reviewRating,
             userId,
             courseId
         })
@@ -2128,10 +2139,11 @@ app.get("/review", async (req, res) => {
     }
 })
 
-// View One
-app.get("/review/:id", async (req, res) => {
+// View One based on userid
+app.get("/review/:userId/:courseId", async (req, res) => {
     try {
-        const review = await Review.findById(req.params.id).populate({
+        const { userId,courseId } = req.params
+        const review = await Review.find({ userId ,courseId}).populate({
             path: "userId",
             model: 'schemaUser',
             select: "userName userHeadLine"
@@ -2146,6 +2158,43 @@ app.get("/review/:id", async (req, res) => {
     } catch (error) {
         console.log(error.message)
         console.log("Server Error")
+    }
+})
+
+// Based on courses
+app.get("/Review/:courseId/course", async (req, res) => {
+    try {
+        const { courseId } = req.params
+        const review = await Review.find({ courseId }).populate({
+            path: "userId",
+            model: 'schemaUser',
+
+        })
+
+        if (!review) {
+            return (
+                res.status(404).send("Review Not found")
+            )
+        }
+        res.status(200).send(review)
+    } catch (error) {
+        console.log(error.message)
+        console.log("Server Error")
+    }
+})
+
+// Based on review
+app.get("/Review/:rating/:courseId/review", async (req, res) => {
+    try {
+        const { rating, courseId } = req.params
+        const reviews = await Review.find({ reviewRating: rating, courseId }).populate({
+            path: "userId",
+            model: 'schemaUser',
+
+        })
+        res.status(200).send(reviews)
+    } catch (error) {
+        console.log(error.message);
     }
 })
 
@@ -2344,9 +2393,9 @@ app.delete("/Chat/:id", async (req, res) => {
 // CERTIFICATE
 
 const certificateSchema = new Schema({
-    certificateFile: {
-        type: String,
-        required: true
+    certificateIsseDate: {
+        type: Date,
+        default: Date.now()
     },
     userId: {
         type: Schema.Types.ObjectId,
@@ -2365,7 +2414,7 @@ const Certificate = mongoose.model("schemaCertificate", certificateSchema)
 app.post("/Certificate", async (req, res) => {
     try {
         const {
-            certificateFile,
+
             userId,
             courseId
         } = req.body
@@ -2863,6 +2912,8 @@ app.post("/Login", async (req, res) => {
         const portal = await JobPortal.findOne({ jobPortalEmail: Email })
         const admin = await Admin.findOne({ adminEmail: Email })
 
+
+
         if (user) {
             isValidPassword = await argon2.verify(user.userPassword, Password)
             if (isValidPassword) {
@@ -2902,7 +2953,8 @@ app.post("/Login", async (req, res) => {
 
         const payload = {
             id,
-            type
+            type,
+
         }
 
 

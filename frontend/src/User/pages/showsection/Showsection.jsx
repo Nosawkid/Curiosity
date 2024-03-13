@@ -9,7 +9,7 @@ import LiveTvIcon from '@mui/icons-material/LiveTv';
 import { Box, Button, DialogContent, DialogTitle, IconButton, Stack, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import Dialog from '@mui/material/Dialog';
-
+import SlideshowIcon from '@mui/icons-material/Slideshow';
 
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -101,12 +101,12 @@ const Showsection = ({ props, sessionKey, courseId }) => {
                                             </IconButton>
                                             <DialogContent dividers>
                                                 <Box sx={{ width: "500px", height: "500px" }} >
-                                                   {materialRow.materialFile ? <video controls src={materialRow.materialFile} style={{width:"100%"}}></video> : <Typography>{materialRow.materialFile}</Typography>}
+                                                   {materialRow.materialFile ? <video controlsList='nodownload' controls src={materialRow.materialFile} style={{width:"100%"}}></video> : <Typography>{materialRow.materialFile}</Typography>}
                                                 </Box>
                                             </DialogContent>
                                         </BootstrapDialog>
                                     </div>
-                                    <Typography>5.56</Typography>
+                                    <Typography><SlideshowIcon/></Typography>
                                 </Stack>
                             </AccordionDetails>
                         ))}
