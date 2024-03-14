@@ -21,6 +21,8 @@ import Categorycourse from './pages/categorycourse/Categorycourse'
 import axios from 'axios'
 import { SetCart } from '../Context/Context'
 import Instructor from './pages/instructordetails/Instructor'
+import { useNavigate } from 'react-router-dom'
+import Search from './pages/search/Search'
 
 
 
@@ -29,6 +31,9 @@ import Instructor from './pages/instructordetails/Instructor'
 
 const App = () => {
   const [count,setCount]  = useState(null)
+  const navigate = useNavigate()
+  const [keyword,setKeyword] = useState("")
+
   const uid = sessionStorage.getItem("Uid")
   const fetchCart = () => {
     axios.get("http://localhost:5000/Cart/" + uid).then((res) => {
@@ -38,17 +43,21 @@ const App = () => {
 
   useEffect(() => {
     fetchCart()
+    if(!uid)
+    {
+      return navigate("/")
+    }
   }, [])
   return (
     <div className='userApp'>
       <SetCart.Provider value={{count,fetchCart}}>
 
-        <Navbar />
+        <Navbar  setKeyword={setKeyword}/>
         <Box sx={{ minHeight: '100vh' }}>
 
           <Routes>
             <Route path='/'>
-              <Route index element={<Home />} />
+              <Route index element={<Home keyword={keyword} />} />
               <Route path='/profile' element={<Profile />} />
               <Route path='/settings' element={<Settings />} />
               <Route path='/cart' element={<Cart />} />
@@ -62,6 +71,7 @@ const App = () => {
               <Route path='/resume/:id' element={<Resume />} />
               <Route path='/instructor/:id' element={<Instructor />} />
               <Route path='/certificate/:courseId/:userId' element={<Certificate />} />
+              <Route path='/search' element={<Search/>}/>
             </Route>
           </Routes>
         </Box>

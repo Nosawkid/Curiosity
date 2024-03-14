@@ -1140,6 +1140,10 @@ const courseSchema = new Schema({
     },
     courseImage: {
         type: String
+    },
+    courseAvg:{
+        type:Number,
+        default:0
     }
 })
 
@@ -2115,6 +2119,17 @@ app.post("/Review", async (req, res) => {
             courseId
         })
         await newReview.save()
+
+        const reviews = await Review.find({courseId})
+        const fiveRatings = reviews.filter((ele)=> ele.reviewRating === 5).length
+        const fourRatings = reviews.filter((ele)=> ele.reviewRating === 4).length
+        const threeRatings = reviews.filter((ele)=> ele.reviewRating === 3).length
+        const twoRatings = reviews.filter((ele)=> ele.reviewRating === 2).length
+        const oneRatings = reviews.filter((ele)=> ele.reviewRating === 1).length
+
+        const weightedAvg = ((5*fiveRatings + 4 * fourRatings + 3 * threeRatings + 2 * twoRatings + 1 * oneRatings)/(fiveRatings + fourRatings + threeRatings + twoRatings + oneRatings))
+        const updateCourseRating = await Course.findByIdAndUpdate(courseId,{courseAvg:weightedAvg},{new:true})
+
         res.status(200).send("Review Added")
     } catch (error) {
         console.log(error.message);
@@ -2162,9 +2177,11 @@ app.get("/review/:userId/:courseId", async (req, res) => {
 })
 
 // Based on courses
-app.get("/Review/:courseId/course", async (req, res) => {
+app.get("/Coursereview/:courseId", async (req, res) => {
+   
     try {
         const { courseId } = req.params
+        
         const review = await Review.find({ courseId }).populate({
             path: "userId",
             model: 'schemaUser',
@@ -3715,3 +3732,145 @@ app.get("/Applied/:userId", async (req, res) => {
 })
 
 
+// Report
+
+// Schema
+
+const reportSchema = new Schema({
+    issueType:{
+        type:String,
+        required:true
+    },
+    issueDesc:{
+        type:String,
+        required:true
+    },
+    courseId:{
+        type:Schema.Types.ObjectId,
+        ref:"schemaCourse"
+    },
+    userId:{
+        type:Schema.Types.ObjectId,
+        ref:"schemaUser"
+    }
+})
+
+const Report = mongoose.model("schemaReport",reportSchema)
+
+app.post("/Report",async(req,res)=>{
+    try {
+        const {issueType,issueDesc,courseId,userId} = req.body
+        const report = new Report({
+            issueType,
+            issueDesc,
+            courseId,
+            userId
+        })
+        await report.save()
+        res.status(200).send({message:"Course Reported"})
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})
+
+app.get("/Report",async(req,res)=>{
+    try {
+        const reports = await Report.find({}).populate({
+            path:"courseId",
+            model:"schemaCourse"
+        })
+        res.status(200).send(reports)
+    } catch (error) {
+        console.log(error.message);
+        console.log("Server Error");
+    }
+})
+
+
+// Materials from course
+app.get("/Reportedcourse/:courseId",async(req,res)=>{
+    try {
+        const {courseId} = req.params
+        const sections = await Section.find({courseId})
+        const sectionIds = sections.map((section) => section._id)
+        const materials = await Material.find({sectionId:{$in:sectionIds}})
+        res.status(200).send(materials)
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+app.get("/Sendresponse/:reportId",async(req,res)=>{
+    try {
+        const {reportId} = req.params
+        const report = await Report.findById(reportId).populate({
+            path:"userId",
+            model:"schemaUser"
+        })
+        const content = `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>CURIOSITY</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; margin: 20px;">
+        
+            <div style="max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9;">
+        
+                <h1 style="color: #003f88; margin-bottom: 20px;">CURIOSITY</h1>
+        
+                <p style="color: #666; margin-bottom: 10px;">Thank you for bringing this matter to our attention.</p>
+        
+                <p style="color: #666; margin-bottom: 10px;">We have received your report regarding the course. Our team will carefully review the information provided and take the necessary actions, if required, to ensure the quality and integrity of our educational content.</p>
+        
+                <p style="color: #666; margin-bottom: 10px;">Your contribution to maintaining a positive learning environment is greatly appreciated. Should you have any further concerns or questions, please feel free to contact us.</p>
+        
+                <p style="color: #666; margin-bottom: 10px;">Once again, thank you for your cooperation.</p>
+        
+                <p style="color: #666; margin-bottom: 10px;">Sincerely,</p>
+        
+                <p style="color: #666; margin-bottom: 0;">The <span style="color:#003f88;font-weight:bold">CURIOSITY</span> Team</p>
+        
+            </div>
+        
+        </body>`
+        sendEmail(report.userId.userEmail,content)
+        const update = await Report.findByIdAndUpdate(reportId,{__v:1},{new:true})
+        res.status(200).send({message:"Action Taken"})
+    } catch (error) {
+        console.log(error.message);
+    }
+})
+
+// Search Course
+app.get("/Searchcourse",async(req,res)=>{
+    try {
+        const {title} = req.query
+        if(!title)
+        {
+            return res.status(400).send({message:"Title parameter is required"})
+        }
+        const courses = await Course.find({courseTitle:{$regex: new RegExp(title,i)}})  .populate({
+            path: "instructorId",
+            model: "schemaInstructor"
+        })
+        .populate({
+            path: "topicId",
+            model: "schemaTopic",
+            populate: {
+                path: "subCategoryId",
+                model: "schemaSubCategory",
+                populate: {
+                    path: "categoryId",
+                    model: "schemaCategory"
+                }
+            }
+        });
+
+        res.status(200).send(courses)
+    } catch (error) {
+        console.log(error.message);
+    }
+})

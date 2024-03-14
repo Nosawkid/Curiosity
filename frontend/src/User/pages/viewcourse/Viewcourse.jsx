@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Card, CardContent, Divider, FormControl, InputAdornment, InputLabel, OutlinedInput, Rating, Stack, TextField, Tooltip, Typography } from '@mui/material'
+import { Avatar, Box, Button, Card, CardContent, Divider, FormControl, InputAdornment, InputLabel, MenuItem, OutlinedInput, Rating, Select, Stack, TextField, Tooltip, Typography } from '@mui/material'
 import React, { useContext, useEffect, useState } from 'react'
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
@@ -14,6 +14,7 @@ import { SetSocket } from '../../../Context/Context'
 import { styled } from '@mui/material/styles';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import Modal from '@mui/material/Modal';
 
 
 const VisuallyHiddenInput = styled('input')({
@@ -63,6 +64,17 @@ CircularProgressWithLabel.propTypes = {
     value: PropTypes.number.isRequired,
 };
 
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 800,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+};
 
 
 
@@ -98,8 +110,13 @@ const Viewcourse = () => {
     const [reviews, setreviews] = useState([])
     const navigate = useNavigate()
     const [open, setOpen] = React.useState(false);
-    const [alertMessage,setAlertMessage] = useState("")
-    const [severity,setSeverity] = useState("")
+    const [alertMessage, setAlertMessage] = useState("")
+    const [severity, setSeverity] = useState("")
+    const [reportOpen, setReportOpen] = React.useState(false);
+    const handleReportOpen = () => setReportOpen(true);
+    const handleReportClose = () => setReportOpen(false);
+    const [issueType,setIssueType] = useState("")
+    const [issueDesc,setIssueDesc] = useState("")
 
     const handleClick = () => {
         setOpen(true);
@@ -135,6 +152,13 @@ const Viewcourse = () => {
         })
     }
 
+    const submitReport = ()=>{
+        axios.post(`${server}/Report`,{issueType,issueDesc,courseId,userId:uid}).then((res)=>{
+            setReportOpen(false)
+            console.log(res.data.message)
+        })
+    }
+
 
 
     const SendMessage = () => {
@@ -159,7 +183,7 @@ const Viewcourse = () => {
     }
 
     const submitReview = () => {
-        axios.post(`${server}/Review`, { reviewTitle, reviewContent, reviewRating, userId: uid, courseId }).then((res) => {  
+        axios.post(`${server}/Review`, { reviewTitle, reviewContent, reviewRating, userId: uid, courseId }).then((res) => {
             setReviewTitle("")
             setreviewContent("")
             setreviewRating("")
@@ -309,6 +333,7 @@ const Viewcourse = () => {
                         <Box sx={{ display: "flex", alignItems: "center" }}>
                             <Typography sx={{ color: "#2b2d42", fontWeight: "bold", fontSize: "18px" }}>{course && course.courseTitle}</Typography>
                             <Typography sx={{ color: "gray", fontWeight: "bold", fontSize: "16px" }}> &rarr; {materialDetails && materialDetails.sectionId.sectionName} </Typography>
+
                         </Box>
                         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "20px" }}>
                             <Box sx={{ mt: 2 }}>
@@ -385,6 +410,7 @@ const Viewcourse = () => {
                                 <Button onClick={submitReview} sx={{ display: "block", mb: 3 }} variant="contained" color="primary">
                                     Submit Review
                                 </Button>
+                                <Button onClick={handleReportOpen} color='info' sx={{ fontSize: "10px", alignSelf: "flex-end" }}>Report</Button>
                             </Box>
                             <Divider sx={{ m: 2 }}>My Reviews</Divider>
                             <Box>
@@ -531,6 +557,48 @@ const Viewcourse = () => {
                     {alertMessage}
                 </Alert>
             </Snackbar>
+            <Modal
+                open={reportOpen}
+                onClose={handleReportClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={style}>
+                    <Typography textAlign={"center"} id="modal-modal-title" variant="h6" component="h2">
+                        Report Abuse
+                    </Typography>
+                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                        Content flagged on Curiosity undergoes a thorough review by our team to assess its compliance with our Terms of Use and Community Standards. The ultimate decision will be made by Admin.
+                    </Typography>
+                    <Box sx={{ minWidth: 120, mt: 2 }}>
+                        <FormControl fullWidth>
+                            <InputLabel id="demo-simple-select-label">Issue type</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+
+                                label="Issue type"
+                                onChange={(e)=>setIssueType(e.target.value)}
+
+                            >
+                                <MenuItem value={"Inappropriate Course Content"}>Inappropriate Course Content</MenuItem>
+                                <MenuItem value={"Plagiarized Course Materials"}>Plagiarized Course Materials</MenuItem>
+                                <MenuItem value={"Misleading Course Descriptions"}>Misleading Course Descriptions</MenuItem>
+                                <MenuItem value={"Copyright Infringement"}>Copyright Infringement</MenuItem>
+                                <MenuItem value={"Fraudulent Activity"}>Fraudulent Activity</MenuItem>
+                                <MenuItem value={"Privacy Violations"}>Privacy Violations</MenuItem>
+                                <MenuItem value={"Others"}>Others</MenuItem>
+
+
+                            </Select>
+                        </FormControl>
+
+                            <Typography sx={{mt:2}}>Report Details</Typography>
+                            <TextField onChange={(e)=>setIssueDesc(e.target.value)} fullWidth variant='outlined' multiline minRows={5}></TextField>
+                            <Button onClick={submitReport} sx={{display:"block",margin:"10px auto"}} variant='contained'>Submit Complaint</Button>
+                    </Box>
+                </Box>
+            </Modal>
         </div>
     )
 }

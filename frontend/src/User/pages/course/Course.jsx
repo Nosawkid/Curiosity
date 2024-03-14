@@ -110,7 +110,7 @@ const Course = () => {
   }
 
   const fetchReviews = () => {
-    axios.get("http://localhost:5000/Review/" + id + "/course").then((res) => {
+    axios.get("http://localhost:5000/Coursereview/"+ id).then((res) => {
       setReviews(res.data)
       if (res.data.length > 0) {
         const fiveRatings = res.data.filter((ele) => ele.reviewRating === 5).length

@@ -1,7 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
-import './home.scss'
-import Topsuggestion from '../../components/topsuggestion/Topsuggestion'
-import Hero from '../../components/hero/Hero'
+import React ,{ useContext, useEffect, useState }from 'react'
 import axios from 'axios'
 import { Box, Card, CardContent, Rating, Stack, Typography } from '@mui/material'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
@@ -10,27 +7,17 @@ import Tooltip from '@mui/material/Tooltip';
 import { Link } from 'react-router-dom'
 import Courseholder from '../../../assets/Courseholder.png'
 import { SetCart } from '../../../Context/Context'
-
-
-const Home = ({keyword}) => {
-  const { fetchCart } = useContext(SetCart)
+const Search = () => {
+    const {fetchCart} = useContext(SetCart)
   const [showCourses, setShowCourse] = useState([])
   const [value, setValue] = useState(3.5)
 
-  const uid = sessionStorage.getItem("Uid")
+  const uid = sessionStorage.getItem("Uid") 
 
 
   const fetchCourses = () => {
     axios.get("http://localhost:5000/Course/" + uid + "/notPurchased").then((res) => {
-      if(keyword){
-        const filteredCourses = res.data.filter(course => course.courseTitle.toLowerCase().startsWith(keyword.toLowerCase())); // Making comparison case-insensitive
-        setShowCourse(filteredCourses);
-      }
-      else{
-
-        setShowCourse(res.data)
-      }
-      
+      setShowCourse(res.data)
     })
   }
 
@@ -62,16 +49,10 @@ const Home = ({keyword}) => {
 
   useEffect(() => {
     fetchCourses()
-  }, [keyword])
-
-
-
+  }, [])
   return (
-    <div className='userHome'>
-
-      <Topsuggestion />
-      <Hero />
-      <Typography sx={{ textAlign: "center", mt: 2, fontWeight: "bold" }} variant='h4'>Popular Courses</Typography>
+    <div className='searchUser'>
+        <Typography sx={{ textAlign: "center", mt: 2, fontWeight: "bold" }} variant='h4'>Popular Courses</Typography>
       <Box sx={{ maxWidth: "100vw", display: "flex", alignItems: "center", justifyContent: "center", gap: "45px", flexWrap: "wrap", mt: 2 }}>
         {showCourses.map((row, key) => (
           <Link style={{ textDecoration: "none" }} to={"/user/course/" + row._id} >
@@ -81,8 +62,8 @@ const Home = ({keyword}) => {
                 <Typography sx={{ fontSize: "18px", fontWeight: "bold" }} variant='h3'>{row.courseTitle}</Typography>
                 <Typography sx={{ fontSize: "13px", color: "gray" }} component={"p"} variant='span'>{row.instructorId.instructorName}</Typography>
                 <Stack sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }} direction={"row"} spacing={1}>
-                  <Typography sx={{ fontWeight: "bold", fontSize: "15px" }} component={"span"} variant='span'>{row.courseAvg ? row.courseAvg : "4.6"}</Typography>
-                  <Rating sx={{ fontSize: "20px" }} name="read-only" value={row.courseAvg ? row.courseAvg : 4.6} readOnly />
+                  <Typography sx={{ fontWeight: "bold", fontSize: "15px" }} component={"span"} variant='span'>4.6</Typography>
+                  <Rating sx={{ fontSize: "20px" }} name="read-only" value={value} readOnly />
                 </Stack>
                 <Stack sx={{ alignItems: "center", justifyContent: "space-between" }} direction={"row"}>
                   <Typography sx={{ fontSize: "25px", fontWeight: "bold" }} component={"p"} variant='h3'>
@@ -107,4 +88,4 @@ const Home = ({keyword}) => {
   )
 }
 
-export default Home
+export default Search

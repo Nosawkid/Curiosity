@@ -12,13 +12,15 @@ import Placeholder from '../placeholder/Placeholder';
 import { CardMedia, Typography } from '@mui/material';
 import { SetCart } from '../../../Context/Context'
 import Logo from '../../../assets/LogoOg.png'
+import { useNavigate } from 'react-router-dom';
 
 
-const Navbar = () => {
+const Navbar = ({setKeyword}) => {
     const { count } = useContext(SetCart)
     const [user, setUser] = useState(null)
     const [anchorEl, setAnchorEl] = useState(null)
     const [cartCount, setCartCount] = useState(0)
+    const navigate = useNavigate()
     const open = Boolean(anchorEl)
     const handleClick = (e) => {
         setAnchorEl(e.currentTarget)
@@ -34,6 +36,13 @@ const Navbar = () => {
         axios.get("http://localhost:5000/User/" + uid).then((res) => {
             setUser(res.data)
         })
+    }
+
+    const logOut = () => {
+        sessionStorage.removeItem("Uid");
+        navigate("/");
+        // Add a new history entry for the home page
+        window.history.pushState(null, "", "/");
     }
 
 
@@ -64,7 +73,8 @@ const Navbar = () => {
             <p className="userNavLink">Category</p>
             <div className="userNavSearch">
                 <SearchIcon className='userNavIcon' />
-                <input type="text" placeholder='Search for anything..' />
+                <input onChange={(e)=>setKeyword(e.target.value)} type="text" placeholder='Search for anything..' />
+                
             </div>
             <div className="userNavLinkContainer">
                 <Link to="/user/mylearning" style={{ textDecoration: "none", color: "black" }}>
@@ -113,7 +123,7 @@ const Navbar = () => {
                             <Link style={{ textDecoration: "none", color: "black" }} to={"/user/settings"}>Account Settings</Link>
                         </MenuItem>
                         <MenuItem>
-                            <Typography>Logout</Typography>
+                            <Typography onClick={logOut}>Logout</Typography>
                         </MenuItem>
                     </Menu>
                 </div>

@@ -6,23 +6,10 @@ import 'react-circular-progressbar/dist/styles.css';
 import { KeyboardArrowDownOutlined } from '@mui/icons-material';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
-const Featured = ({revenue}) => {
-  const [profit,setProfit] = useState(0)
-  const [profitPercent,setProfitPercent] = useState(0)
+const Featured = ({revenue,profit,profitPercent}) => {
+  
 
-  const calcProfit = ()=>{
-    setProfit(((20/100) * revenue).toFixed(2))
-
-  }
-
-  const calcProfitPercent = ()=>{
-    setProfitPercent((profit/revenue) * 100)
-  }
-
-  useEffect(()=>{
-    calcProfit()
-    calcProfitPercent()
-  },[])
+  
   
   return (
     <div className='adminFeatured'>

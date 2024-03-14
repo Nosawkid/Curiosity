@@ -13,7 +13,9 @@ const Home = () => {
   const [userCount,setUserCount] = useState(0)
   const [insCount,setInsCount] = useState(0)
   const [hireCount,setHireCount] = useState(0)
+  const [revenue,setrevenue] = useState(0)
   const [profit,setProfit] = useState(0)
+  const [profitPercent,setProfitPercent] = useState(0)
 
   const fetchUsers = ()=>{
     axios.get("http://localhost:5000/User").then((res)=>{
@@ -34,8 +36,12 @@ const Home = () => {
   }
   const fetchTotal = ()=>{
     axios.get("http://localhost:5000/Totalbooking").then((res)=>{
-      setProfit(res.data.total)
-      console.log(res.data)
+      setrevenue(res.data.total)
+      if(revenue)
+      {
+        setProfit(((20/100) * revenue).toFixed(2))
+        setProfitPercent((profit/revenue) * 100)
+      }
       
     })
   }
@@ -57,7 +63,7 @@ const Home = () => {
         
       </div>
       <div className="charts">
-        <Featured revenue={profit} />
+        <Featured revenue={revenue} profit={profit} profitPercent={profitPercent} />
         <Chart aspect={2 / 1} title={"Last Week Revenue"} />
       </div>
       <div className="listContainer">
