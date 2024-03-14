@@ -10,36 +10,7 @@ const Footer = () => {
             
         </div>
         <div className="bottom">
-           <div className="linkAndLang">
-            <div className="linkContainer">
-            <ul>
-                <li>Business</li>
-                <li>Teach</li>
-                <li>Get the App</li>
-                <li>About us</li>
-                <li>Contact Us</li>
-            </ul>
-            <ul>
-                <li>Business</li>
-                <li>Teach</li>
-                <li>Get the App</li>
-                <li>About us</li>
-                <li>Contact Us</li>
-            </ul>
-            <ul>
-                <li>Business</li>
-                <li>Teach</li>
-                <li>Get the App</li>
-                <li>About us</li>
-                <li>Contact Us</li>
-            </ul>
-            </div>
-            
-
-            <div className="lang">
-            <LanguageIcon/> English
-            </div>
-           </div>
+          
 
            <div className="logoAndDate">
            <div className="footerLogo">CURIOSITY</div>

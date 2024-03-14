@@ -11,19 +11,29 @@ import Courseholder from '../../../assets/Courseholder.png'
 import { useParams } from 'react-router-dom'
 
 
-const Categorycourse = () => {
+const Categorycourse = ({ keyword }) => {
     const [showCourses, setShowCourse] = useState([])
     const [value, setValue] = useState(3.5)
-    const {categoryId} = useParams()
-    
+    const { categoryId } = useParams()
+
 
     const uid = sessionStorage.getItem("Uid")
 
 
     const fetchCourses = () => {
-        axios.get("http://localhost:5000/Course/" + categoryId +"/" + uid+ "/category").then((res) => {
-            setShowCourse(res.data)
-            
+        axios.get("http://localhost:5000/Course/" + categoryId + "/" + uid + "/category").then((res) => {
+            if (keyword) {
+                const filteredCourses = res.data.filter(course => course.courseTitle.toLowerCase().startsWith(keyword.toLowerCase())); // Making comparison case-insensitive
+                setShowCourse(filteredCourses);
+                
+            }
+            else
+            {
+                setShowCourse(res.data)
+              
+            }
+
+
         })
     }
 
@@ -53,7 +63,7 @@ const Categorycourse = () => {
 
     useEffect(() => {
         fetchCourses()
-    }, [categoryId])
+    }, [categoryId,keyword])
 
     return (
         <div className='categoryBasedCourses'>

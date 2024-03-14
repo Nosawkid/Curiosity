@@ -183,6 +183,12 @@ const Viewcourse = () => {
     }
 
     const submitReview = () => {
+        if (!reviewTitle || !reviewContent || !reviewRating) {
+            setOpen(true);
+            setSeverity("error");
+            setAlertMessage("Please fill in all required fields");
+            return; // Stop execution if required fields are empty
+        }
         axios.post(`${server}/Review`, { reviewTitle, reviewContent, reviewRating, userId: uid, courseId }).then((res) => {
             setReviewTitle("")
             setreviewContent("")
@@ -191,7 +197,11 @@ const Viewcourse = () => {
         }).catch((err) => {
             setOpen(true)
             setSeverity("error")
-            setAlertMessage("You have Already Reviewed this course")
+            if (err.response && err.response.data && err.response.data.message) {
+                setAlertMessage(err.response.data.message);
+            } else {
+                setAlertMessage("An error occurred");
+            }
         })
     }
 
@@ -386,6 +396,7 @@ const Viewcourse = () => {
                                     value={reviewTitle}
                                     sx={{ marginBottom: 2 }}
                                     onChange={(e) => setReviewTitle(e.target.value)}
+                                    required
                                 />
 
                                 <TextField
@@ -397,6 +408,7 @@ const Viewcourse = () => {
                                     value={reviewContent}
                                     sx={{ marginBottom: 2 }}
                                     onChange={(e) => setreviewContent(e.target.value)}
+                                    required
                                 />
                                 <Typography variant="body1" gutterBottom>
                                     Rating:
@@ -405,6 +417,7 @@ const Viewcourse = () => {
                                     sx={{ marginBottom: 2 }}
                                     onChange={(e) => setreviewRating(e.target.value)}
                                     value={reviewRating}
+                                    
                                 />
 
                                 <Button onClick={submitReview} sx={{ display: "block", mb: 3 }} variant="contained" color="primary">

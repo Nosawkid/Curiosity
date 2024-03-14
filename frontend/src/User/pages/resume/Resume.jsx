@@ -3,6 +3,9 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import {Server} from '../../../Server.js'
 import {useParams,useNavigate} from 'react-router-dom'
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import Placeholder from '../../components/placeholder/Placeholder.jsx'
 
 const Resume = () => {
     const navigate = useNavigate()
@@ -13,6 +16,19 @@ const Resume = () => {
     const [skillValue,setSkillValue] = useState("")
     const [skill,setSkill] = useState([])
     const [user,setUser] = useState([])
+    const [open, setOpen] = React.useState(false);
+    const [message, setmessage] = useState("")
+    const [severity, setseverity] = useState("")
+
+  
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
 
     const {id:jobVacancyId} = useParams()
     
@@ -24,7 +40,8 @@ const Resume = () => {
         })
     }
 
-    const submitApplication = ()=>{
+    const submitApplication = (e)=>{
+        e.preventDefault()
         axios.post(`${Server}/Application`,{jobVacancyId,userId:uid,qualifications,experience,skills:skill}).then((res)=>{
             if(!res.data.status)
             {
@@ -33,7 +50,18 @@ const Resume = () => {
             console.log("Resume Submitted")
             navigate("/user/jobs")
         }).catch((err)=>{
-            console.log(err.message)
+            if(err.response && err.response.data && err.response.data.message)
+            {
+                setOpen(true)
+                setseverity("error")
+                setmessage(err.response.data.message)
+            }
+            else
+            {
+                setOpen(true)
+                setseverity("error")
+                setmessage("Something went wrong")
+            }
         })
     }
 
@@ -102,14 +130,16 @@ const Resume = () => {
     return (
         <div className='userResume'>
             <Box sx={{ p: 3 }}>
-                <Card sx={{ width: "80%", margin: "0 auto" }}>
+                <Card component={"form"} sx={{ width: "80%", margin: "0 auto" }}>
                     <CardContent>
                         <Typography variant='h5' sx={{ textAlign: "center", fontWeight: "bold" }}>RESUME</Typography>
-                        <CardMedia
-                            component={"img"}
-                            image={user.userPhoto}
-                            sx={{ width: "200px", height: "200px", objectFit: "cover", borderRadius: "50%", border: "10px solid #ced4da", display: "block", margin: "10px auto" }}
-                        ></CardMedia>
+                       {
+                        user && user.userPhoto ?  <CardMedia
+                        component={"img"}
+                        image={user.userPhoto}
+                        sx={{ width: "200px", height: "200px", objectFit: "cover", borderRadius: "50%", border: "10px solid #ced4da", display: "block", margin: "10px auto" }}
+                    ></CardMedia>:<Placeholder username={user.userName}/>
+                       }
                         <Box sx={{ p: 5 }}>
                             <Stack direction={"column"}>
                                 <Stack direction={"row"} sx={{ alignItems: "center", justifyContent: "space-between" }}>
@@ -148,6 +178,7 @@ const Resume = () => {
                                 onChange={(e)=>setExperienceValue(e.target.value)}
                                 onKeyDown={handleExperienceKeyPress}
                                 placeholder="Type and press Enter to add Experience"
+                                
                             ></TextField>
                             <Stack>
                                 {experience.map((row,key)=>(
@@ -179,6 +210,16 @@ const Resume = () => {
                     </CardContent>
                 </Card>
             </Box>
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert
+          onClose={handleClose}
+          severity={severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {message}
+        </Alert>
+      </Snackbar>
         </div>
     )
 }

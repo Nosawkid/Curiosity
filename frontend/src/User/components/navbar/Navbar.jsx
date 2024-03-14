@@ -57,7 +57,7 @@ const Navbar = ({setKeyword}) => {
 
     useEffect(() => {
         fetchCourse()
-
+        
     }, [])
 
 
@@ -70,7 +70,7 @@ const Navbar = ({setKeyword}) => {
                     sx={{width:150}}
                 ></CardMedia>
             </Link>
-            <p className="userNavLink">Category</p>
+            
             <div className="userNavSearch">
                 <SearchIcon className='userNavIcon' />
                 <input onChange={(e)=>setKeyword(e.target.value)} type="text" placeholder='Search for anything..' />

@@ -63,7 +63,7 @@ const App = () => {
               <Route path='/cart' element={<Cart />} />
               <Route path='/wishlist' element={<Wishlist />} />
               <Route path='/course/:id' element={<Course />} />
-              <Route path='/coursefromcategory/:categoryId' element={<Categorycourse />} />
+              <Route path='/coursefromcategory/:categoryId' element={<Categorycourse keyword={keyword} />} />
               <Route path='/Checkout/:courseId/:type' element={<Checkout />} />
               <Route path='/mylearning' element={<Mylearning />} />
               <Route path='/viewcourse/:courseId' element={<Viewcourse />} />

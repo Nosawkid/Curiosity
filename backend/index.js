@@ -2133,7 +2133,9 @@ app.post("/Review", async (req, res) => {
         res.status(200).send("Review Added")
     } catch (error) {
         console.log(error.message);
-        console.log("Server Error");
+        res.status(400).send({message:error.message})
+        console.log("Server Error")
+       
     }
 })
 
@@ -2855,7 +2857,7 @@ app.post("/Application", async (req, res) => {
         } = req.body
         const existing = await Application.findOne({ userId, jobVacancyId })
         if (existing) {
-            return res.send({ message: "Already Applied for this job", status: false })
+            return res.status(400).send({message:"Already Applied for this job"})
         }
         const newApplication = new Application({
             jobVacancyId,
