@@ -1,7 +1,6 @@
 import React from 'react'
-import './placeholder.scss'
 import Avatar from '@mui/material/Avatar';
-import Stack from '@mui/material/Stack';
+
 
 function stringToColor(string) {
     if (typeof string !== 'string' || string.length === 0) {
@@ -50,10 +49,10 @@ function stringToColor(string) {
     };
   }
 
-  const Placeholder = ({ username }) => {
+  const Placeholder = ({ username="John Doe",className="" }) => {
     return (
-      <div className='placeHolderUser'>
-        <Avatar {...stringAvatar(username)} />
+      <div>
+        <Avatar className={className} {...stringAvatar(username)} />
       </div>
     );
   };

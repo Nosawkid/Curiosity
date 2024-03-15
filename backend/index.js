@@ -186,6 +186,10 @@ const linkSchema = new mongoose.Schema({
     userId: {
         type: Schema.Types.ObjectId,
         ref: "schemaUser"
+    },
+    jobPortalId: {
+        type: Schema.Types.ObjectId,
+        ref: "schemaJobPortal"
     }
 })
 
@@ -283,6 +287,17 @@ app.get("/Link/:userId", async (req, res) => {
     try {
         const { userId } = req.params
         const link = await Link.findOne({ userId })
+        res.status(200).send(link)
+    }
+    catch (err) {
+        console.log(err.message)
+        res.send("Server Error")
+    }
+})
+app.get("/Linkportal/:jobPortalId", async (req, res) => {
+    try {
+        const { jobPortalId } = req.params
+        const link = await Link.findOne({ jobPortalId })
         res.status(200).send(link)
     }
     catch (err) {
@@ -801,7 +816,7 @@ app.put("/User/:id/editPhoto",
 
         }
     })
-
+// OK
 
 app.put("/User/:id/edit",
     // upload.fields([
@@ -1141,11 +1156,11 @@ const courseSchema = new Schema({
     courseImage: {
         type: String
     },
-    courseAvg:{
-        type:Number,
-        default:0
+    courseAvg: {
+        type: Number,
+        default: 0
     },
-    courseRequirements:[String]
+    courseRequirements: [String]
 })
 
 
@@ -1179,7 +1194,7 @@ app.post("/Course", upload.fields([
         let course = await Course.findOne({ courseTitle })
         if (course) {
             return (
-                res.status(400).send({ message: "Course with same name already exist"})
+                res.status(400).send({ message: "Course with same name already exist" })
             )
         }
 
@@ -1416,7 +1431,7 @@ const sectionSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "schemaCourse"
     },
-    
+
 })
 const Section = mongoose.model("schemaSection", sectionSchema)
 
@@ -1429,7 +1444,7 @@ app.post("/Section", async (req, res) => {
         const {
             sectionName,
             courseId,
-           
+
         } = req.body
 
         let section = await Section.findOne({ sectionName })
@@ -1443,7 +1458,7 @@ app.post("/Section", async (req, res) => {
         section = new Section({
             sectionName,
             courseId,
-           
+
         })
 
         await section.save();
@@ -1581,7 +1596,7 @@ app.post("/Material", upload.fields([
 
         if (material) {
             return (
-                res.status(400).send({message:"Material already Exist"})
+                res.status(400).send({ message: "Material already Exist" })
             )
         }
 
@@ -1593,7 +1608,7 @@ app.post("/Material", upload.fields([
         })
 
         await material.save();
-        res.status(200).send({message:"Material added successfully"})
+        res.status(200).send({ message: "Material added successfully" })
 
     } catch (error) {
         console.error(error.message)
@@ -2121,22 +2136,22 @@ app.post("/Review", async (req, res) => {
         })
         await newReview.save()
 
-        const reviews = await Review.find({courseId})
-        const fiveRatings = reviews.filter((ele)=> ele.reviewRating === 5).length
-        const fourRatings = reviews.filter((ele)=> ele.reviewRating === 4).length
-        const threeRatings = reviews.filter((ele)=> ele.reviewRating === 3).length
-        const twoRatings = reviews.filter((ele)=> ele.reviewRating === 2).length
-        const oneRatings = reviews.filter((ele)=> ele.reviewRating === 1).length
+        const reviews = await Review.find({ courseId })
+        const fiveRatings = reviews.filter((ele) => ele.reviewRating === 5).length
+        const fourRatings = reviews.filter((ele) => ele.reviewRating === 4).length
+        const threeRatings = reviews.filter((ele) => ele.reviewRating === 3).length
+        const twoRatings = reviews.filter((ele) => ele.reviewRating === 2).length
+        const oneRatings = reviews.filter((ele) => ele.reviewRating === 1).length
 
-        const weightedAvg = ((5*fiveRatings + 4 * fourRatings + 3 * threeRatings + 2 * twoRatings + 1 * oneRatings)/(fiveRatings + fourRatings + threeRatings + twoRatings + oneRatings))
-        const updateCourseRating = await Course.findByIdAndUpdate(courseId,{courseAvg:weightedAvg},{new:true})
+        const weightedAvg = ((5 * fiveRatings + 4 * fourRatings + 3 * threeRatings + 2 * twoRatings + 1 * oneRatings) / (fiveRatings + fourRatings + threeRatings + twoRatings + oneRatings))
+        const updateCourseRating = await Course.findByIdAndUpdate(courseId, { courseAvg: weightedAvg }, { new: true })
 
         res.status(200).send("Review Added")
     } catch (error) {
         console.log(error.message);
-        res.status(400).send({message:error.message})
+        res.status(400).send({ message: error.message })
         console.log("Server Error")
-       
+
     }
 })
 
@@ -2160,8 +2175,8 @@ app.get("/review", async (req, res) => {
 // View One based on userid
 app.get("/review/:userId/:courseId", async (req, res) => {
     try {
-        const { userId,courseId } = req.params
-        const review = await Review.find({ userId ,courseId}).populate({
+        const { userId, courseId } = req.params
+        const review = await Review.find({ userId, courseId }).populate({
             path: "userId",
             model: 'schemaUser',
             select: "userName userHeadLine"
@@ -2181,10 +2196,10 @@ app.get("/review/:userId/:courseId", async (req, res) => {
 
 // Based on courses
 app.get("/Coursereview/:courseId", async (req, res) => {
-   
+
     try {
         const { courseId } = req.params
-        
+
         const review = await Review.find({ courseId }).populate({
             path: "userId",
             model: 'schemaUser',
@@ -2651,6 +2666,29 @@ app.delete("/Jobportal/:id", async (req, res) => {
     }
 })
 
+app.put("/Jobportal/:id/passchange", async (req, res) => {
+    try {
+
+        const { id } = req.params
+        let { jobPortalPassword, currentPassword } = req.body
+        const portal = await JobPortal.findById(id)
+        const isExisting = await argon2.verify(portal.jobPortalPassword, currentPassword)
+
+        if (isExisting) {
+            const salt = 12
+            jobPortalPassword = await argon2.hash(jobPortalPassword, salt)
+            let newPortalPassword = await JobPortal.findByIdAndUpdate(id, { jobPortalPassword }, { new: true })
+            res.status(200).send({message:"Password Updated"})
+        }
+        else {
+            return res.send({message:"Password Updation Failed"})
+        }
+
+    } catch (error) {
+        console.log(error.message)
+        console.log("Server Error")
+    }
+})
 
 app.put("/Jobportal/:id/edit", async (req, res) => {
     try {
@@ -2666,6 +2704,7 @@ app.put("/Jobportal/:id/edit", async (req, res) => {
             jobPortalEmail,
             jobPortalContact,
             jobPortalDetails,
+            jobPortalCompanyName
         } = req.body
 
         const existingPortal = await JobPortal.findOne({ jobPortalEmail, _id: { $ne: id } })
@@ -2682,7 +2721,33 @@ app.put("/Jobportal/:id/edit", async (req, res) => {
             jobPortalEmail,
             jobPortalContact,
             jobPortalDetails,
+            jobPortalCompanyName
         }, { new: true })
+        const jobPortalLink = await Link.findOne({ jobPortalId: id })
+        const {
+            facebookLink,
+            instagramLink,
+            twitterLink,
+            linkedInLink
+        } = req.body
+        if (jobPortalLink) {
+            const updatedLink = await Link.findByIdAndUpdate(jobPortalLink._id, {
+                facebookLink,
+                instagramLink,
+                twitterLink,
+                linkedInLink
+            }, { new: true })
+        }
+        else {
+            const newLinks = new Link({
+                facebookLink,
+                instagramLink,
+                twitterLink,
+                linkedInLink,
+                jobPortalId: id
+            })
+            await newLinks.save()
+        }
         res.status(200).send(portal)
     } catch (error) {
         console.log(error.message);
@@ -2858,7 +2923,7 @@ app.post("/Application", async (req, res) => {
         } = req.body
         const existing = await Application.findOne({ userId, jobVacancyId })
         if (existing) {
-            return res.status(400).send({message:"Already Applied for this job"})
+            return res.status(400).send({ message: "Already Applied for this job" })
         }
         const newApplication = new Application({
             jobVacancyId,
@@ -3740,29 +3805,29 @@ app.get("/Applied/:userId", async (req, res) => {
 // Schema
 
 const reportSchema = new Schema({
-    issueType:{
-        type:String,
-        required:true
+    issueType: {
+        type: String,
+        required: true
     },
-    issueDesc:{
-        type:String,
-        required:true
+    issueDesc: {
+        type: String,
+        required: true
     },
-    courseId:{
-        type:Schema.Types.ObjectId,
-        ref:"schemaCourse"
+    courseId: {
+        type: Schema.Types.ObjectId,
+        ref: "schemaCourse"
     },
-    userId:{
-        type:Schema.Types.ObjectId,
-        ref:"schemaUser"
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: "schemaUser"
     }
 })
 
-const Report = mongoose.model("schemaReport",reportSchema)
+const Report = mongoose.model("schemaReport", reportSchema)
 
-app.post("/Report",async(req,res)=>{
+app.post("/Report", async (req, res) => {
     try {
-        const {issueType,issueDesc,courseId,userId} = req.body
+        const { issueType, issueDesc, courseId, userId } = req.body
         const report = new Report({
             issueType,
             issueDesc,
@@ -3770,18 +3835,18 @@ app.post("/Report",async(req,res)=>{
             userId
         })
         await report.save()
-        res.status(200).send({message:"Course Reported"})
+        res.status(200).send({ message: "Course Reported" })
     } catch (error) {
         console.log(error.message);
         console.log("Server Error");
     }
 })
 
-app.get("/Report",async(req,res)=>{
+app.get("/Report", async (req, res) => {
     try {
         const reports = await Report.find({}).populate({
-            path:"courseId",
-            model:"schemaCourse"
+            path: "courseId",
+            model: "schemaCourse"
         })
         res.status(200).send(reports)
     } catch (error) {
@@ -3792,24 +3857,24 @@ app.get("/Report",async(req,res)=>{
 
 
 // Materials from course
-app.get("/Reportedcourse/:courseId",async(req,res)=>{
+app.get("/Reportedcourse/:courseId", async (req, res) => {
     try {
-        const {courseId} = req.params
-        const sections = await Section.find({courseId})
+        const { courseId } = req.params
+        const sections = await Section.find({ courseId })
         const sectionIds = sections.map((section) => section._id)
-        const materials = await Material.find({sectionId:{$in:sectionIds}})
+        const materials = await Material.find({ sectionId: { $in: sectionIds } })
         res.status(200).send(materials)
     } catch (error) {
         console.log(error);
     }
 })
 
-app.get("/Sendresponse/:reportId",async(req,res)=>{
+app.get("/Sendresponse/:reportId", async (req, res) => {
     try {
-        const {reportId} = req.params
+        const { reportId } = req.params
         const report = await Report.findById(reportId).populate({
-            path:"userId",
-            model:"schemaUser"
+            path: "userId",
+            model: "schemaUser"
         })
         const content = `<!DOCTYPE html>
         <html lang="en">
@@ -3839,38 +3904,37 @@ app.get("/Sendresponse/:reportId",async(req,res)=>{
             </div>
         
         </body>`
-        sendEmail(report.userId.userEmail,content)
-        const update = await Report.findByIdAndUpdate(reportId,{__v:1},{new:true})
-        res.status(200).send({message:"Action Taken"})
+        sendEmail(report.userId.userEmail, content)
+        const update = await Report.findByIdAndUpdate(reportId, { __v: 1 }, { new: true })
+        res.status(200).send({ message: "Action Taken" })
     } catch (error) {
         console.log(error.message);
     }
 })
 
 // Search Course
-app.get("/Searchcourse",async(req,res)=>{
+app.get("/Searchcourse", async (req, res) => {
     try {
-        const {title} = req.query
-        if(!title)
-        {
-            return res.status(400).send({message:"Title parameter is required"})
+        const { title } = req.query
+        if (!title) {
+            return res.status(400).send({ message: "Title parameter is required" })
         }
-        const courses = await Course.find({courseTitle:{$regex: new RegExp(title,i)}})  .populate({
+        const courses = await Course.find({ courseTitle: { $regex: new RegExp(title, i) } }).populate({
             path: "instructorId",
             model: "schemaInstructor"
         })
-        .populate({
-            path: "topicId",
-            model: "schemaTopic",
-            populate: {
-                path: "subCategoryId",
-                model: "schemaSubCategory",
+            .populate({
+                path: "topicId",
+                model: "schemaTopic",
                 populate: {
-                    path: "categoryId",
-                    model: "schemaCategory"
+                    path: "subCategoryId",
+                    model: "schemaSubCategory",
+                    populate: {
+                        path: "categoryId",
+                        model: "schemaCategory"
+                    }
                 }
-            }
-        });
+            });
 
         res.status(200).send(courses)
     } catch (error) {
@@ -3880,10 +3944,10 @@ app.get("/Searchcourse",async(req,res)=>{
 
 // All Published courses from the instructor
 
-app.get("/Course/:instructorId/published",async(req,res)=>{
+app.get("/Course/:instructorId/published", async (req, res) => {
     try {
-        const {instructorId} = req.params
-        const publishedCourses = await Course.find({instructorId,__v:1})
+        const { instructorId } = req.params
+        const publishedCourses = await Course.find({ instructorId, __v: 1 })
         res.status(200).send(publishedCourses)
     } catch (error) {
         console.log(error.message);

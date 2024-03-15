@@ -418,7 +418,7 @@ const Settings = () => {
           </Stack>
         </CustomTabPanel>
       </Box>
-      <Footer />
+     
     </div>
   )
 }

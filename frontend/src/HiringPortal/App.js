@@ -32,7 +32,7 @@ function App() {
         <Sidebar />
         <div style={{position:"relative"}}  className="homeContainer">
           <Navbar />
-          <div>
+          <div style={{minHeight:"100vh"}}>
             <Routes>
               <Route path='/' element={<Home />} />
               <Route path='/profile' element={<Profile />} />
