@@ -13,6 +13,8 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Modal from '@mui/material/Modal';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 const style = {
   position: 'absolute',
@@ -48,8 +50,20 @@ const Material = () => {
   const [materialFile, setMaterialFile] = useState('')
   const [showMaterial, setShowMaterial] = useState([])
   const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const [alertOpen, setAlertOpen] = React.useState(false);
+  const [openModalIndex, setOpenModalIndex] = useState(null);
+  const [message,setMessage] = useState("")
+  const [severity,setSeverity] = useState("")
+  
+  const handleAlertClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setAlertOpen(false);
+  };
+  const handleOpen = (index) => setOpenModalIndex(index);
+  const handleClose = () => setOpenModalIndex(null);
 
   // const createMaterial = (e)=>{
   //     e.preventDefault()
@@ -67,11 +81,31 @@ const Material = () => {
     frm.append("materialFile", materialFile)
     frm.append("materialDesc", materialDesc)
     frm.append("sectionId", sectionId)
+
+    if(!materialTitle || !materialDesc)
+    {
+      setAlertOpen(true)
+      setSeverity("error")
+      return setMessage("Fill the emtpy fields")
+    }
+    if(!materialFile)
+    {
+      setAlertOpen(true)
+      setSeverity("error")
+      return setMessage("Material File is mandatory")
+    }
     axios.post("http://localhost:5000/Material", frm).then((res) => {
-      console.log(res.data)
+      setAlertOpen(true)
+      setSeverity("success")
+       setMessage("New Material Added")
       fetchMaterials(sectionId)
     }).catch((err) => {
-      console.log(err.message)
+      if(err.response && err.response.data && err.response.data.message)
+      {
+        setAlertOpen(true)
+        setSeverity("error")
+        setMessage(err.response.data.message)
+      }
     })
   }
 
@@ -86,20 +120,16 @@ const Material = () => {
 
   const deleteMaterials = (id) => {
     axios.delete("http://localhost:5000/Material/" + id).then((res) => {
-      alert("Material Deleted")
+      setAlertOpen(true)
+      setSeverity("success")
+       setMessage("Material Deleted")
       fetchMaterials(sectionId)
     }).catch((err) => {
       console.log(err.message)
     })
   }
 
-  const editMaterial = (id)=>{
-    axios.get("http://localhost:5000/Material/"+id).then((res)=>{
-      setMaterialTitle(res.data.materialTitle)
-      setMaterialDesc(res.data.materialDesc)
-      setMaterialFile(res.data.materialFile)
-    })
-  }
+ 
 
 
   useEffect(() => {
@@ -115,11 +145,11 @@ const Material = () => {
           <CardContent>
             <Typography sx={{ textAlign: "center", fontSize: "30px", fontWeight: "bold" }}>New Material</Typography>
             <Stack spacing={3} direction="column" sx={{ mt: 5 }}>
-              <TextField value={materialTitle } onChange={(e) => setMaterialTitle(e.target.value)} label="Material Title" variant='outlined' />
-              <TextField value={materialDesc} onChange={(e) => setMaterialDesc(e.target.value)} label="Material Description" multiline minRows={5} variant='outlined' />
+              <TextField required value={materialTitle } onChange={(e) => setMaterialTitle(e.target.value)} label="Material Title" variant='outlined' />
+              <TextField required value={materialDesc} onChange={(e) => setMaterialDesc(e.target.value)} label="Material Description" multiline minRows={5} variant='outlined' />
               <Button component="label" variant="outlined" startIcon={<CloudUploadIcon />}>
                 Upload file
-                <VisuallyHiddenInput onChange={(e) => setMaterialFile(e.target.files[0])} type="file" />
+                <VisuallyHiddenInput required onChange={(e) => setMaterialFile(e.target.files[0])} type="file" />
               </Button>
             </Stack>
           </CardContent>
@@ -152,10 +182,10 @@ const Material = () => {
                   <TableCell align="center">
                     <Button onClick={(e) => deleteMaterials(row._id)} variant='outlined'><DeleteIcon sx={{ color: "crimson" }} /></Button>
                     <Button onClick={() => {
-                      handleOpen()
+                      handleOpen(key)
                     }} sx={{ mx: 1 }} variant='outlined'>Preview</Button>
                     <Modal
-                      open={open}
+                       open={openModalIndex === key}
                       onClose={handleClose}
                       aria-labelledby="modal-modal-title"
                       aria-describedby="modal-modal-description"
@@ -172,7 +202,16 @@ const Material = () => {
           </Table>
         </TableContainer>
       </Box>
-
+      <Snackbar open={alertOpen} autoHideDuration={6000} onClose={handleAlertClose}>
+        <Alert
+          onClose={handleAlertClose}
+          severity={severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {message}
+        </Alert>
+      </Snackbar>
     </div>
   )
 }

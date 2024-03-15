@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import './App.scss'
 import Home from './pages/home/Home'
 import {
@@ -22,24 +22,30 @@ import Editprofile from './pages/editprofile/Editprofile';
 import Footer from './pages/footer/footer';
 import Changepassword from './pages/changepassword/Changepassword';
 import { Card } from '@mui/material';
-
-
+import Review from './pages/reviews/Review';
+import { useNavigate } from 'react-router-dom';
 
 
 function App() {
+  const Iid = sessionStorage.getItem("Iid")
+  const navigate = useNavigate()
 
-
-
-
+  useEffect(()=>{
+    if(!Iid)
+    {
+      return navigate("/")
+    }
+  
+  },[])
   return (
-    <div className="instructorApp">
+    <div  className="instructorApp">
 
-      <div className='home'>
+      <div  className='home'>
         <Sidebar />
-        <div className="homeContainer">
+        <div  className="homeContainer">
           <Navbar />
           <Card sx={{
-            height: '77vh', overflowY: 'scroll', m: 2, borderRadius: 5, py: 3,px:2, scrollbarWidth: 'none',
+            minHeight:"77vh", overflowY: 'scroll', m: 2, borderRadius: 5, py: 3,px:2, scrollbarWidth: 'none',
             '-ms-overflow-style': 'none',
             '&::-webkit-scrollbar': {
               display: 'none',
@@ -61,11 +67,11 @@ function App() {
               <Route path='/Material' element={<Material />} />
               <Route path='/Settings' element={<Editprofile />} />
               <Route path='/changepassword' element={<Changepassword />} />
-
+              <Route path='/Reviews/:courseId' element={<Review/>}/>
             </Routes>
 
-            <Footer />
           </Card>
+            <Footer />
         </div>
       </div>
 

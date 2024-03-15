@@ -7,7 +7,7 @@ import './course.scss'
 // import TableHead from '@mui/material/TableHead';
 // import TableRow from '@mui/material/TableRow';
 // import Paper from '@mui/material/Paper';
-import { Box, Button, Card, CardContent, Stack, Typography } from '@mui/material';
+import { Box, Button, Card, CardContent, CircularProgress, Stack, Typography } from '@mui/material';
 import axios from 'axios';
 // import DeleteIcon from '@mui/icons-material/Delete';
 import { Link } from 'react-router-dom'
@@ -19,12 +19,15 @@ import { Link } from 'react-router-dom'
 const Course = () => {
 
   const [course, setCourse] = useState([])
+  const [loading,setLoading] = useState(true)
   const Id = sessionStorage.getItem("Iid")
 
   const fetchCourse = () => {
     axios.get("http://localhost:5000/CourseFromIns/" + Id).then((res) => {
       setCourse(res.data)
-    })
+    }).catch((err)=>{
+      console.log(err)
+    }).finally(()=>setLoading(false))
   }
 
 
@@ -60,6 +63,9 @@ const Course = () => {
   useEffect(() => {
     fetchCourse()
   }, [])
+
+
+  
 
   return (
 
@@ -109,7 +115,8 @@ const Course = () => {
         </TableBody>
       </Table>
     </TableContainer> */}
-      {course.map((row, key) => (
+     {
+      !loading ? <Box> {course.map((row, key) => (
         <Card>
           <CardContent sx={{ maxHeight: "400px" }}>
             <Stack direction={"row"} spacing={5} sx={{ display: "flex", alignItems: "center" }}>
@@ -132,7 +139,8 @@ const Course = () => {
             </Stack>
           </CardContent>
         </Card>
-      ))}
+      ))}</Box> :<CircularProgress sx={{position:"absolute",top:"50%",left:"60%",transform:"translate(50%,50%)"}}/>
+     }
     </Box>
 
   )

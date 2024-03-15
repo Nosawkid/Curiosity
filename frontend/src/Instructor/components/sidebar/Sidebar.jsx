@@ -1,21 +1,24 @@
 import React from 'react'
 import './sidebar.scss'
-import AddLinkIcon from '@mui/icons-material/AddLink';
-import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Link } from 'react-router-dom';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import { FaChalkboardTeacher, FaClipboardList } from "react-icons/fa";
+import { FaChalkboardTeacher } from "react-icons/fa";
 import RemoveFromQueueIcon from '@mui/icons-material/RemoveFromQueue';
 import { Card } from '@mui/material';
+import ReviewsIcon from '@mui/icons-material/Reviews';
+import { useNavigate } from 'react-router-dom';
 
 
 const Sidebar = () => {
+  
+  const navigate = useNavigate()
 
-
-
+  const logout = ()=>{
+    sessionStorage.clear("Iid")
+    navigate("/")
+  }
 
 
   return (
@@ -41,11 +44,11 @@ const Sidebar = () => {
           </Link>
           
           <Link to="/instructor/Complaints" style={{ textDecoration: "none" }} >
-            <li><RemoveFromQueueIcon className='icon' /><span>Complaints</span></li>
+            <li><ReviewsIcon className='icon' /><span>Reviews</span></li>
           </Link>
         
           <p className="title">User</p>
-          <li><LogoutIcon className='icon' /><span> Logout</span></li>
+          <li onClick={logout}><LogoutIcon className='icon' /><span> Logout</span></li>
         </ul>
       </div>
       {/* <div className="bottom">

@@ -27,8 +27,8 @@ const Section = () => {
                 <AddCircleOutlineIcon sx={{margin:"0 auto",display:"block",fontSize:"50px"}}/>
                 <Typography sx={{textAlign:"center",mt:2,fontSize:"20px"}}>Add New Section</Typography>
                 <Stack spacing={2} direction="column" sx={{mt:5}}>
-                <TextField onChange={(e)=> setSectionNumber(e.target.value)} id="filled-basic" label="Section Number" variant="outlined" sx={{maxWidth:"200px"}} />
-                <TextField onChange={(e)=> setSectionName(e.target.value)} id="filled-basic" label="Section Title" variant="standard" sx={{maxWidth:"75%"}} />
+                
+                <TextField required onChange={(e)=> setSectionName(e.target.value)} id="filled-basic" label="Section Title" variant="standard" sx={{maxWidth:"75%"}} />
                 </Stack>
                 <Button type='submit' variant='contained' sx={{width:"100%",mt:5}}>Submit</Button>
             </CardContent>

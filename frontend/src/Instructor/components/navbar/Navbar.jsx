@@ -33,25 +33,16 @@ const Navbar = () => {
 
         <div className="items">
          
-          <div className="item">
+          {/* <div className="item">
             <DarkModeOutlinedIcon className="icon" />
           </div>
-          <div className="item">
-            <FullscreenExitOutlinedIcon className="icon" />
-
-          </div>
+        
           <div className="item">
             <NotificationsNoneOutlinedIcon className="icon" />
               <div className="counter">1</div>
-          </div>
-          <div className="item">
-            <ChatBubbleOutlinedIcon className="icon" />
-              <div className="counter">2</div>
-          </div>
-          <div className="item">
-            <ReorderOutlinedIcon className="icon" />
-
-          </div>
+          </div> */}
+         
+          
           <div className="item">
             <img src={ins && ins.instructorPhoto} alt="" className='avatar' />
 

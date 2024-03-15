@@ -16,7 +16,7 @@ const Widget = ({type}) => {
 
   switch(type)
   {
-    case 'user':
+    case 'course':
       data = {
         title:"USERS",
         isMoney:false,
@@ -49,17 +49,7 @@ const Widget = ({type}) => {
         }} />
       }
       break;
-    case 'balance':
-      data = {
-        title:"BALANCE",
-        isMoney:true,
-        link:"View Balance",
-        icon: <MonetizationOnIcon className='icon' style={{
-          color:"purple",
-          backgroundColor:'rgba(128,0,128,0.2)'
-        }} />
-      }
-      break;
+  
       default:
         break;
   }

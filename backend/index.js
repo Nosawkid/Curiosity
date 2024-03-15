@@ -1144,7 +1144,8 @@ const courseSchema = new Schema({
     courseAvg:{
         type:Number,
         default:0
-    }
+    },
+    courseRequirements:[String]
 })
 
 
@@ -1170,14 +1171,15 @@ app.post("/Course", upload.fields([
             topicId,
             courseDesc,
             courseDateTime,
-            price
+            price,
+            courseRequirements
         } = req.body
 
 
         let course = await Course.findOne({ courseTitle })
         if (course) {
             return (
-                res.status(400).send({ message: "Course with same name already exist", status: false })
+                res.status(400).send({ message: "Course with same name already exist"})
             )
         }
 
@@ -1188,13 +1190,14 @@ app.post("/Course", upload.fields([
             courseDesc,
             courseDateTime,
             price,
-            courseImage
+            courseImage,
+            courseRequirements
         })
         await course.save();
-        res.status(200).send({ message: "Course Added", status: true })
+        res.status(200).send({ message: "Course Added" })
     } catch (error) {
         console.log(error.message)
-        console.log({ message: "Server Error", status: false })
+        res.status(400).send({ message: "Server Error" })
     }
 })
 
@@ -1413,9 +1416,7 @@ const sectionSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "schemaCourse"
     },
-    sectionNumber: {
-        type: Number
-    }
+    
 })
 const Section = mongoose.model("schemaSection", sectionSchema)
 
@@ -1428,7 +1429,7 @@ app.post("/Section", async (req, res) => {
         const {
             sectionName,
             courseId,
-            sectionNumber
+           
         } = req.body
 
         let section = await Section.findOne({ sectionName })
@@ -1442,7 +1443,7 @@ app.post("/Section", async (req, res) => {
         section = new Section({
             sectionName,
             courseId,
-            sectionNumber
+           
         })
 
         await section.save();
@@ -1580,7 +1581,7 @@ app.post("/Material", upload.fields([
 
         if (material) {
             return (
-                res.status(400).send("Material already Exist")
+                res.status(400).send({message:"Material already Exist"})
             )
         }
 
@@ -1592,7 +1593,7 @@ app.post("/Material", upload.fields([
         })
 
         await material.save();
-        res.status(200).send("Material added successfully")
+        res.status(200).send({message:"Material added successfully"})
 
     } catch (error) {
         console.error(error.message)
@@ -3872,6 +3873,18 @@ app.get("/Searchcourse",async(req,res)=>{
         });
 
         res.status(200).send(courses)
+    } catch (error) {
+        console.log(error.message);
+    }
+})
+
+// All Published courses from the instructor
+
+app.get("/Course/:instructorId/published",async(req,res)=>{
+    try {
+        const {instructorId} = req.params
+        const publishedCourses = await Course.find({instructorId,__v:1})
+        res.status(200).send(publishedCourses)
     } catch (error) {
         console.log(error.message);
     }
