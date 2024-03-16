@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Home from './pages/home/Home'
 import List from './pages/list/List';
 import {
   Routes,
   Route,
+  useNavigate
 } from "react-router-dom";
 import Single from './pages/single/Single';
 import './style/dark.scss'
@@ -17,7 +18,17 @@ import './App.scss'
 import Report from './pages/reports/Report';
 import Reportedcourse from './pages/reportedcourse/Reportedcourse';
 function App() {
+const navigate = useNavigate()
+const Aid = sessionStorage.getItem("Aid")
 
+
+
+useEffect(()=>{
+if(!Aid)
+{
+  navigate("/")
+}
+},[])
   
 
 
@@ -26,8 +37,8 @@ function App() {
 
       <div className='home'>
         <Sidebar />
-        <div className="homeContainer">
-          <Navbar />
+        <div  className="homeContainer">
+          {/* <Navbar /> */}
           <div>
             <Routes>
               <Route path='/' element={<Home />} />

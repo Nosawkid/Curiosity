@@ -351,7 +351,8 @@ app.post('/Admin', async (req, res) => {
             adminEmail,
             adminPassword
         })
-
+        const salt = 12
+        admin.adminPassword = await argon2.hash(admin.adminPassword,salt)
         await admin.save()
 
         res.send({ message: 'Admin inserted successfully' })
@@ -3044,7 +3045,14 @@ app.post("/Login", async (req, res) => {
             }
         }
         else if (admin) {
-
+            
+            isValidPassword = await argon2.verify(admin.adminPassword,Password)
+          
+            if(isValidPassword)
+            {
+                id=admin._id
+                type="Admin"
+            }
         }
         else {
             return res.send({ message: "Invalid Credentials" })

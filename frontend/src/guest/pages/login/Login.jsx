@@ -46,6 +46,15 @@ const Login = () => {
                 sessionStorage.setItem("Jid", id)
                 navigate("../../HiringPortal/")
             }
+            else if (type === "Jobportal") {
+                sessionStorage.setItem("Jid", id)
+                navigate("../../HiringPortal/")
+            }
+            else if(type === "Admin")
+            {
+                sessionStorage.setItem("Aid",id)
+                navigate("../../Admin/")
+            }
             else {
                 setOpen(true)
                 setSeverity("error")

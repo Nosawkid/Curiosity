@@ -34,17 +34,19 @@ const Home = () => {
       
     })
   }
-  const fetchTotal = ()=>{
-    axios.get("http://localhost:5000/Totalbooking").then((res)=>{
-      setrevenue(res.data.total)
-      if(revenue)
-      {
-        setProfit(((20/100) * revenue).toFixed(2))
-        setProfitPercent((profit/revenue) * 100)
+
+  const fetchTotal = () => {
+    axios.get("http://localhost:5000/Totalbooking").then((res) => {
+      setrevenue(res.data.total);
+      if (res.data.total) {
+        const newProfit = ((20 / 100) * res.data.total).toFixed(2);
+        const newProfitPercent = (newProfit / res.data.total) * 100;
+        setProfit(newProfit);
+        setProfitPercent(newProfitPercent);
       }
-      
-    })
-  }
+    });
+  };
+  
 
 
   useEffect(()=>{
@@ -52,7 +54,7 @@ const Home = () => {
     fetchIns()
     fetchHirer()
     fetchTotal()
-  },[])
+  },[profit,profitPercent])
 
   return (
     <div className='adminHome' >
@@ -66,10 +68,7 @@ const Home = () => {
         <Featured revenue={revenue} profit={profit} profitPercent={profitPercent} />
         <Chart aspect={2 / 1} title={"Last Week Revenue"} />
       </div>
-      <div className="listContainer">
-        <div className="listTitle">Latest Transactions</div>
-        <Tables />
-      </div>
+      
     </div>
   )
 }
