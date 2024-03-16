@@ -2591,7 +2591,6 @@ app.post("/Jobportal", upload.fields([
             jobPortalContact,
             jobPortalDetails,
             jobPortalPassword,
-            jobPortalPhoto,
             jobPortalStatus,
             jobPortalCompanyName,
             jobPortalIdType
@@ -2615,7 +2614,6 @@ app.post("/Jobportal", upload.fields([
             jobPortalProof,
             jobPortalDetails,
             jobPortalPassword,
-            jobPortalPhoto,
             jobPortalStatus,
             jobPortalCompanyName,
             jobPortalIdType
@@ -2756,6 +2754,22 @@ app.put("/Jobportal/:id/edit", async (req, res) => {
 
 })
 
+// Add Profile Photo
+app.put("/Jobportal/:id/addPhoto", upload.fields([
+    { name: "jobPortalPhoto", maxCount: 1 },
+]),async(req,res)=>{
+    try {
+        const {id} = req.params
+        var fileValue = JSON.parse(JSON.stringify(req.files));
+        var jobPortalPhoto = `http://127.0.0.1:${port}/images/${fileValue.jobPortalPhoto[0].filename}`;
+        const portal = await JobPortal.findByIdAndUpdate(id,{jobPortalPhoto},{new:true})
+        res.status(200).send(portal)
+    } catch (error) {
+        console.log(error.message);
+    }
+})
+
+
 // VACANCY
 
 // Schema
@@ -2836,10 +2850,10 @@ app.post("/Vacancy", async (req, res) => {
         })
 
         await newVacancy.save()
-        res.status(200).send({ message: "Vacancy Added", status: true })
+        res.status(200).send({ message: "Vacancy Added"})
     } catch (err) {
         console.log(err.message);
-        console.log("Server Error");
+        res.status(400).send({message:"Something went wrong"})
     }
 })
 

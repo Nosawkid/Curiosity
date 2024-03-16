@@ -5,10 +5,12 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import { Button, FormControl, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
+import { Button, Card, CardContent, CardMedia, FormControl, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
 import axios from 'axios'
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Visibility from '@mui/icons-material/Visibility';
+import { styled } from '@mui/material/styles';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -43,6 +45,19 @@ function a11yProps(index) {
     };
 }
 
+const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+});
+
+
 const Profile = () => {
     const [value, setValue] = React.useState(0);
     const [jobPortalName, setjobPortalName] = useState("")
@@ -59,6 +74,8 @@ const Profile = () => {
     const [currentPassword, setcurrentPassword] = useState("");
     const [jobPortalPassword, setjobPortalPassword] = useState("");
     const [newPassword, setnewPassword] = useState("");
+    const [imgUrl, setimgUrl] = useState("");
+    const [jobPortalPhoto, setjobPortalPhoto] = useState();
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -98,15 +115,13 @@ const Profile = () => {
         })
     }
 
-    const editPassword = ()=>{
-        if(newPassword === jobPortalPassword)
-        {
-            axios.put("http://localhost:5000/Jobportal/"+Jid+"/passchange",{jobPortalPassword,currentPassword}).then((res)=>{
-            alert(res.data.message)
-        })
+    const editPassword = () => {
+        if (newPassword === jobPortalPassword) {
+            axios.put("http://localhost:5000/Jobportal/" + Jid + "/passchange", { jobPortalPassword, currentPassword }).then((res) => {
+                alert(res.data.message)
+            })
         }
-        else
-        {
+        else {
             alert("Password Mismatch")
         }
     }
@@ -117,6 +132,28 @@ const Profile = () => {
             setinstagramLink(res.data.instagramLink)
             settwitterLink(res.data.twitterLink)
             setlinkedInLink(res.data.linkedInLink)
+        })
+    }
+
+    const handleFileChange = (e)=>{
+        setjobPortalPhoto(e.target.files[0])
+        const url = URL.createObjectURL(e.target.files[0])
+        setimgUrl(url)
+    }
+
+
+    const updateProfile = ()=>{
+        if(!jobPortalPhoto)
+        {
+            return alert("Please Upload a file")
+        }
+        
+        const frm = new FormData()
+        frm.append("jobPortalPhoto",jobPortalPhoto)
+        axios.put("http://localhost:5000/Jobportal/"+Jid+"/addPhoto",frm).then((res)=>{
+            alert("Profile Picture Updated")
+        }).catch((err)=>{
+            console.log(err.message)
         })
     }
 
@@ -191,7 +228,7 @@ const Profile = () => {
                             <FormControl sx={{ m: 1, width: "60%" }} variant="outlined">
                                 <InputLabel htmlFor="outlined-adornment-password">Current Password</InputLabel>
                                 <OutlinedInput
-                                    onChange={(e)=>setcurrentPassword(e.target.value)}
+                                    onChange={(e) => setcurrentPassword(e.target.value)}
                                     fullWidth
                                     id="outlined-adornment-password"
                                     type={showPassword ? 'text' : 'password'}
@@ -213,7 +250,7 @@ const Profile = () => {
                             <FormControl sx={{ m: 1, width: "60%" }} variant="outlined">
                                 <InputLabel htmlFor="outlined-adornment-password">New Password</InputLabel>
                                 <OutlinedInput
-                                    onChange={(e)=>setjobPortalPassword(e.target.value)}
+                                    onChange={(e) => setjobPortalPassword(e.target.value)}
                                     fullWidth
                                     id="outlined-adornment-password"
                                     type={showPassword ? 'text' : 'password'}
@@ -235,7 +272,7 @@ const Profile = () => {
                             <FormControl sx={{ m: 1, width: "60%" }} variant="outlined">
                                 <InputLabel htmlFor="outlined-adornment-password">Confirm New Password</InputLabel>
                                 <OutlinedInput
-                                onChange={(e)=>setnewPassword(e.target.value)}
+                                    onChange={(e) => setnewPassword(e.target.value)}
                                     fullWidth
                                     id="outlined-adornment-password"
                                     type={showPassword ? 'text' : 'password'}
@@ -254,12 +291,39 @@ const Profile = () => {
                                     label="Confirm New Password"
                                 />
                             </FormControl>
-                            <Button onClick={editPassword} sx={{display:"block"}} variant='contained'>Submit</Button>
+                            <Button onClick={editPassword} sx={{ display: "block" }} variant='contained'>Submit</Button>
                         </Grid>
                     </Grid>
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={2}>
-                    Item Three
+                    <Grid container spacing={1}>
+                        <Grid item xs={4}>
+                            <Typography fontWeight={"bold"}>Image Preview</Typography>
+                            <Card>
+                                <CardContent>
+                                    <CardMedia
+                                     style={{ width: "400px", height: "200px", objectFit: "cover" }} 
+                                     component={"img"}
+                                     image={imgUrl}
+                                     >
+
+                                    </CardMedia>
+                                </CardContent>
+                            </Card>
+                            <Button
+                                component="label"
+                                role={undefined}
+                                variant="contained"
+                                tabIndex={-1}
+                                startIcon={<CloudUploadIcon />}
+                                sx={{mt:2}}
+                            >
+                                Upload file
+                                <VisuallyHiddenInput onChange={handleFileChange} type="file" />
+                            </Button>
+                            <Button onClick={updateProfile} sx={{mt:2}} variant='contained' fullWidth>Submit</Button>
+                        </Grid>
+                    </Grid>
                 </CustomTabPanel>
             </Box>
         </div>

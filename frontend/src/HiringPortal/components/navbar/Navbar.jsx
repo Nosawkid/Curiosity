@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import './navbar.scss'
-import SearchIcon from '@mui/icons-material/Search';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { Link } from 'react-router-dom';
 import Button from '@mui/material/Button';
@@ -11,9 +8,11 @@ import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios';
 import Placeholder from '../placeholder/Placeholder';
 import { Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 
 const Navbar = () => {
+    const navigate = useNavigate()
     const [hirer,setHirer] = useState(null)
     const [anchorEl, setAnchorEl] = useState(null)
     const open = Boolean(anchorEl)
@@ -33,6 +32,10 @@ const Navbar = () => {
       })
     }
 
+    const logout = ()=>{
+        sessionStorage.clear("Jid")
+        navigate("/")
+    }
 
 
    
@@ -91,9 +94,9 @@ const Navbar = () => {
                         </MenuItem>
 
                         <MenuItem onClick={handleClose}>
-                            <Link style={{ textDecoration: "none", color: "black" }} to={"/HiringPortal/settings"}>Account Settings</Link>
+                            
                         </MenuItem>
-                        <MenuItem>
+                        <MenuItem onClick={logout}>
                             <Typography>Logout</Typography>
                         </MenuItem>
                     </Menu>

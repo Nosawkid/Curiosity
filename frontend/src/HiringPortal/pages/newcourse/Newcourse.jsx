@@ -4,7 +4,9 @@ import { Box, Button, Card, CardContent, FormControl, MenuItem, Select, Stack, T
 import InputLabel from '@mui/material/InputLabel';
 import axios from "axios"
 import { Server } from '../../../Server.js'
+import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+
 
 
 
@@ -17,11 +19,20 @@ const Newcourse = () => {
     const [maxSalary, setMaxSalary] = useState("");
     const [categoryId, setCategoryId] = useState("");
     const [vacancyRequirement, setVacancyRequirement] = useState("");
-    const [vacancyTime,setVacancyTime] = useState("")
+    const [vacancyTime, setVacancyTime] = useState("")
     const [showCategory, setShowCategory] = useState([])
-    const [showAlert, setShowAlert] = useState(false)
+    const [open, setOpen] = useState(false)
     const [message, setMessage] = useState("")
     const [severity, setSeverity] = useState("")
+   
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpen(false);
+    };
 
 
     const fetchCategory = () => {
@@ -34,29 +45,34 @@ const Newcourse = () => {
 
     const addVacancy = (e) => {
         e.preventDefault()
-        axios.post(`${Server}/Vacancy`, { jobPortalId: jid, vacancyTitle, vacancyDesc, minSalary, maxSalary, categoryId, vacancyRequirement,vacancyTime }).then((res) => {
-            if(res.data.status)
-            {
-                sendAlert("success",res.data.message)
-            }
-            else
-            {
-                sendAlert("error","Something went wrong")
-            }
+        if(maxSalary < minSalary)
+        {
+            setOpen(true)
+            setSeverity("error")
+            return setMessage("Max Salary should be greater than min salary")
+        }
+        if(minSalary < 0)
+        {
+            setOpen(true)
+            setSeverity("error")
+            return setMessage("Salary cannot be less than 0")
+
+        }
+        axios.post(`${Server}/Vacancy`, { jobPortalId: jid, vacancyTitle, vacancyDesc, minSalary, maxSalary, categoryId, vacancyRequirement, vacancyTime }).then((res) => {
+            setOpen(true)
+            setSeverity("success")
+            setMessage(res.data.message)
         }).catch((err) => {
-            console.log(err.message)
+            if(err.response && err.response.data && err.response.data.message)
+            {
+                setOpen(true)
+                setSeverity("error")
+                setMessage(err.response.data.message)
+            }
         })
     }
 
 
-    const sendAlert = (severity, message) => {
-        setSeverity(severity)
-        setMessage(message)
-        setShowAlert(true)
-        setTimeout(() => {
-            setShowAlert(false)
-        }, 2000)
-    }
 
 
 
@@ -74,44 +90,46 @@ const Newcourse = () => {
 
     return (
         <div className='HiringNew'>
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh",position:"relative" }}>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", position: "relative" }}>
                 <Card onSubmit={addVacancy} component="form" sx={{ minWidth: "700px" }}>
                     <CardContent>
                         <Typography sx={{ textAlign: "center", fontSize: "20px", fontWeight: "bold" }}>Add New Vacancy</Typography>
                         <Stack spacing={1} sx={{ mt: 2 }}>
                             <InputLabel htmlFor="title">Job title:</InputLabel>
-                            <TextField onChange={(e) => setVacancyTitle(e.target.value)} id='title'></TextField>
+                            <TextField required onChange={(e) => setVacancyTitle(e.target.value)} id='title'></TextField>
                         </Stack>
                         <Stack spacing={1} sx={{ mt: 2 }}>
                             <InputLabel htmlFor="description">Job decription:</InputLabel>
-                            <TextField onChange={(e) => setVacancyDesc(e.target.value)} id='description' multiline minRows={3} ></TextField>
+                            <TextField required onChange={(e) => setVacancyDesc(e.target.value)} id='description' multiline minRows={3} ></TextField>
                         </Stack>
-                        <Stack sx={{display:"flex",flexDirection:"row",alignItems:"center",justifyContent:"center",gap:"20px"}}>
+                        <Stack sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: "20px" }}>
                             <Box>
                                 <InputLabel htmlFor="title">Min Salary:</InputLabel>
-                                <TextField onChange={(e) => setMinSalary(e.target.value)} fullWidth type='number' id='minsal'></TextField>
+                                <TextField required onChange={(e) => setMinSalary(e.target.value)} fullWidth type='number' id='minsal'></TextField>
                             </Box>
                             <Box>
                                 <InputLabel htmlFor="title">Max Salary:</InputLabel>
-                                <TextField onChange={(e) => setMaxSalary(e.target.value)} fullWidth type='number' id='maxsal'></TextField>
+                                <TextField required onChange={(e) => setMaxSalary(e.target.value)} fullWidth type='number' id='maxsal'></TextField>
                             </Box>
-                            <FormControl sx={{mt:3,width:"200px"}}>
-                            <InputLabel id="demo-simple-select-label-time">Employment Classification</InputLabel>
-                            <Select
-                                onChange={(e) => setVacancyTime(e.target.value)}
-                                labelId='demo-simple-select-label-time'
-                                id='demo-simple-select-time'
-                                label="Employment Classification"
-                            >
-                                <MenuItem value={"Full-Time"}>Full-Time</MenuItem>
-                                <MenuItem value={"Part-Time"}>Part-Time</MenuItem>
-                            </Select>
-                        </FormControl>
-                            
+                            <FormControl sx={{ mt: 3, width: "200px" }}>
+                                <InputLabel id="demo-simple-select-label-time">Employment Classification</InputLabel>
+                                <Select
+                                    required
+                                    onChange={(e) => setVacancyTime(e.target.value)}
+                                    labelId='demo-simple-select-label-time'
+                                    id='demo-simple-select-time'
+                                    label="Employment Classification"
+                                >
+                                    <MenuItem value={"Full-Time"}>Full-Time</MenuItem>
+                                    <MenuItem value={"Part-Time"}>Part-Time</MenuItem>
+                                </Select>
+                            </FormControl>
+
                         </Stack>
                         <FormControl fullWidth sx={{ mt: 2 }}>
                             <InputLabel id="demo-simple-select-label-requirement">Required Experience</InputLabel>
                             <Select
+                                required
                                 onChange={(e) => setVacancyRequirement(e.target.value)}
                                 labelId='demo-simple-select-label-requirement'
                                 id='demo-simple-select-requirement'
@@ -129,6 +147,7 @@ const Newcourse = () => {
                                 <FormControl fullWidth>
                                     <InputLabel id="demo-simple-select-label">Category</InputLabel>
                                     <Select
+                                        required
                                         labelId="demo-simple-select-label"
                                         id="demo-simple-select"
                                         onChange={(e) => setCategoryId(e.target.value)}
@@ -151,11 +170,16 @@ const Newcourse = () => {
                 </Card>
 
             </Box>
-            {
-                showAlert && <Alert sx={{position:"absolute",top:"30px",left:"700px"}} icon={false} severity={severity}>
-                {message}
-            </Alert>
-            }
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                <Alert
+                    onClose={handleClose}
+                    severity={severity}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                   {message}
+                </Alert>
+            </Snackbar>
         </div>
     )
 }

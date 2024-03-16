@@ -12,7 +12,7 @@ import Placeholder from '../placeholder/Placeholder';
 import { CardMedia, Typography } from '@mui/material';
 import { SetCart } from '../../../Context/Context'
 import Logo from '../../../assets/LogoOg.png'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useLocation } from 'react-router-dom';
 
 
 const Navbar = ({setKeyword}) => {
@@ -21,6 +21,7 @@ const Navbar = ({setKeyword}) => {
     const [anchorEl, setAnchorEl] = useState(null)
     const [cartCount, setCartCount] = useState(0)
     const navigate = useNavigate()
+    const location = useLocation()
     const open = Boolean(anchorEl)
     const handleClick = (e) => {
         setAnchorEl(e.currentTarget)
@@ -71,11 +72,13 @@ const Navbar = ({setKeyword}) => {
                 ></CardMedia>
             </Link>
             
-            <div className="userNavSearch">
+            {
+                location.pathname !== '/user/jobs'&&<div className="userNavSearch">
                 <SearchIcon className='userNavIcon' />
                 <input onChange={(e)=>setKeyword(e.target.value)} type="text" placeholder='Search for anything..' />
                 
             </div>
+            }
             <div className="userNavLinkContainer">
                 <Link to="/user/mylearning" style={{ textDecoration: "none", color: "black" }}>
                     <p className="userNavLink">Purchased Courses</p>

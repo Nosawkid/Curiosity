@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Home from './pages/home/Home'
 import {
   Routes,
@@ -17,13 +17,23 @@ import './App.scss'
 import Applications from './pages/applications/Applications';
 import Single from './pages/single/Single';
 import Footer from './components/footer/footer'
+import { useNavigate } from 'react-router-dom';
 
 
 
 function App() {
 
+const navigate = useNavigate()
+
+const Jid = sessionStorage.getItem("Jid")
 
 
+useEffect(()=>{
+if(!Jid)
+{
+  return navigate("/")
+}
+},[])
 
   return (
     <div  className="hirerApp">
