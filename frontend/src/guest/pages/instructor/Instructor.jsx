@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Box, Button, Card, CardContent, FormControl, FormHelperText, IconButton, Input, InputAdornment, InputLabel, Stack, TextField, Typography } from '@mui/material'
+import { Box, Button, Card, CardContent, FormControl, FormHelperText, IconButton, Input, InputAdornment, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Navbar from '../../components/navbar/Navbar';
 import { styled } from '@mui/material/styles';
@@ -46,6 +46,8 @@ const Instructor = () => {
     const [open, setOpen] = useState(false)
     const [message, setMessage] = useState("")
     const [severity, setSeverity] = useState("")
+    const [instructorSecurityQuestion, setinstructorSecurityQuestion] = useState("");
+    const [instructorSecurityAnswer, setinstructorSecurityAnswer] = useState("");
     // Function to add send data to database
     const registerInstructor = (e) => {
         e.preventDefault()
@@ -72,6 +74,8 @@ const Instructor = () => {
             frm.append("instructorProof", instructorProof)
             frm.append("instructorQualification", instructorQualification)
             frm.append("instructorField", instructorField)
+            frm.append("instructorSecurityQuestion", instructorSecurityQuestion)
+            frm.append("instructorSecurityAnswer", instructorSecurityAnswer)
 
 
             axios.post("http://localhost:5000/Instructor", frm).then((res) => {
@@ -227,6 +231,28 @@ const Instructor = () => {
                                             <VisuallyHiddenInput required onChange={(e) => setInstructorProof(e.target.files[0])} type="file" />
                                         </Button>
                                     </Box>
+                                    <Box sx={{ minWidth: 120 }}>
+                                    <FormControl variant='standard' fullWidth>
+                                        <InputLabel id="demo-simple-select-label">Choose a security question</InputLabel>
+                                        <Select
+                                            required
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            value={instructorSecurityQuestion}
+                                            label="Choose a security question"
+                                            onChange={(e)=>setinstructorSecurityQuestion(e.target.value)}
+                                        >
+                                            <MenuItem value={"In what city were you born?"}>In what city were you born?</MenuItem>
+                                            <MenuItem value={"What is your favorite book?"}>What is your favorite book?</MenuItem>
+                                            <MenuItem value={"What is the name of the first company you worked for?"}>What is the name of the first company you worked for?</MenuItem>
+                                            <MenuItem value={"What is your favorite sports team?"}>What is your favorite sports team?</MenuItem>
+                                            <MenuItem value={"What is the name of the elementary school you attended?"}>What is the name of the elementary school you attended?</MenuItem>
+                                            </Select>
+                                    </FormControl>
+                                    <TextField
+                                    onChange={(e)=>setinstructorSecurityAnswer(e.target.value)}
+                                    fullWidth sx={{mt:4}} required variant='standard' placeholder='Answer'></TextField>
+                                </Box>
                                 </Stack>
                                 <Button type='submit' variant='contained'>Submit</Button>
                             </Stack>

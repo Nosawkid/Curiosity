@@ -9,6 +9,8 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 
 
 
@@ -28,8 +30,13 @@ const User = () => {
     const [open, setOpen] = React.useState(false);
     const [message, setMessage] = useState("")
     const [severity, setSeverity] = useState("")
+    const [userSecurityQuestion, setUserSecurityQuestion] = React.useState('');
+    const [userSecurityAnswer, setuserSecurityAnswer] = useState("");
 
 
+    const handleChange = (event) => {
+        setUserSecurityQuestion(event.target.value);
+    };
 
     const validatePassword = () => {
         if (userPassword.length < 8) {
@@ -97,7 +104,7 @@ const User = () => {
         if (userPassword && confirmPassword && userPassword === confirmPassword) {
 
             // setUserName(firstName + " " + lastname)
-            axios.post("http://localhost:5000/User", { userName: firstName + " " + lastname, userEmail, userContact, userPassword }).then((res) => {
+            axios.post("http://localhost:5000/User", { userName: firstName + " " + lastname, userEmail, userContact, userPassword,userSecurityQuestion,userSecurityAnswer }).then((res) => {
                 if (res.data.status) {
                     console.log(res.data)
                     navigate("/guest/")
@@ -150,7 +157,7 @@ const User = () => {
                                     <FormHelperText error={!!contactError && contactError}>{contactError}</FormHelperText>
                                 </FormControl>
                                 <Stack direction={"column"}>
-                                    <FormControl sx={{ m: 1, width: "100%" }} variant="standard">
+                                    <FormControl sx={{ width: "100%" }} variant="standard">
                                         <InputLabel htmlFor="standard-adornment-password">Password</InputLabel>
                                         <Input
                                             fullWidth
@@ -179,7 +186,7 @@ const User = () => {
 
                                 </Stack>
                                 <Stack direction={"row"} sx={{ display: "flex", alignItems: "center" }}>
-                                    <FormControl sx={{ m: 1, width: "100%" }} variant="standard">
+                                    <FormControl sx={{ width: "100%" }} variant="standard">
                                         <InputLabel htmlFor="standard-adornment-password">Confirm Password</InputLabel>
                                         <Input
                                             fullWidth
@@ -200,10 +207,29 @@ const User = () => {
                                         />
                                     </FormControl>
                                 </Stack>
-                                {/* <Stack direction="column" spacing={1} sx={{ pt: 2, pb: 2 }} >
-                                    <FormLabel sx={{ textAlign: "left", mt: 5 }}>Upload Image</FormLabel>
-                                    <TextField type='file' id='userPhoto' variant='standard' />
-                                </Stack> */}
+                                <Box sx={{ minWidth: 120 }}>
+                                    <FormControl variant='standard' fullWidth>
+                                        <InputLabel id="demo-simple-select-label">Choose a security question</InputLabel>
+                                        <Select
+                                            required
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            value={userSecurityQuestion}
+                                            label="Choose a security question"
+                                            onChange={handleChange}
+                                        >
+                                            <MenuItem value={"In what city were you born?"}>In what city were you born?</MenuItem>
+                                            <MenuItem value={"What is your favorite book?"}>What is your favorite book?</MenuItem>
+                                            <MenuItem value={"What is the name of the first company you worked for?"}>What is the name of the first company you worked for?</MenuItem>
+                                            <MenuItem value={"What is your favorite sports team?"}>What is your favorite sports team?</MenuItem>
+                                            <MenuItem value={"What is the name of the elementary school you attended?"}>What is the name of the elementary school you attended?</MenuItem>
+                                            </Select>
+                                    </FormControl>
+                                    <TextField
+                                    onChange={(e)=>setuserSecurityAnswer(e.target.value)}
+                                    fullWidth sx={{mt:4}} required variant='standard' placeholder='Answer'></TextField>
+                                </Box>
+
                                 <Button type='submit' variant='contained'>Submit</Button>
                             </Stack>
                         </Typography>

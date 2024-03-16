@@ -2,7 +2,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Box, Button, Card, CardContent, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, Stack, TextField, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../../assets/Logo.png'
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
@@ -109,7 +109,7 @@ const Login = () => {
                                     label="Password"
                                 />
                             </FormControl>
-
+                            <Link style={{color:"#003f88",textAlign:"right"}} to={"/guest/forgotpassword"}>Forgot Password</Link>
                             <Button type='submit' variant='contained'>Login</Button>
                         </Stack>
                     </CardContent>

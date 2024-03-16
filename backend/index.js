@@ -12,6 +12,7 @@ const { createServer } = require('http')
 const { Server } = require('socket.io')
 const moment = require("moment");
 const { log } = require("console");
+const { type } = require("os");
 
 
 
@@ -352,7 +353,7 @@ app.post('/Admin', async (req, res) => {
             adminPassword
         })
         const salt = 12
-        admin.adminPassword = await argon2.hash(admin.adminPassword,salt)
+        admin.adminPassword = await argon2.hash(admin.adminPassword, salt)
         await admin.save()
 
         res.send({ message: 'Admin inserted successfully' })
@@ -663,10 +664,14 @@ const userSchema = new Schema({
         type: String,
         default: null
     },
-    // linkId: {
-    //     type: Schema.Types.ObjectId,
-    //     ref: "schemaLink"
-    // }
+    userSecurityQuestion: {
+        type: String,
+        required: true
+    },
+    userSecurityAnswer: {
+        type: String,
+        required: true
+    }
 })
 
 const User = mongoose.model("schemaUser", userSchema)
@@ -676,7 +681,13 @@ const User = mongoose.model("schemaUser", userSchema)
 // creating new user
 app.post("/User", async (req, res) => {
     try {
-        const { userName, userEmail, userPassword, userContact } = req.body
+        const { userName,
+            userEmail,
+            userPassword,
+            userContact,
+            userSecurityQuestion,
+            userSecurityAnswer
+         } = req.body
         const admin = await Admin.findOne({ adminEmail: userEmail })
         const ins = await Instructor.findOne({ instructorEmail: userEmail })
         const portal = await JobPortal.findOne({ jobPortalEmail: userEmail })
@@ -691,11 +702,14 @@ app.post("/User", async (req, res) => {
             userName,
             userEmail,
             userPassword,
-            userContact
+            userContact,
+            userSecurityQuestion,
+            userSecurityAnswer
         })
 
         const salt = 12
         user.userPassword = await argon2.hash(userPassword, salt)
+        user.userSecurityAnswer = await argon2.hash(userSecurityAnswer,salt)
         await user.save();
         res.status(200).send({ message: "Account creation success", status: true })
     }
@@ -936,10 +950,14 @@ const instructorSchema = new Schema({
         type: String,
         required: true
     },
-    linkId: {
-        type: Schema.Types.ObjectId,
-        ref: "schemaLink"
-    }
+    instructorSecurityQuestion:{
+        type:String,
+        required:true
+    },
+    instructorSecurityAnswer:{
+        type:String,
+        required:true
+    },
 })
 
 const Instructor = mongoose.model("schemaInstructor", instructorSchema)
@@ -964,6 +982,8 @@ app.post("/Instructor",
                 linkId,
                 instructorQualification,
                 instructorField,
+                instructorSecurityQuestion,
+                instructorSecurityAnswer
             } = req.body
             console.log(req.body)
 
@@ -988,10 +1008,13 @@ app.post("/Instructor",
                 linkId,
                 instructorQualification,
                 instructorField,
-                instructorProof: instructorProofsrc
+                instructorProof: instructorProofsrc,
+                instructorSecurityQuestion,
+                instructorSecurityAnswer
             })
             const salt = 12
             instructor.instructorPassword = await argon2.hash(instructorPassword, salt)
+            instructor.instructorSecurityAnswer = await argon2.hash(instructorSecurityAnswer,salt)
             await instructor.save()
             res.status(200).send("Instructor account creation success")
 
@@ -2569,7 +2592,15 @@ const jobPortalSchema = new Schema({
     jobPortalIdType: {
         type: String,
         enum: ["Aadhar", "Voter Id", "Pan Card"]
-    }
+    },
+    jobPortalSecurityQuestion:{
+        type:String,
+        required:true
+    },
+    jobPortalSecurityAnswer:{
+        type:String,
+        required:true
+    },
 
 })
 
@@ -2594,7 +2625,9 @@ app.post("/Jobportal", upload.fields([
             jobPortalPassword,
             jobPortalStatus,
             jobPortalCompanyName,
-            jobPortalIdType
+            jobPortalIdType,
+            jobPortalSecurityQuestion,
+            jobPortalSecurityAnswer
         } = req.body
 
         let portal = await JobPortal.findOne({ jobPortalEmail })
@@ -2617,11 +2650,14 @@ app.post("/Jobportal", upload.fields([
             jobPortalPassword,
             jobPortalStatus,
             jobPortalCompanyName,
-            jobPortalIdType
+            jobPortalIdType,
+            jobPortalSecurityQuestion,
+            jobPortalSecurityAnswer
         })
 
         const salt = 12;
         portal.jobPortalPassword = await argon2.hash(jobPortalPassword, salt)
+        portal.jobPortalSecurityAnswer = await argon2.hash(jobPortalSecurityAnswer,salt)
         await portal.save();
         res.status(200).send({ message: "Account Created", status: true })
 
@@ -2677,10 +2713,10 @@ app.put("/Jobportal/:id/passchange", async (req, res) => {
             const salt = 12
             jobPortalPassword = await argon2.hash(jobPortalPassword, salt)
             let newPortalPassword = await JobPortal.findByIdAndUpdate(id, { jobPortalPassword }, { new: true })
-            res.status(200).send({message:"Password Updated"})
+            res.status(200).send({ message: "Password Updated" })
         }
         else {
-            return res.send({message:"Password Updation Failed"})
+            return res.send({ message: "Password Updation Failed" })
         }
 
     } catch (error) {
@@ -2758,12 +2794,12 @@ app.put("/Jobportal/:id/edit", async (req, res) => {
 // Add Profile Photo
 app.put("/Jobportal/:id/addPhoto", upload.fields([
     { name: "jobPortalPhoto", maxCount: 1 },
-]),async(req,res)=>{
+]), async (req, res) => {
     try {
-        const {id} = req.params
+        const { id } = req.params
         var fileValue = JSON.parse(JSON.stringify(req.files));
         var jobPortalPhoto = `http://127.0.0.1:${port}/images/${fileValue.jobPortalPhoto[0].filename}`;
-        const portal = await JobPortal.findByIdAndUpdate(id,{jobPortalPhoto},{new:true})
+        const portal = await JobPortal.findByIdAndUpdate(id, { jobPortalPhoto }, { new: true })
         res.status(200).send(portal)
     } catch (error) {
         console.log(error.message);
@@ -2851,10 +2887,10 @@ app.post("/Vacancy", async (req, res) => {
         })
 
         await newVacancy.save()
-        res.status(200).send({ message: "Vacancy Added"})
+        res.status(200).send({ message: "Vacancy Added" })
     } catch (err) {
         console.log(err.message);
-        res.status(400).send({message:"Something went wrong"})
+        res.status(400).send({ message: "Something went wrong" })
     }
 })
 
@@ -3045,13 +3081,12 @@ app.post("/Login", async (req, res) => {
             }
         }
         else if (admin) {
-            
-            isValidPassword = await argon2.verify(admin.adminPassword,Password)
-          
-            if(isValidPassword)
-            {
-                id=admin._id
-                type="Admin"
+
+            isValidPassword = await argon2.verify(admin.adminPassword, Password)
+
+            if (isValidPassword) {
+                id = admin._id
+                type = "Admin"
             }
         }
         else {
@@ -3971,6 +4006,142 @@ app.get("/Course/:instructorId/published", async (req, res) => {
         const { instructorId } = req.params
         const publishedCourses = await Course.find({ instructorId, __v: 1 })
         res.status(200).send(publishedCourses)
+    } catch (error) {
+        console.log(error.message);
+    }
+})
+
+
+
+// Forgot Password
+// Getting User from Mail Id
+app.get("/fetchuser",async(req,res)=>{
+    try {
+        const {Email} = req.query
+        const user = await User.findOne({userEmail:Email})
+        const instructor = await Instructor.findOne({instructorEmail:Email})
+        const portal = await JobPortal.findOne({jobPortalEmail:Email})
+       
+        let item = {}
+        let type = ""
+        if(user)
+        {
+            item = user
+            type = "User"
+        }
+        else if(instructor)
+        {
+            item = instructor
+            type = "Instructor"
+        }
+        else if(portal)
+        {
+            item = portal
+            type = "Hirer"
+        }
+        else
+        {
+            return res.status(400).send({message:"Sorry,we couldn't find your account"})
+        }
+
+
+        const payload = {
+            item,
+            type
+        }
+
+        res.status(200).send(payload)
+    } catch (error) {
+        res.status(400).send({message:"Something went wrong"})
+    }
+})
+// Verifying user
+app.get("/verifyuser",async(req,res)=>{
+    try {
+        const {userSecurityAnswer,Email} = req.query
+        const user = await User.findOne({userEmail:Email})
+        const isValidAnswer = await argon2.verify(user.userSecurityAnswer,userSecurityAnswer)
+        if(isValidAnswer)
+        {
+            res.status(200).send({status:true})
+        }
+        else
+        {
+            res.status(200).send({status:false})
+        }
+        
+    } catch (error) {
+        console.log(error.message);
+    }
+})
+app.get("/verifyins",async(req,res)=>{
+    try {
+        const {instructorSecurityAnswer,Email} = req.query
+        const ins = await Instructor.findOne({instructorEmail:Email})
+        const isValidAnswer = await argon2.verify(ins.instructorSecurityAnswer,instructorSecurityAnswer)
+        if(isValidAnswer)
+        {
+            res.status(200).send({status:true})
+        }
+        else
+        {
+            res.status(200).send({status:false})
+        }
+        
+    } catch (error) {
+        console.log(error.message);
+    }
+})
+
+app.get("/verifyportal",async(req,res)=>{
+    try {
+        const {jobPortalSecurityAnswer,Email} = req.query
+        const portal = await JobPortal.findOne({jobPortalEmail:Email})
+        const isValidAnswer = await argon2.verify(portal.jobPortalSecurityAnswer,jobPortalSecurityAnswer)
+        if(isValidAnswer)
+        {
+            res.status(200).send({status:true})
+        }
+        else
+        {
+            res.status(200).send({status:false})
+        }
+    } catch (error) {
+        console.log(error.message);
+    }
+})
+
+// Updating user
+app.put("/changeuserpass",async(req,res)=>{
+    try {
+        let {userPassword,userId} = req.body
+        const salt = 12
+        userPassword = await argon2.hash(userPassword,salt)
+        const updatedUser = await User.findByIdAndUpdate(userId,{userPassword},{new:true})
+        res.status(200).send(updatedUser)
+    } catch (error) {
+        console.log(error.message);
+    }
+})
+app.put("/changeinspass",async(req,res)=>{
+    try {
+        let {instructorPassword,instructorId} = req.body
+        const salt = 12
+        instructorPassword = await argon2.hash(instructorPassword,salt)
+        const updatedIns = await Instructor.findByIdAndUpdate(instructorId,{instructorPassword},{new:true})
+        res.status(200).send(updatedIns)
+    } catch (error) {
+        console.log(error.message);
+    }
+})
+
+app.put("/changehirerpassword",async(req,res)=>{
+    try {
+        let {jobPortalPassword,jobPortalId} = req.body
+        const salt = 12
+        jobPortalPassword = await argon2.hash(jobPortalPassword,salt)
+        const updatedPortal = await JobPortal.findByIdAndUpdate(jobPortalId,{jobPortalPassword},{new:true})
+        res.status(200).send(updatedPortal)
     } catch (error) {
         console.log(error.message);
     }

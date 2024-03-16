@@ -48,6 +48,8 @@ const Hirer = () => {
     const [severity, setSeverity] = useState("")
     const [contactError, setContactError] = useState(false)
     const [passwordError, setPasswordError] = useState(false)
+    const [jobPortalSecurityQuestion, setjobPortalSecurityQuestion] = useState("");
+    const [jobPortalSecurityAnswer, setjobPortalSecurityAnswer] = useState("");
 
 
     const registerPortal = (e) => {
@@ -74,6 +76,8 @@ const Hirer = () => {
             frm.append("jobPortalCompanyName", jobPortalCompanyName)
             frm.append("jobPortalIdType", jobPortalIdType)
             frm.append("jobPortalProof", jobPortalProof)
+            frm.append("jobPortalSecurityQuestion", jobPortalSecurityQuestion)
+            frm.append("jobPortalSecurityAnswer", jobPortalSecurityAnswer)
             axios.post("http://localhost:5000/Jobportal", frm).then((res) => {
                 if (res.data.status) {
                     setSeverity("success")
@@ -246,6 +250,28 @@ const Hirer = () => {
                                         <VisuallyHiddenInput required onChange={(e) => setJobPortalProof(e.target.files[0])} type="file" />
                                     </Button>
                                 </Stack>
+                                <Box sx={{ minWidth: 120 }}>
+                                    <FormControl variant='standard' fullWidth>
+                                        <InputLabel id="demo-simple-select-label">Choose a security question</InputLabel>
+                                        <Select
+                                            required
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            value={jobPortalSecurityQuestion}
+                                            label="Choose a security question"
+                                            onChange={(e)=>setjobPortalSecurityQuestion(e.target.value)}
+                                        >
+                                            <MenuItem value={"In what city were you born?"}>In what city were you born?</MenuItem>
+                                            <MenuItem value={"What is your favorite book?"}>What is your favorite book?</MenuItem>
+                                            <MenuItem value={"What is the name of the first company you worked for?"}>What is the name of the first company you worked for?</MenuItem>
+                                            <MenuItem value={"What is your favorite sports team?"}>What is your favorite sports team?</MenuItem>
+                                            <MenuItem value={"What is the name of the elementary school you attended?"}>What is the name of the elementary school you attended?</MenuItem>
+                                            </Select>
+                                    </FormControl>
+                                    <TextField
+                                    onChange={(e)=>setjobPortalSecurityAnswer(e.target.value)}
+                                    fullWidth sx={{mt:4}} required variant='standard' placeholder='Answer'></TextField>
+                                </Box>
                                 <Button type='submit' variant='contained'>Submit</Button>
                             </Stack>
                         </Typography>
