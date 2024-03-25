@@ -941,7 +941,7 @@ const instructorSchema = new Schema({
     },
     instructorQualification: {
         type: String,
-        required: true
+        
     },
     instructorField: {
         type: String,
@@ -1417,7 +1417,7 @@ app.put("/Course/:id/publish", async (req, res) => {
         const sectionIds = sections.map(section => section._id)
         const materials = await Material.find({ sectionId: { $in: sectionIds } })
         if (materials.length < 5) {
-            return res.send({ message: "You need atleast 5 materials to publish this course", status: false })
+            return res.status(400).send({ message: "You need atleast 5 materials to publish this course"})
         }
         const course = await Course.findByIdAndUpdate(id, { __v: 1 }, { new: true })
         res.status(200).send({ message: "Course Published Successfully", status: true })
@@ -3062,11 +3062,10 @@ app.post("/Login", async (req, res) => {
         }
 
         else if (instructor) {
-
             isValidPassword = await argon2.verify(instructor.instructorPassword, Password)
             if (isValidPassword) {
                 if (instructor.__v === 0) {
-                    return res.send({ message: "You haven't been verified yet" })
+                    return res.status(400).send({ message: "Your instructor account is currently pending verification by our admin team; we'll notify you once approved. Thank you for your patience!" })
                 }
                 id = instructor._id
                 type = "Instructor"
@@ -3099,13 +3098,13 @@ app.post("/Login", async (req, res) => {
 
         }
 
-
+        console.log(payload)
         res.json({ payload });
 
 
     } catch (error) {
         console.log(error.message);
-        console.log("Server Error");
+        res.status(400).send({message:error.message})
     }
 })
 

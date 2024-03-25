@@ -42,6 +42,7 @@ const Resume = () => {
 
     const submitApplication = (e)=>{
         e.preventDefault()
+        
         axios.post(`${Server}/Application`,{jobVacancyId,userId:uid,qualifications,experience,skills:skill}).then((res)=>{
             if(!res.data.status)
             {
@@ -156,7 +157,7 @@ const Resume = () => {
                         </Box>
                         <Box sx={{px:5}}>
                             <Typography sx={{fontSize:"20px",mt:2}}>Enter Qualifications:</Typography>
-                            <TextField multiline minRows={3} fullWidth variant='outlined'
+                            <TextField required multiline minRows={3} fullWidth variant='outlined'
                                 value={qualificationValue}
                                 onChange={(e)=>setQualificationValue(e.target.value)}
                                 onKeyDown={handleQualificationKeyPress}
@@ -173,7 +174,7 @@ const Resume = () => {
                         </Box>
                         <Box sx={{px:5}}>
                             <Typography sx={{fontSize:"20px",mt:2}}>Enter Experience:</Typography>
-                            <TextField multiline minRows={3} fullWidth variant='outlined'
+                            <TextField required multiline minRows={3} fullWidth variant='outlined'
                                 value={experienceValue}
                                 onChange={(e)=>setExperienceValue(e.target.value)}
                                 onKeyDown={handleExperienceKeyPress}
@@ -191,7 +192,7 @@ const Resume = () => {
                         </Box>
                         <Box sx={{px:5}}>
                             <Typography sx={{fontSize:"20px",mt:2}}>Enter Skills:</Typography>
-                            <TextField multiline minRows={3} fullWidth variant='outlined'
+                            <TextField required multiline minRows={3} fullWidth variant='outlined'
                                 value={skillValue}
                                 onChange={(e)=>setSkillValue(e.target.value)}
                                 onKeyDown={handleSkillKeyPress}

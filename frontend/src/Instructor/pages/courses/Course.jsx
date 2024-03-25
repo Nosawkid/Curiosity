@@ -11,6 +11,8 @@ import { Box, Button, Card, CardContent, CircularProgress, Stack, Typography } f
 import axios from 'axios';
 // import DeleteIcon from '@mui/icons-material/Delete';
 import { Link } from 'react-router-dom'
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert'
 
 
 
@@ -21,6 +23,19 @@ const Course = () => {
   const [course, setCourse] = useState([])
   const [loading,setLoading] = useState(true)
   const Id = sessionStorage.getItem("Iid")
+  const [open, setOpen] = React.useState(false);
+  const [severity, setseverity] = useState("");
+  const [message, setmessage] = useState();
+
+ 
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
 
   const fetchCourse = () => {
     axios.get("http://localhost:5000/CourseFromIns/" + Id).then((res) => {
@@ -35,6 +50,13 @@ const Course = () => {
     axios.put("http://localhost:5000/Course/"+id+"/publish").then((res)=>{
       console.log(res.data)
       fetchCourse()
+    }).catch((err)=>{
+      if(err.response && err.response.data && err.response.data.message)
+      {
+        setOpen(true)
+        setseverity("error")
+        setmessage(err.response.data.message)
+      }
     })
   }
 
@@ -141,6 +163,16 @@ const Course = () => {
         </Card>
       ))}</Box> :<CircularProgress sx={{position:"absolute",top:"50%",left:"60%",transform:"translate(50%,50%)"}}/>
      }
+        <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert
+          onClose={handleClose}
+          severity={severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {message}
+        </Alert>
+      </Snackbar>
     </Box>
 
   )

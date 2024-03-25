@@ -1,4 +1,7 @@
-import React from 'react'
+import "./App.css";
+import Home from "./Components/Home";
+import About from "./Components/About";
+import Work from "./Components/Work";
 import {Routes, Route} from "react-router-dom"
 import User from './pages/user/User'
 import Instructor from './pages/instructor/Instructor'
@@ -6,23 +9,30 @@ import Hirer from './pages/hirer/Hirer'
 import Login from './pages/login/Login'
 import Forgotpassword from './pages/forgotpass/Forgotpassword'
 
+import Footer from "./Components/Footer";
 
-const App = () => {
+function App() {
   return (
-    <div className='app'>
+    <div className="App">
       <Routes>
-         
-            
-                  <Route path='/' element={<Login/>}/>
-                  <Route path='/user' element={<User/>}/>
-                  <Route path='/instructor' element={<Instructor/>}/>
-                  <Route path='/hirer' element={<Hirer/>}/>
-                  <Route path='/forgotpassword' element={<Forgotpassword/>}/>
 
-          
+
+        <Route path='/' element={<Home />} />
+        <Route path='/Login' element={<Login />} />
+        <Route path='/userReg' element={<User />} />
+        <Route path='/instructorReg' element={<Instructor />} />
+        <Route path='/hirerReg' element={<Hirer />} />
+        <Route path='/forgotpassword' element={<Forgotpassword />} />
+
+
       </Routes>
+      <About />
+      <Work />
+
+
+      <Footer />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

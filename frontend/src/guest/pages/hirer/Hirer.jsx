@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
 import { Box, Button, Card, CardContent, FormLabel, Stack, TextField, Typography, Select, MenuItem, FormControl, InputLabel, IconButton, InputAdornment, Input, FormHelperText } from '@mui/material'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import Navbar from '../../components/navbar/Navbar';
-import Footer from '../../components/footer/Footer';
+import Navbar from '../../Components/Navbar';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { styled } from '@mui/material/styles';
 import axios from 'axios';
@@ -84,7 +83,7 @@ const Hirer = () => {
                     setOpen(true)
                     setMessage(res.data.message)
                     setTimeout(() => {
-                        navigate("/guest")
+                        navigate("/login")
                     }, 2000)
                 }
                 else {
@@ -146,7 +145,7 @@ const Hirer = () => {
 
 
     return (
-        <div className='hirer'>
+        <div className='hirer' id='hirer'>
             <Navbar />
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", minHeight: "50vh", mt: 3 }}>
                 <Card sx={{ minWidth: "500px" }}>
@@ -288,7 +287,6 @@ const Hirer = () => {
                     </CardContent>
                 </Card>
             </Box>
-            <Footer />
         </div>
     )
 }

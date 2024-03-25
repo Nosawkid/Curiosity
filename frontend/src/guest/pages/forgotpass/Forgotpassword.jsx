@@ -2,6 +2,7 @@ import { Avatar, Box, Button, Card, CardContent, TextField, Typography } from '@
 import axios from 'axios';
 import React, { useState } from 'react'
 import Modal from '@mui/material/Modal';
+import Navbar from '../../Components/Navbar';
 
 const style = {
     position: 'absolute',
@@ -123,6 +124,7 @@ const Forgotpassword = () => {
     }
     return (
         <div className='forgotpassword'>
+            <Navbar/>
             <Box sx={{ width: "100ww", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <Card>
                     <CardContent sx={{ p: 5 }}>

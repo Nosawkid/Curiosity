@@ -41,7 +41,7 @@ const Myprofile = () => {
         <div className="singleContainer">
         <div className="top">
           <div className="left">
-            <div className="editButton">Edit</div>
+         
             <h1 className="title">Information</h1>
             <div className="item">
             {instructorData.instructorPhoto ? <img className='itemImg' src={instructorData.instructorPhoto} alt="profile" /> :
@@ -65,7 +65,7 @@ const Myprofile = () => {
             </div>
           </div>
           <div className="right">
-            <Chart aspect={3/1} title={"User Spending"}/>
+            <Chart aspect={3/1} title={"Instructor Revenue"}/>
           </div>
         </div>
         <div className="bottom">

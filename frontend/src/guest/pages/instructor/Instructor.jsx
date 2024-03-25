@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
 import { Box, Button, Card, CardContent, FormControl, FormHelperText, IconButton, Input, InputAdornment, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import Navbar from '../../components/navbar/Navbar';
+import Navbar from '../../Components/Navbar';
 import { styled } from '@mui/material/styles';
-import Footer from '../../components/footer/Footer';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
@@ -64,6 +63,14 @@ const Instructor = () => {
             setSeverity("error")
             return
         }
+
+        if(!instructorSecurityAnswer)
+        {
+            setOpen(true)
+            setMessage("Please provide a security answer")
+            setSeverity("error")
+            return
+        }
         if (instructorPassword === confirmPassword) {
 
             const frm = new FormData()
@@ -80,7 +87,7 @@ const Instructor = () => {
 
             axios.post("http://localhost:5000/Instructor", frm).then((res) => {
                 console.log(res.data)
-                navigate("/guest/")
+                navigate("/login")
 
             }).catch((err) => {
                 console.log(err.message)
@@ -134,7 +141,7 @@ const Instructor = () => {
 
 
     return (
-        <div className='instructor'>
+        <div className='instructor' id='ins'>
             <Navbar />
             <Box sx={{mt:2, display: "flex", alignItems: "center", justifyContent: "center", width: "100%", minHeight: "100vh" }} component={'form'} onSubmit={registerInstructor}>
                 <Card sx={{ minWidth: "500px" }}>
@@ -221,8 +228,8 @@ const Instructor = () => {
 
                                     </FormControl>
                                 </Stack>
-                                <TextField required onChange={(e) => setInstructorQualification(e.target.value)} type='text' id='qualification' label="Qualification" variant='standard' />
-                                <TextField required onChange={(e) => setInstructorField(e.target.value)} type='text' id='field' label="Field of expertise" variant='standard' />
+                                <TextField  onChange={(e) => setInstructorQualification(e.target.value)} type='text' id='qualification' label="Qualification" variant='standard' />
+                                <TextField  onChange={(e) => setInstructorField(e.target.value)} type='text' id='field' label="Field of expertise" variant='standard' />
                                 <Stack direction="column" spacing={1} sx={{ pt: 2, pb: 2 }} >
                                     <Box sx={{ display: "flex", gap: "20px", alignItems: "center" }}>
                                         <Typography component="span">Upload Id proof:</Typography>
@@ -272,7 +279,6 @@ const Instructor = () => {
                     </Snackbar>
                 </Stack>
             </Box>
-            <Footer />
         </div>
     )
 }

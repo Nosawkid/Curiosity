@@ -52,7 +52,7 @@ function App() {
             },
           }}>
             <Routes>
-              <Route path='/' element={<Home />} />
+              <Route path='/' element={<Myprofile />} />
               <Route path='/Myprofile' element={<Myprofile />} />
               <Route path='/Drafts' element={<Draft />} />
               <Route path='/Courses' element={<Course />} />

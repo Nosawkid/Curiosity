@@ -101,7 +101,7 @@ const Editprofile = () => {
                   instructorPhoto ? (
                     <img src={instructorPhoto} alt='instructor dp' className='profilePic' />
                   ) : (
-                    <Placeholder className='profilePic' username={instructorName} />
+                    <Placeholder  username={instructorName} className='profilePic' />
                   )
                 )
               }

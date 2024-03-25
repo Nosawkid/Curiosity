@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './navbar.scss'
-import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
-import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
-import FullscreenExitOutlinedIcon from '@mui/icons-material/FullscreenExitOutlined';
-import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
-import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
-import ReorderOutlinedIcon from '@mui/icons-material/ReorderOutlined';
+import Placeholder from '../placeholder/Placeholder'
+
 import { Card } from '@mui/material';
 import axios from 'axios';
 
@@ -44,7 +39,9 @@ const Navbar = () => {
          
           
           <div className="item">
-            <img src={ins && ins.instructorPhoto} alt="" className='avatar' />
+           {
+            ins && ins.instructorPhoto ?  <img src={ins && ins.instructorPhoto} alt="" className='avatar' /> :<Placeholder username={ins.instructorName} />
+           }
 
           </div>
         </div>

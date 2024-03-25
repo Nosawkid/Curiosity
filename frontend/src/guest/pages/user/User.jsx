@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
 import { Box, Button, Card, CardContent, FormControl, FormHelperText, IconButton, Input, InputAdornment, InputLabel, Stack, TextField, Typography } from '@mui/material'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import Navbar from '../../components/navbar/Navbar';
-import Footer from '../../components/footer/Footer';
+import Navbar from '../../Components/Navbar';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import axios from 'axios'
@@ -107,7 +106,7 @@ const User = () => {
             axios.post("http://localhost:5000/User", { userName: firstName + " " + lastname, userEmail, userContact, userPassword,userSecurityQuestion,userSecurityAnswer }).then((res) => {
                 if (res.data.status) {
                     console.log(res.data)
-                    navigate("/guest/")
+                    navigate("/login")
                 }
                 else {
                     setOpen(true)
@@ -130,7 +129,7 @@ const User = () => {
 
 
     return (
-        <div className='user'>
+        <div className='user' id='user'>
             <Navbar />
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", minHeight: "100vh" }}>
                 <Card sx={{ minWidth: "500px" }}>
@@ -249,7 +248,6 @@ const User = () => {
                 </Stack>
             </Box>
 
-            <Footer />
         </div>
     )
 }
