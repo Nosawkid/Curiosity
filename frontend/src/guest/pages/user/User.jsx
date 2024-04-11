@@ -131,7 +131,7 @@ const User = () => {
     return (
         <div className='user' id='user'>
             <Navbar />
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", minHeight: "100vh" }}>
+            <Box sx={{ display: "flex", justifyContent: "center", width: "100%", minHeight: "100vh" }}>
                 <Card sx={{ minWidth: "500px" }}>
                     <CardContent sx={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
                         <AccountCircleIcon sx={{ fontSize: "75px" }} />

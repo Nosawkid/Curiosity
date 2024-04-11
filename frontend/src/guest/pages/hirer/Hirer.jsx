@@ -147,7 +147,7 @@ const Hirer = () => {
     return (
         <div className='hirer' id='hirer'>
             <Navbar />
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", minHeight: "50vh", mt: 3 }}>
+            <Box sx={{ display: "flex",  justifyContent: "center", width: "100%", minHeight: "50vh", mt: 3 }}>
                 <Card sx={{ minWidth: "500px" }}>
                     <CardContent sx={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
                         <AccountCircleIcon sx={{ fontSize: "75px" }} />

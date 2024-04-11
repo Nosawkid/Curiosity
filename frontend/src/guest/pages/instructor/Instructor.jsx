@@ -143,7 +143,7 @@ const Instructor = () => {
     return (
         <div className='instructor' id='ins'>
             <Navbar />
-            <Box sx={{mt:2, display: "flex", alignItems: "center", justifyContent: "center", width: "100%", minHeight: "100vh" }} component={'form'} onSubmit={registerInstructor}>
+            <Box sx={{mt:2, display: "flex",  justifyContent: "center", width: "100%", minHeight: "100vh" }} component={'form'} onSubmit={registerInstructor}>
                 <Card sx={{ minWidth: "500px" }}>
                     <CardContent sx={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
                         <AccountCircleIcon sx={{ fontSize: "75px" }} />

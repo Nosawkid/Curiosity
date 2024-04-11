@@ -1,4 +1,4 @@
-import { Alert, Box, Button, Card, CardContent, Typography } from '@mui/material'
+import { Alert, Avatar, Box, Button, Card, CardContent, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Server } from '../../../Server.js'
@@ -8,6 +8,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import PropTypes from 'prop-types';
 import Divider from '@mui/material/Divider';
+import Placeholder from '../../components/placeholder/Placeholder.jsx'
 
 
 function CustomTabPanel(props) {
@@ -112,7 +113,7 @@ const Applications = () => {
                                 application && application.map((row, key) => (
                                     <Card key={key} sx={{ mt: 3, width: "300px" }}>
                                         <CardContent>
-                                            <img style={{ width: "150px", height: "150px", objectFit: "cover", borderRadius: "50%", display: "block", margin: "0 auto" }} src={row.userId.userPhoto} alt={row.userId.userName} />
+                                            <Avatar sx={{width:"100px",height:"100px",margin:"0 auto"}} src={row.userId.userPhoto} alt={row.userId.userName}></Avatar>
                                             <Typography sx={{ fontSize: "20px", fontWeight: "bold", mt: 2, textAlign: "center" }}>{row.userId.userName}</Typography>
                                             <Typography sx={{ mt: 2, textAlign: "center" }}>{row.userId.userHeadLine}</Typography>
                                             <Typography sx={{ mt: 2, textAlign: "center", fontSize: "14px" }}>Applied On: {moment(row.applicationDate).format('DD-MM-YYYY')}</Typography>

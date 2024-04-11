@@ -8,6 +8,7 @@ import Divider from '@mui/material/Divider';
 import { Server } from '../../../Server.js';
 import { useParams,useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Placeholder from '../../components/placeholder/Placeholder.jsx';
 
 
 
@@ -54,13 +55,15 @@ const Single = () => {
         <Card sx={{mt:2}}>
           <CardContent>
             <Stack direction={"row"} spacing={2} sx={{ alignItems: "center", px: 10 }}>
-              <CardMedia
-                component={"img"}
-                image={candidate.userId.userPhoto}
-                sx={{ width: "400px", height: "400px", objectFit: "cover", borderRadius: "50%", border: "10px solid #e9ecef" }}
-              >
+             {
+              candidate.userId.userPhoto ?  <CardMedia
+              component={"img"}
+              image={candidate.userId.userPhoto}
+              sx={{ width: "400px", height: "400px", objectFit: "cover", borderRadius: "50%", border: "10px solid #e9ecef" }}
+            ></CardMedia> : <Placeholder username={candidate.userId.userName}/>
+             }
 
-              </CardMedia>
+              
               <Box>
                 <Typography sx={{ fontSize: "20px", color: "gray" }}>{candidate.userId.userHeadLine}</Typography>
                 <Typography sx={{ fontSize: "30px", fontWeight: "bold" }}>{candidate.userId.userName}</Typography>
