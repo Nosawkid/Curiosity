@@ -1,64 +1,58 @@
-import React, { useEffect } from 'react'
-import Home from './pages/home/Home'
-import List from './pages/list/List';
-import {
-  Routes,
-  Route,
-  useNavigate
-} from "react-router-dom";
-import Single from './pages/single/Single';
-import './style/dark.scss'
+import React, { useEffect } from "react";
+import Home from "./pages/home/Home";
+import List from "./pages/list/List";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import Single from "./pages/single/Single";
+import "./style/dark.scss";
 
-import Sidebar from './components/sidebar/Sidebar';
-import Navbar from './components/navbar/Navbar';
-import Category from './pages/category/Category';
-import Subcategory from './pages/subcategory/Subcategory';
-import Topic from './pages/topic/Topic';
-import './App.scss'
-import Report from './pages/reports/Report';
-import Reportedcourse from './pages/reportedcourse/Reportedcourse';
+import Sidebar from "./components/sidebar/Sidebar";
+import Navbar from "./components/navbar/Navbar";
+import Category from "./pages/category/Category";
+import Subcategory from "./pages/subcategory/Subcategory";
+import Topic from "./pages/topic/Topic";
+import "./App.scss";
+import Report from "./pages/reports/Report";
+import Reportedcourse from "./pages/reportedcourse/Reportedcourse";
+import Courses from "./pages/courses/Courses";
+import Speccourse from "./pages/specificcourse/Speccourse";
 function App() {
-const navigate = useNavigate()
-const Aid = sessionStorage.getItem("Aid")
+  const navigate = useNavigate();
+  const Aid = sessionStorage.getItem("Aid");
 
-
-
-useEffect(()=>{
-if(!Aid)
-{
-  navigate("/")
-}
-},[])
-  
-
+  useEffect(() => {
+    if (!Aid) {
+      navigate("/");
+    }
+  }, []);
 
   return (
     <div className="adminApp">
-
-      <div className='home'>
+      <div className="home">
         <Sidebar />
-        <div  className="homeContainer">
+        <div className="homeContainer">
           {/* <Navbar /> */}
           <div>
             <Routes>
-              <Route path='/' element={<Home />} />
-            
-              <Route path='/Users' element={<List />} />
-              <Route path='/SingleList' element={<Single />} />
-              <Route path='/categories' element = {<Category/>}/>
-              <Route path='/Subcategories' element = {<Subcategory/>}/>
-              <Route path='/Topics' element = {<Topic/>}/>
-              <Route path='/Reports' element={<Report/>}/>
-              <Route path='/Reportedcourse/:courseId/:reportId' element={<Reportedcourse/>}/>
-            </Routes>
+              <Route path="/" element={<Home />} />
 
+              <Route path="/Users" element={<List />} />
+              <Route path="/SingleList" element={<Single />} />
+              <Route path="/categories" element={<Category />} />
+              <Route path="/Subcategories" element={<Subcategory />} />
+              <Route path="/Topics" element={<Topic />} />
+              <Route path="/Reports" element={<Report />} />
+              <Route path="/Allcourses" element={<Courses />} />
+              <Route path="/speccourse/:courseId" element={<Speccourse />} />
+              <Route
+                path="/Reportedcourse/:courseId/:reportId"
+                element={<Reportedcourse />}
+              />
+            </Routes>
           </div>
         </div>
       </div>
-
-
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

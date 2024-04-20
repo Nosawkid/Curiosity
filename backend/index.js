@@ -90,11 +90,33 @@ io.on("connection", (socket) => {
   });
 });
 
+// Nodemailer
+var transporter = mailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "curiosity2255@gmail.com", //from email Id
+    pass: "izuvpenxjegowfcw", // App password created from google account
+  },
+});
+function sendEmail(to, content) {
+  const mailOptions = {
+    from: "curiosity2255@gmail.com", //from email Id for recipient can view
+    to,
+    subject: "Purchase Successful",
+    html: content,
+  };
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("Email sent");
+    }
+  });
+}
+
 // Schemas
 
 //Admin
-
-
 
 const adminSchema = new mongoose.Schema({
   adminName: {
@@ -244,10 +266,10 @@ const purchaseSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "schemaUser",
   },
-  purchaseDate:{
-    type:Date,
-    default:()=>Date.now()
-  }
+  purchaseDate: {
+    type: Date,
+    default: () => Date.now(),
+  },
 });
 
 const Purchase = mongoose.model("schemaPurchase", purchaseSchema);
@@ -557,15 +579,13 @@ app.get("/Topic/:id", async (req, res) => {
   }
 });
 
-app.delete("/Topic/:id",async(req,res)=>{
-    try {
-        const {id} = req.params
-        const delTOpic = await Topic.findByIdAndDelete(id)
-        res.status(200).send({message:"Topic Deleted"})
-    } catch (error) {
-        
-    }
-})
+app.delete("/Topic/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const delTOpic = await Topic.findByIdAndDelete(id);
+    res.status(200).send({ message: "Topic Deleted" });
+  } catch (error) {}
+});
 
 // Edit
 app.put("/Topic/:id/edit", async (req, res) => {
@@ -1336,8 +1356,9 @@ app.get("/CourseFromIns/:insid", async (req, res) => {
 app.delete("/Course/:id", async (req, res) => {
   try {
     const { id } = req.params;
-
+    const course = await Course.findById(id).populate("instructorId");
     const sections = await Section.find({ courseId: id });
+    const purchasedUsers = await Purchase.find({ courseId: id });
 
     for (let section of sections) {
       await Material.deleteMany({ sectionId: section._id });
@@ -1345,6 +1366,66 @@ app.delete("/Course/:id", async (req, res) => {
 
     await Section.deleteMany({ courseId: id });
     await Course.findByIdAndDelete(id);
+      // Fetching user email from User schema based on userId stored in Purchase schema
+      const userEmails = await Promise.all(
+        purchasedUsers.map(async (purchase) => {
+          const user = await User.findById(purchase.userId);
+          return user.userEmail;
+        })
+      );
+
+  
+      userEmails.forEach((email) => {
+        const content = `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Course Deleted</title>
+          </head>
+          <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f7f7f7; color: #333; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh;">
+              <div style="max-width: 600px; padding: 20px; background-color: rgba(255, 255, 255, 0.9); border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); text-align: center;">
+                  <h1 style="color: #003f88; margin-top: 0;">Curiosity - Course Deleted</h1>
+                  <p style="font-size: 18px; line-height: 1.6; margin-bottom: 20px;">Dear Sir/Madam,</p>
+                  <p style="font-size: 18px; line-height: 1.6; margin-bottom: 20px;">We regret to inform you that the course you enrolled in, ${
+                    course.courseTitle
+                  } has been deleted. The funds for this course will be refunded to your account within 7 - 14 days.</p>
+                  <p style="font-weight: bold; font-size: 20px; margin-bottom: 10px;">Best regards,</p>
+                  <p style="font-style: italic; font-size: 14px; color: #666;">Date: ${moment().format(
+                    "YYYY-MM-DD"
+                  )}</p>
+              </div>
+          </body>
+          </html>
+        `;
+        sendEmail(email, content);
+      });
+
+      const content2 = `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Course Taken Down</title>
+      </head>
+      <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f7f7f7; color: #333; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh;">
+          <div style="max-width: 600px; padding: 20px; background-color: rgba(255, 255, 255, 0.9); border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); text-align: center;">
+              <h1 style="color: #003f88; margin-top: 0;">Curiosity - Course Taken Down</h1>
+              <p style="font-size: 18px; line-height: 1.6; margin-bottom: 20px;">Dear ${course.instructorId.instructorName},</p>
+              <p style="font-size: 18px; line-height: 1.6; margin-bottom: 20px;">We regret to inform you that your course titled "${course.courseTitle}" has been taken down by the admin panel. This action was taken due to several reports we received. We apologize for any inconvenience this may cause.</p>
+              <p style="font-size: 18px; line-height: 1.6; margin-bottom: 20px;">If you have any questions or concerns regarding this matter, please feel free to contact us.</p>
+              <p style="font-weight: bold; font-size: 20px; margin-bottom: 10px;">Best regards,</p>
+              <p style="font-weight: bold; font-size: 20px; margin-bottom: 10px;">Curiosity Admin Team</p>
+              <p style="font-style: italic; font-size: 14px; color: #666;">Date: ${moment().format("DD - MM - YY")}</p>
+          </div>
+      </body>
+      </html>`
+
+      sendEmail(course.instructorId.instructorEmail,content2)
+
+
+
     res.status(200).send({ message: "Course Deleted", status: true });
   } catch (err) {
     console.log(err.message);
@@ -1389,11 +1470,9 @@ app.put("/Course/:id/publish", async (req, res) => {
     const sectionIds = sections.map((section) => section._id);
     const materials = await Material.find({ sectionId: { $in: sectionIds } });
     if (materials.length < 5) {
-      return res
-        .status(400)
-        .send({
-          message: "You need atleast 5 materials to publish this course",
-        });
+      return res.status(400).send({
+        message: "You need atleast 5 materials to publish this course",
+      });
     }
     const course = await Course.findByIdAndUpdate(
       id,
@@ -1721,10 +1800,10 @@ const bookingSchema = new Schema({
     type: String,
     default: null,
   },
-  orderDate:{
-    type:Date,
-    default:null
-  }
+  orderDate: {
+    type: Date,
+    default: null,
+  },
 });
 
 const Booking = mongoose.model("schemaBooking", bookingSchema);
@@ -1755,27 +1834,25 @@ app.get("/Totalbooking", async (req, res) => {
   }
 });
 
-app.get("/graphdata",async(req,res)=>{
+app.get("/graphdata", async (req, res) => {
   try {
     const data = await Booking.aggregate([
       {
-        $match: { __v: 1 } // Include the mandatory condition for __v: 1
+        $match: { __v: 1 }, // Include the mandatory condition for __v: 1
       },
       {
         $group: {
           _id: { $dateToString: { format: "%Y-%m-%d", date: "$orderDate" } },
-          totalPrice: { $sum: "$price" }
-        }
-      }
+          totalPrice: { $sum: "$price" },
+        },
+      },
     ]);
-    console.log(data)
-    res.status(200).send(data)
-    
-    
+    console.log(data);
+    res.status(200).send(data);
   } catch (error) {
-    console.log(error.message)
+    console.log(error.message);
   }
-})
+});
 
 app.post("/Booking", async (req, res) => {
   try {
@@ -2134,12 +2211,10 @@ app.post("/Review", async (req, res) => {
     } = req.body;
     const existingReview = await Review.findOne({ userId, courseId });
     if (existingReview) {
-      return res
-        .status(400)
-        .send({
-          message: "You have already reviewed this course",
-          status: false,
-        });
+      return res.status(400).send({
+        message: "You have already reviewed this course",
+        status: false,
+      });
     }
     const newReview = new Review({
       reviewTitle,
@@ -3048,7 +3123,6 @@ app.post("/Login", async (req, res) => {
     const portal = await JobPortal.findOne({ jobPortalEmail: Email });
     const admin = await Admin.findOne({ adminEmail: Email });
 
-
     if (user) {
       isValidPassword = await argon2.verify(user.userPassword, Password);
       if (isValidPassword) {
@@ -3064,12 +3138,10 @@ app.post("/Login", async (req, res) => {
       );
       if (isValidPassword) {
         if (instructor.__v === 0) {
-          return res
-            .status(400)
-            .send({
-              message:
-                "Your instructor account is currently pending verification by our admin team; we'll notify you once approved. Thank you for your patience!",
-            });
+          return res.status(400).send({
+            message:
+              "Your instructor account is currently pending verification by our admin team; we'll notify you once approved. Thank you for your patience!",
+          });
         }
         id = instructor._id;
         type = "Instructor";
@@ -3123,7 +3195,7 @@ app.post("/Checkout", async (req, res) => {
     const user = await User.findById(userId);
     const existingBooking = await Booking.findByIdAndUpdate(
       savedBooking._id,
-      { __v: 1, price: course.price, orderId,orderDate:Date.now() },
+      { __v: 1, price: course.price, orderId, orderDate: Date.now() },
       { new: true }
     );
     const existingPurchase = await Purchase.findOne({ userId, courseId });
@@ -3131,7 +3203,6 @@ app.post("/Checkout", async (req, res) => {
       const purchase = new Purchase({
         userId,
         courseId,
-
       });
       await purchase.save();
 
@@ -3321,7 +3392,7 @@ app.post("/Cartcheckout", async (req, res) => {
     const user = await User.findById(booking.userId);
     booking = await Booking.findByIdAndUpdate(
       booking._id,
-      { __v: 1, orderDate:Date.now() },
+      { __v: 1, orderDate: Date.now() },
       { new: true }
     );
     let carts = await Cart.find({ bookingId: booking._id });
@@ -3592,29 +3663,6 @@ app.patch("/progress/:progressId", async (req, res) => {
 });
 
 // Fetching progress
-
-var transporter = mailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "curiosity2255@gmail.com", //from email Id
-    pass: "izuvpenxjegowfcw", // App password created from google account
-  },
-});
-function sendEmail(to, content) {
-  const mailOptions = {
-    from: "curiosity2255@gmail.com", //from email Id for recipient can view
-    to,
-    subject: "Purchase Successful",
-    html: content,
-  };
-  transporter.sendMail(mailOptions, function (error, info) {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log("Email sent");
-    }
-  });
-}
 
 // function sendConfirmationMail(to,content)
 // {
@@ -4193,15 +4241,25 @@ app.put("/changehirerpassword", async (req, res) => {
   }
 });
 
-
-app.get("/teachergraphdata/:id",async(req,res)=>{
+app.get("/teachergraphdata/:id", async (req, res) => {
   try {
-    const {id} = req.params
-    const course = await Course.findById(id)
-    const totalPurchases = await Purchase.find({courseId:id})
-    const totalRevenue = course.price * totalPurchases.length
-    res.status(200).send({course,totalPurchases,totalRevenue})
+    const { id } = req.params;
+    const course = await Course.findById(id);
+    const totalPurchases = await Purchase.find({ courseId: id });
+    const totalRevenue = course.price * totalPurchases.length;
+    res.status(200).send({ course, totalPurchases, totalRevenue });
   } catch (error) {
-    console.log(error.message)
+    console.log(error.message);
   }
-})
+});
+
+// All courses for admin
+
+app.get("/allcourses", async (req, res) => {
+  try {
+    const courses = await Course.find({ __v: 1 });
+    res.status(200).send(courses);
+  } catch (error) {
+    console.log(error.message);
+  }
+});

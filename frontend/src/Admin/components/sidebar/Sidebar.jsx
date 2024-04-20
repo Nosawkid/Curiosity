@@ -8,6 +8,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import SubjectIcon from '@mui/icons-material/Subject';
 import TopicIcon from '@mui/icons-material/Topic';
 import ReportIcon from '@mui/icons-material/Report';
+import { GrCatalog } from "react-icons/gr";
 
 const Sidebar = () => {
   const navigate = useNavigate()
@@ -34,6 +35,9 @@ const Sidebar = () => {
           <p className="title">LISTS</p>
           <Link to="/admin/users" style={{ textDecoration: "none" }}>
             <li> <PersonIcon className='icon' /> <span>Users</span></li>
+          </Link>
+          <Link to="/admin/allcourses" style={{ textDecoration: "none" }}>
+            <li> <GrCatalog className='icon' /> <span>Courses</span></li>
           </Link>
           <Link to="/admin/reports" style={{ textDecoration: "none" }}>
             <li><ReportIcon className='icon' /> <span>Reports</span></li>
