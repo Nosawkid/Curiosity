@@ -129,7 +129,19 @@ const Material = () => {
     })
   }
 
- 
+  
+  const textWithLinks = (text) => {
+    // Regex pattern to match URLs
+    const urlPattern = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,})/gi;
+    return text.replace(urlPattern, (match) => {
+      // Add https:// to URLs without it
+      if (!match.startsWith('http')) {
+        return `<a href="https://${match}" target="_blank">${match}</a>`;
+      } else {
+        return `<a href="${match}" target="_blank">${match}</a>`;
+      }
+    });
+  };
 
 
   useEffect(() => {
@@ -178,7 +190,7 @@ const Material = () => {
                     {key + 1}
                   </TableCell>
                   <TableCell align="center">{row.materialTitle}</TableCell>
-                  <TableCell align="center">{row.materialDesc}</TableCell>
+                  <TableCell align="center" dangerouslySetInnerHTML={{ __html: textWithLinks(row.materialDesc) }}></TableCell>
                   <TableCell align="center">
                     <Button onClick={(e) => deleteMaterials(row._id)} variant='outlined'><DeleteIcon sx={{ color: "crimson" }} /></Button>
                     <Button onClick={() => {

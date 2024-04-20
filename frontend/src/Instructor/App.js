@@ -24,6 +24,7 @@ import Changepassword from './pages/changepassword/Changepassword';
 import { Card } from '@mui/material';
 import Review from './pages/reviews/Review';
 import { useNavigate } from 'react-router-dom';
+import Guidelines from './pages/guidelinses/Guidelines';
 
 
 function App() {
@@ -68,6 +69,8 @@ function App() {
               <Route path='/Settings' element={<Editprofile />} />
               <Route path='/changepassword' element={<Changepassword />} />
               <Route path='/Reviews/:courseId' element={<Review/>}/>
+              <Route path='/Guidelines/' element={<Guidelines/>}/>
+
             </Routes>
 
           </Card>

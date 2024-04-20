@@ -29,10 +29,12 @@ import Search from './pages/search/Search'
 
 
 
+
 const App = () => {
   const [count,setCount]  = useState(null)
   const navigate = useNavigate()
   const [keyword,setKeyword] = useState("")
+  
 
   const uid = sessionStorage.getItem("Uid")
   const fetchCart = () => {
@@ -48,6 +50,11 @@ const App = () => {
       return navigate("/")
     }
   }, [])
+
+  
+  
+
+  
   return (
     <div className='userApp'>
       <SetCart.Provider value={{count,fetchCart}}>

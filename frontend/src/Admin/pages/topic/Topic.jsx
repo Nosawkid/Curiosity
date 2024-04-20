@@ -10,6 +10,10 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import Pagination from '@mui/material/Pagination';
 
 const Topic = () => {
 
@@ -19,6 +23,19 @@ const Topic = () => {
   const [subCategoryId,setSubCategory] = useState([])
   const [topicName,setTopicName] = useState('')
   const [showTopic,setShowTopic] = useState([])
+  const [open, setOpen] = React.useState(false);
+  const [severity,setSeverity] = useState("")
+  const [message,setMessage] = useState("")
+  const [page, setPage] = useState(1);
+
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
 
 
   const fetchCategory = ()=>{
@@ -40,11 +57,7 @@ const Topic = () => {
       setShowTopic(res.data)
     })
   }
-  useEffect(()=>{
-    fetchCategory()
-    fetchTopic()
-  },[])
-
+ 
 
 
   const createTopic = (e) =>{
@@ -55,9 +68,33 @@ const Topic = () => {
     })
   }
 
+  
 
 
- 
+  const deleteTopic = (id)=>{
+    axios.delete("http://localhost:5000/Topic/"+id).then((res)=>{
+      setOpen(true)
+      setSeverity("success")
+      setMessage(res.data.message)
+      fetchTopic()
+    })
+  }
+
+  const rowsPerPage = 5;
+const handleChangePage = (event, newPage) => {
+  setPage(newPage);
+};
+
+const startIndex = (page - 1) * rowsPerPage;
+const endIndex = startIndex + rowsPerPage;
+
+
+
+useEffect(()=>{
+  fetchCategory()
+  fetchTopic()
+},[])
+
     return (
         <div className='adminTopic'>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", minHeight: "50vh" }}>
@@ -131,24 +168,40 @@ const Topic = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {showTopic.map((row,key) => (
+          {showTopic.slice(startIndex, endIndex).map((row,key) => (
             <TableRow
               key={row.name}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-              <TableCell align='center' component="th" scope="row">
-                {key + 1}
-              </TableCell>
+              <TableCell align="center">{startIndex + key + 1}</TableCell>
               <TableCell align="center">{row.topicName}</TableCell>
               <TableCell align="center">{row.subCategoryId.subCategoryName}</TableCell>
               <TableCell align="center">{row.subCategoryId.categoryId.categoryName}</TableCell>
-              <TableCell align="center">Delete</TableCell>
+              <TableCell align="center"><Button onClick={()=>deleteTopic(row._id)} sx={{color:"red"}}><DeleteIcon/></Button></TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </TableContainer>
+    <Pagination
+        count={Math.ceil(showTopic.length / rowsPerPage)}
+        page={page}
+        onChange={handleChangePage}
+        sx={{ mt: 2, alignSelf: 'center' }}
+      />
             </Box>
+            <Stack>
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert
+          onClose={handleClose}
+          severity={severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {message}
+        </Alert>
+      </Snackbar>
+      </Stack>
         </div>
     )
 }

@@ -12,6 +12,7 @@ import Dialog from '@mui/material/Dialog';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
 
 
+
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
         padding: theme.spacing(2),
@@ -25,11 +26,15 @@ const Showsection = ({ props, sessionKey, courseId }) => {
     const [material, setMaterial] = useState(null)
     const [open, setOpen] = React.useState(false);
     const [course, setCourse] = useState(null)
+    const [previewMaterial, setPreviewMaterial] = useState(null)
 
     const fetchMaterial = () => {
         axios.get("http://localhost:5000/section/" + props._id + "/material").then((res) => {
             setMaterial(res.data)
-            console.log(res.data);
+            if(res.data.length > 0)
+            {
+                setPreviewMaterial(res.data[0])
+            }
         }).catch((err) => {
             console.log(err.message)
         })
@@ -73,8 +78,8 @@ const Showsection = ({ props, sessionKey, courseId }) => {
                             console.log(material)
                         }
                         {material.map((materialRow, key) => (
-                            <AccordionDetails>
-                                <Stack direction={"row"} sx={{ alignItems: "center", justifyContent: "space-between" }}>
+                            <AccordionDetails key={key}>
+                                <Stack direction={"row"} gap={"15px"} sx={{ alignItems: "center", justifyContent: "space-between" }}>
                                     <LiveTvIcon />
                                     {sessionKey === 0 && key === 0 ? <Button onClick={handleClickOpen}>{materialRow.materialDesc} (Preview)</Button>
                                         : <Typography sx={{ fontSize: "14px", fontWeight: "bold" }}>{materialRow.materialDesc}</Typography>}
@@ -101,7 +106,7 @@ const Showsection = ({ props, sessionKey, courseId }) => {
                                             </IconButton>
                                             <DialogContent dividers>
                                                 <Box sx={{ width: "500px", height: "500px" }} >
-                                                   {materialRow.materialFile ? <video controlsList='nodownload' controls src={materialRow.materialFile} style={{width:"100%"}}></video> : <Typography>{materialRow.materialFile}</Typography>}
+                                                   {previewMaterial ? <video controlsList='nodownload' controls src={previewMaterial.materialFile} style={{width:"100%"}}></video> : <Typography>{materialRow.materialFile}</Typography>}
                                                 </Box>
                                             </DialogContent>
                                         </BootstrapDialog>

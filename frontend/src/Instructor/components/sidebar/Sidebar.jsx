@@ -9,6 +9,7 @@ import RemoveFromQueueIcon from '@mui/icons-material/RemoveFromQueue';
 import { Card } from '@mui/material';
 import ReviewsIcon from '@mui/icons-material/Reviews';
 import { useNavigate } from 'react-router-dom';
+import ThumbsUpDownIcon from '@mui/icons-material/ThumbsUpDown';
 
 
 const Sidebar = () => {
@@ -45,6 +46,9 @@ const Sidebar = () => {
           
           <Link to="/instructor/Complaints" style={{ textDecoration: "none" }} >
             <li><ReviewsIcon className='icon' /><span>Reviews</span></li>
+          </Link>
+          <Link to="/instructor/Guidelines/" style={{ textDecoration: "none" }} >
+            <li><ThumbsUpDownIcon className='icon' /><span>Guidelines</span></li>
           </Link>
         
           <p className="title">User</p>

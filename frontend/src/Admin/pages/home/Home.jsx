@@ -6,6 +6,7 @@ import Featured from '../../components/featured/Featured'
 import Chart from '../../components/chart/Chart'
 import Tables from '../../components/table/Table'
 import axios from 'axios'
+import NetworkErrorPage from '../../components/networkerror/NetworkError'
 
 
 const Home = () => {
@@ -16,22 +17,30 @@ const Home = () => {
   const [revenue,setrevenue] = useState(0)
   const [profit,setProfit] = useState(0)
   const [profitPercent,setProfitPercent] = useState(0)
+  const [revenueGraph,setRevenueGraph] = useState([]);
+  const [networkError, setNetworkError] = useState(false);
 
   const fetchUsers = ()=>{
     axios.get("http://localhost:5000/User").then((res)=>{
       setUserCount(res.data.length)
+    }).catch((err)=>{
+      setNetworkError(true)
     })
   }
   const fetchIns = ()=>{
     axios.get("http://localhost:5000/Instructor").then((res)=>{
       setInsCount(res.data.length)
       
+    }).catch((err)=>{
+      setNetworkError(true)
     })
   }
   const fetchHirer = ()=>{
     axios.get("http://localhost:5000/Jobportal").then((res)=>{
       setHireCount(res.data.length)
       
+    }).catch((err)=>{
+      setNetworkError(true)
     })
   }
 
@@ -44,9 +53,19 @@ const Home = () => {
         setProfit(newProfit);
         setProfitPercent(newProfitPercent);
       }
-    });
+    }).catch((err)=>{
+      setNetworkError(true)
+    })
   };
   
+  const fetchGraphData = ()=>{
+    axios.get("http://localhost:5000/graphdata").then((res) =>{
+      setRevenueGraph(res.data)
+      console.log(res.data)
+    }).catch((err)=>{
+      setNetworkError(true)
+    })
+  }
 
 
   useEffect(()=>{
@@ -54,7 +73,13 @@ const Home = () => {
     fetchIns()
     fetchHirer()
     fetchTotal()
+    fetchGraphData()
   },[profit,profitPercent])
+
+
+  if (networkError) {
+    return <NetworkErrorPage />;
+  }
 
   return (
     <div className='adminHome' >
@@ -66,7 +91,7 @@ const Home = () => {
       </div>
       <div className="charts">
         <Featured revenue={revenue} profit={profit} profitPercent={profitPercent} />
-        <Chart aspect={2 / 1} title={"Last Week Revenue"} />
+        <Chart aspect={2 / 1} title={"Revenue Chart"} />
       </div>
       
     </div>

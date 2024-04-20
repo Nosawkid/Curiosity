@@ -203,7 +203,7 @@ const Course = () => {
             <Typography sx={{ fontWeight: "bold", color: "#023e8a" }}>{course && course.topicId.subCategoryId.categoryId.categoryName}</Typography>
           </Stack>
           <Typography sx={{ mt: 3, fontWeight: "bold", fontSize: "35px" }}>{course && course.courseTitle}</Typography>
-          <Typography onClick={() => showFullText()} sx={{ mt: 3, fontWeight: "bold", fontSize: "25px" }}>{!showFull && course ? course.courseDesc.slice(0, 150) + "..." : course && course.courseDesc}</Typography>
+          <Typography onClick={() => showFullText()} sx={{ mt: 3, fontWeight: "bold", fontSize: "16px" }}>{!showFull && course ? course.courseDesc.slice(0, 150) + "..." : course && course.courseDesc}</Typography>
           <Stack sx={{ mt: 3 }} direction={"row"} spacing={2}>
             <Stack direction={"row"} sx={{ alignItems: "center" }}>
               <Rating name="read-only" value={avgReviewRating} readOnly />

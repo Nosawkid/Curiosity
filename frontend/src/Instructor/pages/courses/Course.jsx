@@ -97,46 +97,12 @@ const Course = () => {
         <Link to={"/instructor/newCourse"}>
           <Button variant='outlined'>New Course</Button>
         </Link>
+        <Typography>Before adding a new course, please checkout our 
+        <Link to={"/instructor/guidelines"}>
+          <Button variant='text'>Guidelines</Button>
+        </Link>
+        </Typography>
       </Stack>
-      {/* <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell>SI No</TableCell>
-            <TableCell align="center">Course Title</TableCell>
-            <TableCell align="center">Course Description</TableCell>
-            <TableCell align="center">Topic Name</TableCell>
-            <TableCell align="center">Sub-Category</TableCell>
-            <TableCell align='center'>Category</TableCell>
-            <TableCell align='center'>Instructor</TableCell>
-            <TableCell align='center'>Action</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {course.map((row,key) => (
-            <TableRow
-              key={row.name}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                {key + 1}
-              </TableCell>
-              <TableCell align="center">{row.courseTitle}</TableCell>
-              <TableCell align="center">{row.courseDesc}</TableCell>
-              <TableCell align="center">{row.topicId.topicName}</TableCell>
-              <TableCell align="center">{row.topicId.subCategoryId.subCategoryName}</TableCell>
-              <TableCell align='center'>{row.topicId.subCategoryId.categoryId.categoryName}</TableCell>
-              <TableCell align='center'>{row.instructorId.instructorName}</TableCell>
-              <TableCell align='center' ><Button variant='outlined' onClick={()=>{
-                deleteCourse(row._id)
-              }} sx={{color:"red",margin:2}}><DeleteIcon/></Button>
-              <Link to={`/instructor/courses/${row._id}`}><Button  sx={{color:"coralblue"}} variant='outlined'>View Details</Button></Link>
-              </TableCell> 
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer> */}
      {
       !loading ? <Box> {course.map((row, key) => (
         <Card>
@@ -173,6 +139,7 @@ const Course = () => {
           {message}
         </Alert>
       </Snackbar>
+      
     </Box>
 
   )

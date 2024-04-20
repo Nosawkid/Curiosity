@@ -2,29 +2,29 @@ import React from 'react'
 import './chart.scss'
 import { AreaChart, Area, XAxis,CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const data = [
-  {
-    name: "Monday", total: 1200
-  },
-  {
-    name: "Tuesday", total: 700
-  },
-  {
-    name: "Wednesday", total: 300
-  },
-  {
-    name: "Thursday", total: 2500
-  },
-  {
-    name: "Friday", total: 900
-  },
-  {
-    name: "Saturday", total: 5000
-  }
-]
+// const data = [
+//   {
+//     name: "Monday", total: 1200
+//   },
+//   {
+//     name: "Tuesday", total: 700
+//   },
+//   {
+//     name: "Wednesday", total: 300
+//   },
+//   {
+//     name: "Thursday", total: 2500
+//   },
+//   {
+//     name: "Friday", total: 900
+//   },
+//   {
+//     name: "Saturday", total: 5000
+//   }
+// ]
 
 
-const Chart = ({aspect,title}) => {
+const Chart = ({aspect,title,data}) => {
 
   return (
     <div className='chart'>

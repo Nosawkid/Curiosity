@@ -11,6 +11,9 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import Pagination from '@mui/material/Pagination';
 
 const Subcategory = () => {
 
@@ -20,11 +23,40 @@ const Subcategory = () => {
   const [category, setCategory] = useState([])
   const [subCategoryName,setSubCategory] = useState('')
   const [showSubCategory,setshowSubCategory] = useState([])
+  const [open, setOpen] = React.useState(false);
+  const [severity,setSeverity] = useState("")
+  const [message,setMessage] = useState("")
+  const [page, setPage] = useState(1);
+  
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
 
 
   const createSubCategory = (e)=>{
     e.preventDefault()
     axios.post("http://localhost:5000/Subcategory/",{subCategoryName,category}).then((res)=>{
+      fetchSubCategory()
+      setOpen(true)
+      setSeverity("success")
+      setMessage("Sub-category Added")
+    }).catch((err)=>{
+      if(err.response && err.response.data && err.response.data.message)
+      {
+        setOpen(true)
+        setSeverity("error")
+        setMessage(err.response.data.message)
+      }
+    })
+  }
+
+  const deleteSubCategory = (id)=>{
+    axios.delete("http://localhost:5000/Subcategory/"+id).then((res)=>{
       fetchSubCategory()
     })
   }
@@ -36,11 +68,7 @@ const Subcategory = () => {
   }
 
 
-  const deleteSubCategory = (id)=>{
-    axios.delete("http://localhost:5000/Subcategory/"+id).then((res)=>{
-      fetchCategory()
-    })
-  }
+  
 
 
 
@@ -50,11 +78,28 @@ const Subcategory = () => {
       setShowCategory(res.data)
     })
   }
+
+
+// Pagination
+const rowsPerPage = 5;
+const handleChangePage = (event, newPage) => {
+  setPage(newPage);
+};
+
+const startIndex = (page - 1) * rowsPerPage;
+const endIndex = startIndex + rowsPerPage;
+
+
+
+
+
+
   useEffect(() => {
     fetchCategory()
     fetchSubCategory()
 
   }, [])
+
 
 
 
@@ -95,37 +140,55 @@ const Subcategory = () => {
 
       </Box>
 
-      <Box sx={{px:5}}>
+      <Box sx={{ px: 5 }}>
       <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell align="center">SI No</TableCell>
-            <TableCell align="center">Sub-category</TableCell>
-            <TableCell align="center">Category</TableCell>
-            <TableCell align="center">Action</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {showSubCategory.map((row,i) => (
-            <TableRow
-              key={row.name}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-              <TableCell align="center">{i + 1}</TableCell>
-              <TableCell align="center">{row.subCategoryName}</TableCell>
-              <TableCell align="center">{row.categoryId.categoryName}</TableCell>
-              <TableCell align="center">
-                <IconButton onClick={()=>deleteSubCategory(row._id)} sx={{color:"red"}}>
-                  <DeleteIcon/>
-                </IconButton>
-              </TableCell>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell align="center">SI No</TableCell>
+              <TableCell align="center">Sub-category</TableCell>
+              <TableCell align="center">Category</TableCell>
+              <TableCell align="center">Action</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-      </Box>
+          </TableHead>
+          <TableBody>
+            {showSubCategory.slice(startIndex, endIndex).map((row, i) => (
+              <TableRow
+                key={row.name}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell align="center">{startIndex + i + 1}</TableCell>
+                <TableCell align="center">{row.subCategoryName}</TableCell>
+                <TableCell align="center">{row.categoryId.categoryName}</TableCell>
+                <TableCell align="center">
+                  <IconButton onClick={() => deleteSubCategory(row._id)} sx={{ color: "red" }}>
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Pagination
+        count={Math.ceil(showSubCategory.length / rowsPerPage)}
+        page={page}
+        onChange={handleChangePage}
+        sx={{ mt: 2, alignSelf: 'center' }}
+      />
+    </Box>
+      <Stack>
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert
+          onClose={handleClose}
+          severity={severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {message}
+        </Alert>
+      </Snackbar>
+      </Stack>
     </div>
   )
 }

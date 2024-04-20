@@ -86,7 +86,6 @@ const style = {
 
 
 
-
 const Viewcourse = () => {
     const { courseId } = useParams()
     const uid = sessionStorage.getItem("Uid")
@@ -121,6 +120,23 @@ const Viewcourse = () => {
     const handleClick = () => {
         setOpen(true);
     };
+
+
+    const textWithLinks = (text) => {
+        // Regex pattern to match URLs
+        const urlPattern = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,})/gi;
+        return text.replace(urlPattern, (match) => {
+            // Add https:// to URLs without it
+            if (!match.startsWith('http')) {
+                return `<a href="https://${match}" target="_blank">${match}</a>`;
+            } else {
+                return `<a href="${match}" target="_blank">${match}</a>`;
+            }
+        });
+    };
+    
+    
+
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -377,9 +393,10 @@ const Viewcourse = () => {
                             </Stack>
                         </Stack>
                         <Box sx={{ mt: 2 }}>
-                            <Typography>
-                                {materialDetails && materialDetails.materialDesc}
-                            </Typography>
+                       {
+                        materialDetails &&  <Typography dangerouslySetInnerHTML={{ __html: textWithLinks(materialDetails.materialDesc) }} />
+                       }
+
 
                         </Box>
                         <Divider />
