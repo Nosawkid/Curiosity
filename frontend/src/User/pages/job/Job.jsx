@@ -90,7 +90,7 @@ const Job = () => {
 
           <div className="jobContainer">
             {jobs && jobs.map((row, key) => (
-              <Jobpreview link={row._id} companyName={row.jobPortalId.jobPortalName} vacancyTitle={row.vacancyTitle} vacancyRequirement={row.vacancyRequirement} minSalary={row.minSalary} maxSalary={row.maxSalary} category={row.categoryId && row.categoryId.categoryName} vacancyTime={row.vacancyTime} />
+              <Jobpreview photo={row.jobPortalId.jobPortalPhoto} link={row._id} companyName={row.jobPortalId.jobPortalName} vacancyTitle={row.vacancyTitle} vacancyRequirement={row.vacancyRequirement} minSalary={row.minSalary} maxSalary={row.maxSalary} category={row.categoryId && row.categoryId.categoryName} vacancyTime={row.vacancyTime} />
             ))}
           </div>
         </Box>

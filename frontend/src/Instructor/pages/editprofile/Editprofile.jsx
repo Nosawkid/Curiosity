@@ -42,13 +42,13 @@ const Editprofile = () => {
     e.preventDefault()
 
     const frm = new FormData()
-    frm.append("instructorName",instructorName)
-    frm.append("instructorEmail",instructorEmail)
-    frm.append("instructorHeadLine",instructorHeadLine)
-    frm.append("instructorBio",instructorBio)
-    frm.append("instructorQualification",instructorQualification)
-    frm.append("instructorField",instructorField)
-    frm.append("instructorPhoto",instructorPhoto)
+    if (instructorName && instructorName.trim() !== '') frm.append("instructorName", instructorName);
+    if (instructorEmail && instructorEmail.trim() !== '') frm.append("instructorEmail", instructorEmail);
+    if (instructorHeadLine && instructorHeadLine.trim() !== '') frm.append("instructorHeadLine", instructorHeadLine);
+    if (instructorBio && instructorBio.trim() !== '') frm.append("instructorBio", instructorBio);
+    if (instructorQualification && instructorQualification.trim() !== '') frm.append("instructorQualification", instructorQualification);
+    if (instructorField && instructorField.trim() !== '') frm.append("instructorField", instructorField);
+    if (instructorPhoto) frm.append("instructorPhoto", instructorPhoto);
     axios.patch("http://localhost:5000/Instructor/" + Id + "/edit", frm).then((res) => {
       setIsEditing(false)
       alert("Details Updated")
@@ -111,6 +111,7 @@ const Editprofile = () => {
                 role={undefined}
                 variant="contained"
                 tabIndex={-1}
+                disabled={!isEditing}
                 startIcon={<CloudUploadIcon />}
               >
                 Upload file

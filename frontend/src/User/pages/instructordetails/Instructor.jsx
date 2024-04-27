@@ -10,6 +10,7 @@ const Instructor = () => {
     const { id } = useParams()
     const [instructor, setInstructor] = useState("")
     const [courses, setCourses] = useState([])
+    const [firstCourse,setFirstCourse] = useState("")
     const fetchInstructor = () => {
         axios.get(`${Server}/Instructor/${id}`).then((res) => {
             setInstructor(res.data)
@@ -20,6 +21,7 @@ const Instructor = () => {
     const fetchCourse = () => {
         axios.get(`${Server}/CourseFromIns/${id}`).then((res) => {
             setCourses(res.data)
+            setFirstCourse(res.data[0].courseTitle)
         })
     }
 
@@ -38,9 +40,13 @@ const Instructor = () => {
                     <Box>
                         <Typography sx={{ fontSize: "17px", fontWeight: "bold", color: "gray" }}>INSTRUCTOR</Typography>
                         <Typography sx={{ fontSize: "40px", fontWeight: "bold" }}>{instructor.instructorName}</Typography>
-                        <Typography sx={{ fontSize: "17px", fontWeight: "bold" }}>{instructor.instructorHeadLine}</Typography>
+                        <Typography sx={{ fontSize: "17px", fontWeight: "bold" }}>{!instructor.instructorHeadLine || instructor.instructorHeadLine === "undefined" ? "Instructor at CURIOSITY":instructor.instructorHeadLine}</Typography>
                         <Typography sx={{ fontSize: "17px", fontWeight: "bold", color: "gray", mt: 4 }}>ABOUT ME</Typography>
-                        <Typography sx={{ fontSize: "17px", fontWeight: "bold" }}>{instructor.instructorBio}</Typography>
+                        <Typography sx={{ fontSize: "17px", fontWeight: "bold" }}>{
+                            courses && <Box>
+                                {!instructor.instructorBio || instructor.instructorBio === "undefined" ? `Instructor of ${firstCourse} `:instructor.instructorBio}
+                            </Box>
+                        }</Typography>
                     </Box>
                     <Box>
                         <CardMedia

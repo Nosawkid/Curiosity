@@ -4,13 +4,13 @@ import { Box, Button, Card, CardContent, Stack, Typography } from '@mui/material
 import WorkIcon from '@mui/icons-material/Work';
 import {Link} from 'react-router-dom'
 
-const Jobpreview = ({vacancyTitle,vacancyRequirement,minSalary,maxSalary,category,companyName,vacancyTime,link}) => {
+const Jobpreview = ({photo,vacancyTitle,vacancyRequirement,minSalary,maxSalary,category,companyName,vacancyTime,link}) => {
   return (
     <div className='jobPreview' >
       <Card sx={{cursor:"pointer"}}>
         <CardContent> 
           <Stack direction={"row"} spacing={1} sx={{alignItems:"center",width:"80%"}}>
-              <img style={{width:"50%",objectFit:"cover"}} src="https://cdn2.hubspot.net/hubfs/53/image8-2.jpg" alt="company logo" />
+              <img style={{width:"300px",objectFit:"cover"}} src={photo} alt="company logo" />
               <Box sx={{display:"flex",flexDirection:"column",justifyContent:"space-between",textAlign:"left"}}>
                   <Typography sx={{fontSize:"18px",color:"gray"}}>{companyName}</Typography>
                   <Typography sx={{fontSize:"25px",fontWeight:"bold"}}>{vacancyTitle}</Typography>

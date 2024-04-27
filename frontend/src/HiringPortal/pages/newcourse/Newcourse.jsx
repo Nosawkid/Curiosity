@@ -45,13 +45,13 @@ const Newcourse = () => {
 
     const addVacancy = (e) => {
         e.preventDefault()
-        if(maxSalary < minSalary)
+        if(parseFloat(maxSalary) < parseFloat(minSalary))
         {
             setOpen(true)
             setSeverity("error")
             return setMessage("Max Salary should be greater than min salary")
         }
-        if(minSalary < 0)
+        if(parseFloat(minSalary) < 0)
         {
             setOpen(true)
             setSeverity("error")
@@ -109,7 +109,7 @@ const Newcourse = () => {
                             </Box>
                             <Box>
                                 <InputLabel htmlFor="title">Max Salary:</InputLabel>
-                                <TextField required onChange={(e) => setMaxSalary(e.target.value)} fullWidth type='number' id='maxsal'></TextField>
+                                <TextField  required onChange={(e) => setMaxSalary(e.target.value)} fullWidth type='number' id='maxsal'></TextField>
                             </Box>
                             <FormControl sx={{ mt: 3, width: "200px" }}>
                                 <InputLabel id="demo-simple-select-label-time">Employment Classification</InputLabel>
