@@ -40,6 +40,12 @@ const Subcategory = () => {
 
   const createSubCategory = (e)=>{
     e.preventDefault()
+    if(!subCategoryName)
+    {
+      setOpen(true)
+      setSeverity("error")
+      return setMessage("Please enter a Sub-Category")
+    }
     axios.post("http://localhost:5000/Subcategory/",{subCategoryName,category}).then((res)=>{
       fetchSubCategory()
       setOpen(true)

@@ -388,7 +388,7 @@ app.post("/Category", async (req, res) => {
     res.send({ message: "Category inserted successfully" });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Server error");
+    res.status(400).send("Server error");
   }
 });
 
@@ -649,6 +649,9 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
+  gender:{
+    type:String
+  }
 });
 
 const User = mongoose.model("schemaUser", userSchema);
@@ -665,6 +668,7 @@ app.post("/User", async (req, res) => {
       userContact,
       userSecurityQuestion,
       userSecurityAnswer,
+      gender
     } = req.body;
     const admin = await Admin.findOne({ adminEmail: userEmail });
     const ins = await Instructor.findOne({ instructorEmail: userEmail });
@@ -685,6 +689,7 @@ app.post("/User", async (req, res) => {
       userContact,
       userSecurityQuestion,
       userSecurityAnswer,
+      gender
     });
 
     const salt = 12;
@@ -931,6 +936,9 @@ const instructorSchema = new Schema({
     type: String,
     required: true,
   },
+  gender:{
+    type:String,
+  }
 });
 
 const Instructor = mongoose.model("schemaInstructor", instructorSchema);
@@ -957,6 +965,7 @@ app.post(
         instructorField,
         instructorSecurityQuestion,
         instructorSecurityAnswer,
+        gender
       } = req.body;
       console.log(req.body);
 
@@ -984,6 +993,7 @@ app.post(
         instructorProof: instructorProofsrc,
         instructorSecurityQuestion,
         instructorSecurityAnswer,
+        gender
       });
       const salt = 12;
       instructor.instructorPassword = await argon2.hash(
@@ -2667,6 +2677,9 @@ const jobPortalSchema = new Schema({
     type: String,
     required: true,
   },
+  gender:{
+    type:String,
+  }
 });
 
 const JobPortal = mongoose.model("schemaJobPortal", jobPortalSchema);
@@ -2693,6 +2706,7 @@ app.post(
         jobPortalIdType,
         jobPortalSecurityQuestion,
         jobPortalSecurityAnswer,
+        gender
       } = req.body;
 
       let portal = await JobPortal.findOne({ jobPortalEmail });
@@ -2721,6 +2735,7 @@ app.post(
         jobPortalIdType,
         jobPortalSecurityQuestion,
         jobPortalSecurityAnswer,
+        gender
       });
 
       const salt = 12;

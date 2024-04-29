@@ -25,6 +25,7 @@ import {Server} from '../../../Server.js'
 
 
 
+
 const Single = () => {
 const {id} = useParams()
 const [loading, setLoading] = useState(true);
@@ -64,6 +65,8 @@ const fetchSections = (id)=>{
     console.log(err)
   })
 }
+
+
 
 const deleteSection = (sid)=>{
   axios.delete("http://localhost:5000/Section/"+sid).then((res)=>{
@@ -146,7 +149,7 @@ if(error)
                 <div  className={!isEditing ? "itemDetail" : "itemDesc"}>
                   <span className="itemKey">Desc: </span>
                   
-                  {!isEditing ? <span  style={{cursor:"pointer"}} className="itemValue desc" onClick={fullDesc}>{showFullDesc ? courseDesc: courseDesc.length>100 ? courseDesc.slice(0,100)+"..." : courseDesc}</span>: <TextField multiline minRows={2} variant='filled' onChange={(e)=> setCourseDesc(e.target.value)} defaultValue={courseDesc}></TextField>}
+                  {!isEditing ? <span  style={{cursor:"pointer"}} className="itemValue desc" onClick={fullDesc}>{showFullDesc ? courseDesc: courseDesc.length>100 ? courseDesc.slice(0,100)+"..." : courseDesc}</span>: <TextField multiline fullWidth sx={{width:"750px"}} minRows={5} variant='filled' onChange={(e)=> setCourseDesc(e.target.value)} defaultValue={courseDesc}></TextField>}
                 </div>
                 <div className="itemDetail">
                   <span className="itemKey">Instructor: </span>
@@ -166,9 +169,9 @@ if(error)
               </div>
             </div>
           </div>
-          <div className="right">
-            <Chart aspect={3/1} title={"User Spending"}/>
-          </div>
+          {/* <div className="right">
+            <Chart aspect={3/1} title={"User Spending"} />
+          </div> */}
         </div>
         <div className="bottom">
           <div className="title">Sections

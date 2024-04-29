@@ -14,7 +14,7 @@ const Speccourse = () => {
   const { courseId } = useParams();
   const [materialsMap, setMaterialsMap] = useState({}); // Updated state for materials
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const fetchCourse = () => {
     axios.get(`http://localhost:5000/Course/${courseId}`).then((res) => {
@@ -41,14 +41,17 @@ const Speccourse = () => {
       });
   };
 
-  const deleteCourse = ()=>{
-    axios.delete("http://localhost:5000/Course/"+courseId).then((res)=>{
-        alert("Course Deleted")
-        navigate("/iadmin")
-    }).catch((err)=>{
-        console.log(err.message)
-    })
-  }
+  const deleteCourse = () => {
+    axios
+      .delete("http://localhost:5000/Course/" + courseId)
+      .then((res) => {
+        alert("Course Deleted");
+        navigate("/admin");
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  };
 
   useEffect(() => {
     fetchCourse();
@@ -62,7 +65,13 @@ const Speccourse = () => {
           <CardContent>
             <Typography variant="h3" sx={{ fontSize: "30px" }}>
               Course Name: {course.courseTitle}
-              <Button onClick={deleteCourse} sx={{color:"red"}} variant="filled">Delete Course</Button>
+              <Button
+                onClick={deleteCourse}
+                sx={{ color: "red" }}
+                variant="filled"
+              >
+                Delete Course
+              </Button>
             </Typography>
             <Typography
               variant="h5"

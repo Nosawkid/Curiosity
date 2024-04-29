@@ -62,6 +62,11 @@ const Topic = () => {
 
   const createTopic = (e) =>{
     e.preventDefault()
+    if(!topicName){
+      setOpen(true)
+      setSeverity("error")
+     return setMessage("Please enter a topic")
+    }
     axios.post("http://localhost:5000/Topic",{topicName,subCategoryId}).then((res)=>{
       console.log(res.data)
       fetchTopic()

@@ -17,6 +17,8 @@ import { useNavigate } from "react-router-dom";
 const Courses = () => {
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState([]);
+  const [keyword, setKeyword] = useState("");
+  const [originalCourses, setOriginalCourses] = useState([]);
 
   const navigate = useNavigate();
 
@@ -25,6 +27,7 @@ const Courses = () => {
       .get("http://localhost:5000/allcourses")
       .then((res) => {
         setCourses(res.data);
+        setOriginalCourses(res.data);
       })
       .catch((err) => {
         console.log(err);
@@ -32,6 +35,17 @@ const Courses = () => {
       .finally(() => {
         setLoading(false);
       });
+  };
+
+  const searchCourse = () => {
+    if (keyword) {
+      const filteredCourses = courses.filter((course) =>
+        course.courseTitle.toLowerCase().startsWith(keyword.toLocaleLowerCase())
+      );
+      setCourses(filteredCourses);
+    } else {
+      setCourses(originalCourses);
+    }
   };
 
   useEffect(() => {
@@ -63,8 +77,14 @@ const Courses = () => {
             variant="filled"
             sx={{ width: "70%" }}
             placeholder="Search courses"
+            onChange={(e) => {
+              setKeyword(e.target.value);
+            }}
           ></TextField>
-          <SearchIcon sx={{ fontSize: "35px" }} />
+          <SearchIcon
+            onClick={() => searchCourse()}
+            sx={{ fontSize: "35px" }}
+          />
         </Stack>
 
         <Box sx={{ mt: 3 }}>
