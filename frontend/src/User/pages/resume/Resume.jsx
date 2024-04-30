@@ -19,6 +19,7 @@ const Resume = () => {
     const [open, setOpen] = React.useState(false);
     const [message, setmessage] = useState("")
     const [severity, setseverity] = useState("")
+    const [reason,setReason] = useState("")
 
   
 
@@ -43,7 +44,7 @@ const Resume = () => {
     const submitApplication = (e)=>{
         e.preventDefault()
         
-        axios.post(`${Server}/Application`,{jobVacancyId,userId:uid,qualifications,experience,skills:skill}).then((res)=>{
+        axios.post(`${Server}/Application`,{jobVacancyId,userId:uid,qualifications,experience,skills:skill,reason}).then((res)=>{
             if(!res.data.status)
             {
                return console.log(res.data.message)
@@ -206,6 +207,10 @@ const Resume = () => {
                                     </div>
                                 ))}
                             </Stack>
+                        </Box>
+                        <Box sx={{px:5}}>
+                        <Typography sx={{fontSize:"20px",mt:2}}>What factors drive your interest in this role?</Typography>
+                            <TextField onChange={(e)=>setReason(e.target.value)} fullWidth multiline minRows={3}></TextField>
                         </Box>
                         <Button onClick={submitApplication} fullWidth sx={{mt:2,fontSize:"18px"}} variant='contained'>Submit</Button>
                     </CardContent>

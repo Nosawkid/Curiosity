@@ -116,7 +116,7 @@ const Applications = () => {
                                             <Avatar sx={{width:"100px",height:"100px",margin:"0 auto"}} src={row.userId.userPhoto} alt={row.userId.userName}></Avatar>
                                             <Typography sx={{ fontSize: "20px", fontWeight: "bold", mt: 2, textAlign: "center" }}>{row.userId.userName}</Typography>
                                             <Typography sx={{ mt: 2, textAlign: "center" }}>{row.userId.userHeadLine}</Typography>
-                                            <Typography sx={{ mt: 2, textAlign: "center", fontSize: "14px" }}>Applied On: {moment(row.applicationDate).format('DD-MM-YYYY')}</Typography>
+                                            <Typography sx={{ mt: 2, textAlign: "center", fontSize: "14px" }}>Applied On: {moment(row.applicationDate).format('DD/MM/YYYY')}</Typography>
                                             <Button onClick={() => viewApplication(row._id)} fullWidth>View Application</Button>
                                         </CardContent>
                                     </Card>

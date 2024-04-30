@@ -15,7 +15,7 @@ const Featured = ({revenue,profit,profitPercent}) => {
     <div className='adminFeatured'>
       <div className="top">
         <h1 className="title">Total Revenue</h1>
-        <MoreVertIcon fontSize='small'/>
+        
       </div>
       <div className="bottom">
         <div className="featuredChart">

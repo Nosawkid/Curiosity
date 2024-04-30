@@ -6,6 +6,7 @@ import axios from "axios"
 import { Server } from '../../../Server.js'
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -24,7 +25,7 @@ const Newcourse = () => {
     const [open, setOpen] = useState(false)
     const [message, setMessage] = useState("")
     const [severity, setSeverity] = useState("")
-   
+    const navigate = useNavigate()
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -62,6 +63,7 @@ const Newcourse = () => {
             setOpen(true)
             setSeverity("success")
             setMessage(res.data.message)
+            navigate("/HiringPortal/Applications/"+res.data.id)
         }).catch((err) => {
             if(err.response && err.response.data && err.response.data.message)
             {

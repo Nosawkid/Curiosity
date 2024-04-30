@@ -116,6 +116,10 @@ const Single = () => {
                 </List>
               </Box>
             </Stack>
+            <Box>
+                <Typography sx={{fontWeight:"bold",fontSize:"20px"}}>Reason</Typography>
+                <Typography variant='body2'>{candidate.reason && candidate.reason}</Typography>
+              </Box>
           </CardContent>
         </Card>
       </Box>

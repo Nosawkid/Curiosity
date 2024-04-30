@@ -4,7 +4,7 @@ import { PieChart, Pie, Cell,Tooltip} from "recharts";
 
 
 
-const COLORS = ["#318CE7", "#FF69B4", "#FEBE10"];
+const COLORS = ["#318CE7", "#FF69B4", " #494F55"];
 
 
 

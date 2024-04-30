@@ -2980,8 +2980,8 @@ app.post("/Vacancy", async (req, res) => {
       vacancyTime,
     });
 
-    await newVacancy.save();
-    res.status(200).send({ message: "Vacancy Added" });
+    const vacancy = await newVacancy.save();
+    res.status(200).send({ message: "Vacancy Added",id:vacancy._id });
   } catch (err) {
     console.log(err.message);
     res.status(400).send({ message: "Something went wrong" });
@@ -3052,6 +3052,10 @@ const jobApplicationSchema = new Schema({
     type: Date,
     default: Date.now(),
   },
+  reason:{
+    type:String,
+    required:true
+  }
 });
 
 const Application = mongoose.model(
@@ -3061,7 +3065,7 @@ const Application = mongoose.model(
 
 app.post("/Application", async (req, res) => {
   try {
-    const { jobVacancyId, userId, experience, qualifications, skills } =
+    const { jobVacancyId, userId, experience, qualifications, skills,reason } =
       req.body;
     const existing = await Application.findOne({ userId, jobVacancyId });
     if (existing) {
@@ -3073,6 +3077,7 @@ app.post("/Application", async (req, res) => {
       experience,
       qualifications,
       skills,
+      reason
     });
 
     await newApplication.save();
