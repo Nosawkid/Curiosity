@@ -132,7 +132,7 @@ const Courses = () => {
                       color="text.secondary"
                       sx={{ mt: 2, color: row.courseAvg < 3 ? "red" : "green" }}
                     >
-                      Avg Rating: {row.courseAvg}
+                      Avg Rating: {row.courseAvg.toFixed(1)}
                     </Typography>
                     <Button
                       onClick={() => navigate("/admin/speccourse/" + row._id)}

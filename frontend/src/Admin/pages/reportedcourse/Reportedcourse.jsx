@@ -3,12 +3,14 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import Holder from '../../../assets/Courseholder.png'
+import { useNavigate } from 'react-router-dom'
 
 const Reportedcourse = () => {
     const { courseId,reportId } = useParams()
     const [course, setCourse] = useState("")
     const [loading, setLoading] = useState(true)
     const [materials, setMaterials] = useState([])
+    const navigate = useNavigate()
 
     const fetchCourse = () => {
         axios.get("http://localhost:5000/Course/" + courseId).then((res) => {
@@ -25,6 +27,7 @@ const Reportedcourse = () => {
     const sendResponse = ()=>{
         axios.get("http://localhost:5000/Sendresponse/"+reportId).then((res)=>{
             console.log(res.data.message)
+            navigate("/admin/reports")
         })
     }
 
@@ -58,7 +61,7 @@ const Reportedcourse = () => {
                         <CardContent sx={{display:"flex",gap:"15px",flexWrap:"wrap",alignItems:"center",px:5}}>
                             {
                                 materials && materials.map((row, key) => (
-                                    <Paper sx={{p:3,width:"350px",height:"250px"}} elevation={3}>
+                                    <Paper sx={{p:3,width:"500px",height:"500px"}} elevation={3}>
                                         <Box>
                                             <Stack direction={"row"} alignItems={"center"} spacing={3}>
                                                 <Typography>Material {key + 1}</Typography>

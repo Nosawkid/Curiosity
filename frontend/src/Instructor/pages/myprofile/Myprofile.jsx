@@ -114,7 +114,7 @@ const Myprofile = () => {
                   component={"span"}
                   sx={{ fontWeight: "bold", textTransform: "uppercase" }}
                 >
-                  {data.course.courseAvg}
+                  {data.course.courseAvg.toFixed(1)}
                 </Typography>
               </Typography>
               <Typography sx={{ fontSize: "20px" }} component={"p"}>

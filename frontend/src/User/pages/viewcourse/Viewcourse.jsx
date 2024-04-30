@@ -15,6 +15,8 @@ import { styled } from '@mui/material/styles';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Modal from '@mui/material/Modal';
+import Placeholder from '../../components/placeholder/Placeholder';
+
 
 
 const VisuallyHiddenInput = styled('input')({
@@ -178,6 +180,13 @@ const Viewcourse = () => {
 
 
     const SendMessage = () => {
+
+        if(!message)
+        {
+            setOpen(true)
+            setSeverity("error")
+            return setAlertMessage("Cannot send blank message")
+        }
 
         socket.emit("DataFromClient", { message, courseId, uid }, (response) => {
             console.log(response); // "got it"
@@ -483,12 +492,18 @@ const Viewcourse = () => {
                                                 alignItems: 'flex-end', // Align items at the bottom to place profile picture properly
                                             }}
                                         >
-                                            {uid !== chat.userId && (
-                                                <Avatar
+                                            {uid !== chat.userId._id && (
+                                               
+                                               <Tooltip title={chat.userId.userName}>
+                                                 {
+                                                    chat.userId.userPhoto ?  <Avatar
                                                     src={chat.userId.userPhoto}
                                                     sx={{ m: 1 }} // Add margin to Avatar for spacing
                                                     alt={chat.userId.userName}
-                                                />
+                                                /> : <Placeholder username={chat.userId.userName}/>
+                                                 }
+                                               </Tooltip>
+                                               
                                             )}
                                             <Card
                                                 sx={{
@@ -506,6 +521,7 @@ const Viewcourse = () => {
                                                     <Typography variant="caption" color="textSecondary" sx={{ mt: 1 }}>
                                                         {new Date(chat.chatDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                                                     </Typography>
+                                                    
                                                 </CardContent>
                                             </Card>
                                         </Box>

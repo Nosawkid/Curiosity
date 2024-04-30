@@ -62,6 +62,10 @@ const Checkout = () => {
   const [course, setCourse] = useState([])
   const [user, setUser] = useState([])
   const [booking, setBooking] = useState([])
+  const [cardNumber,setCardNumber] = useState("")
+  const [cardName,setCardName] = useState("")
+  const [cardDate,setCardDate] = useState("")
+  const [cardCvc,setCardCvc] = useState("")
 
   const [state, setState] = useState({
     number: "",
@@ -74,6 +78,18 @@ const Checkout = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setState((prev) => ({ ...prev, [name]: value }));
+    if(name === "number"){
+      setCardNumber(e.target.value)
+    }
+    if(name === "name"){
+      setCardName(e.target.value)
+    }
+    if(name === "expiry"){
+      setCardDate(e.target.value)
+    }
+    if(name === "cvc"){
+      setCardCvc(e.target.value)
+    }
   };
   const handleInputFocus = (e) => {
     setState((prev) => ({ ...prev, focus: e.target.name }));
@@ -102,6 +118,21 @@ const Checkout = () => {
 
   const buyOneCourse = (e) => {
     e.preventDefault()
+    if(cardNumber.length !== 16 || Number(cardNumber) === NaN)
+    {
+      return alert("Please Enter a valid card number")
+    }
+    if(cardDate.length !== 4)
+    {
+      return alert("Enter a valid date")
+    }
+    if(Number(cardDate.slice(0,2)) < 4 ||Number(cardDate.slice(2)) < 24 ){
+      return alert("Card Expired !!")
+    }
+    if(cardCvc.length !== 3 || Number(cardCvc) === NaN)
+    {
+      return alert("Invalid CVC")
+    }
     axios.post("http://localhost:5000/Checkout", { userId: uid, courseId, orderId }).then((res) => {
       if (res.data.status) {
         console.log(res.data.message)
@@ -114,6 +145,21 @@ const Checkout = () => {
   }
   const buyFromCart = (e) => {
     e.preventDefault()
+    if(cardNumber.length !== 16 || Number(cardNumber) === NaN)
+    {
+      return alert("Please Enter a valid card number")
+    }
+    if(cardDate.length !== 4)
+    {
+      return alert("Enter a valid date")
+    }
+    if(Number(cardDate.slice(0,2)) < 4 ||Number(cardDate.slice(2)) < 24 ){
+      return alert("Card Expired !!")
+    }
+    if(cardCvc.length !== 3 || Number(cardCvc) === NaN)
+    {
+      return alert("Invalid CVC")
+    }
     axios.post("http://localhost:5000/Cartcheckout", { bookingId }).then((res) => {
       console.log(res.data.message)
       navigate("/user")
@@ -196,83 +242,7 @@ const Checkout = () => {
                 <Typography sx={{ color: "#003f88" }}>USERNAME: <span style={{ fontWeight: "bold", textTransform: "uppercase" }}>{user && user.userName}</span></Typography>
               </Stack>
               <Box>
-                {/* <Stack direction={"row"} spacing={3} sx={{ justifyContent: "center", alignItems: "center", mt: 5 }}>
-                  <Box className="debitCard" sx={{ width: "300px", height: "200px", borderRadius: "10px", p: 1, position: "relative" }}>
-                    <img style={{ position: "absolute", top: "15px", right: "10px" }} width={30} src={
-                      changeType() === "visa" ? visa : changeType() === "master" ? master : changeType() === "ae" ? ae : placeholderog
-                    } alt="card" />
-                    <Typography component={"p"} sx={{ color: "white", fontWeight: "bold", fontSize: "13px", mt: 2 }}>CREDIT / DEBIT CARD NO</Typography>
-                    <Box sx={{ backgroundColor: "white", width: "95%", height: "30px", borderRadius: "5px", mt: "2px" }}>
-                      <Stack sx={{ height: "100%" }} direction={"row"} spacing={3}>
-                        <InputMask
-                          mask="9999 9999 9999 9999"
-                          maskChar=" "
-                          type="tel"
-                          pattern="[0-9]*"
-                          style={{ border: "none", outline: "0", paddingLeft: "10px", borderRadius: "10px", letterSpacing: "5px", width: "100%" }}
-                          placeholder="XXXX XXXX XXXX XXXX"
-                          required
-                          onChange={(e) => {
-                            setCard(e.target.value)
-                            changeType()
-                          }}
-                          value={card}
-                        />
-
-                      </Stack>
-                    </Box>
-                    <Typography component={"p"} sx={{ color: "white", fontWeight: "bold", fontSize: "13px", mt: 1 }}>EXPIRATION DATE</Typography>
-                    <Stack direction={"row"} spacing={1}>
-                      <InputMask
-                        mask="99 / 99"
-                        maskChar=" "
-                        type="tel"
-                        pattern="[0-9]*"
-                        style={{ border: "none", outline: "0", height: "30px", paddingLeft: "10px", width: "40%", borderRadius: "5px", letterSpacing: "3px" }}
-                        placeholder="MM / YY"
-                        required
-
-                      />
-                      <InputMask
-                        mask="9999"
-                        maskChar=" "
-                        type="tel"
-                        pattern="[0-9]*"
-                        style={{ border: "none", outline: "0", paddingLeft: "10px", height: "30px", width: "45%", borderRadius: "5px" }}
-                        placeholder="YEAR"
-                        required
-
-                      />
-                    </Stack>
-                    <Typography component={"p"} sx={{ color: "white", fontWeight: "bold", fontSize: "13px", mt: 1 }}>NAME ON CARD</Typography>
-                    <InputMask
-                      maskChar=" "
-                      type="teXT"
-                      style={{ border: "none", outline: "0", paddingLeft: "10px", height: "30px", width: "92%", borderRadius: "5px" }}
-                      placeholder="ENTER THE NAME AS PER YOUR CARD"
-                      required
-
-                    />
-                  </Box>
-                  <Box className="debitCard" sx={{ width: "300px", height: "200px", borderRadius: "10px", py: 1 }}>
-                    <Box sx={{ height: "40px", width: "100%", backgroundColor: "rgb(0,90,136)", mt: 2 }}></Box>
-                    <Box sx={{ px: 1, mt: 2 }}>
-                      <Typography sx={{ textAlign: "right", color: "white", fontWeight: "bold" }} component={"p"}>cvc/cvv</Typography>
-                      <Stack sx={{ justifyContent: "flex-end" }} direction={"row"}>
-                        <Box sx={{ width: "60%", backgroundColor: "#9badb5", height: "40px" }}></Box>
-                        <Box sx={{ width: "30%", height: "40px" }}>
-                          <InputMask
-                            mask="999"
-                            maskChar=" "
-                            type='text'
-                            style={{ width: "100%", height: "95%", border: "none", outline: "transparent" }}
-                          />
-                        </Box>
-                      </Stack>
-                    </Box>
-                  </Box>
-
-                </Stack> */}
+                
                 <Box sx={{ mt: 2, width: "100%" }}>
                   <Cards
                     number={state.number}
@@ -296,6 +266,7 @@ const Checkout = () => {
                         required
                         variant='outlined'
                         fullWidth
+                       
                         inputProps={{ maxLength: 16 }} // Add maxLength attribute
                       />
                       

@@ -49,7 +49,7 @@ const Profile = () => {
                 <Typography sx={{ fontSize: "18px", fontWeight: "bold" }} variant='h3'>Personal Details</Typography>
                 {showProfile.userPhoto ? <img style={{ width: "150px", height: "150px", borderRadius: "50%", objectFit: "cover" }} src={showProfile.userPhoto} alt="profile" /> :
                  <Placeholder   username={showProfile.userName}/> }
-                <Typography sx={{ fontSize: "20px", fontWeight: "bold" }}>{showProfile.userName}</Typography>
+                <Typography sx={{ fontSize: "17px", fontWeight: "bold" }}>{showProfile.userName}</Typography>
                 <Link to={"/user/settings"}>
                   <Button variant='outlined'>Edit Profile</Button>
                 </Link>
@@ -71,7 +71,7 @@ const Profile = () => {
             <Card sx={{ width: "100%" }}>
               <CardContent>
                 <Typography sx={{ fontWeight: "bold" }} variant='p'>User Bio</Typography>
-                <Typography sx={{ mt: 1,fontSize:"20px" }}>{showProfile.userBiography}</Typography>
+                <Typography variant='body2' sx={{ mt: 1,textAlign:"justify" }}>{showProfile.userBiography}</Typography>
               </CardContent>
             </Card>
             <Card sx={{ width: "500px", margin: "30px auto" }}>

@@ -153,7 +153,7 @@ const Resume = () => {
                                     <Typography sx={{ fontSize: "20px", mt: 3 }}>Profession:  <span style={{fontWeight:"bold"}}>{user.userHeadLine}</span></Typography>
                                 </Stack>
 
-                                <Typography sx={{ fontSize: "20px", mt: 3, textAlign: "justify" }}>About:{user.userBiography} </Typography>
+                                <Typography sx={{ fontSize: "20px", mt: 3, textAlign: "justify" }}><span style={{fontWeight:"bold"}}>About:</span>{user.userBiography} </Typography>
                             </Stack>
                         </Box>
                         <Box sx={{px:5}}>
