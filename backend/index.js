@@ -1851,6 +1851,9 @@ app.get("/graphdata", async (req, res) => {
         $match: { __v: 1 }, // Include the mandatory condition for __v: 1
       },
       {
+        $sort: { orderDate: -1 } // Sort by orderDate in descending order
+      },
+      {
         $group: {
           _id: { $dateToString: { format: "%Y-%m-%d", date: "$orderDate" } },
           totalPrice: { $sum: "$price" },
@@ -2838,7 +2841,7 @@ app.put("/Jobportal/:id/edit", async (req, res) => {
     });
     const existingAdmin = await Admin.findOne({ adminEmail: jobPortalEmail });
 
-    if (existingAdmin || existingInstructor || existingPortal || existingUser) {
+    if (existingAdmin || existingInstructor  || existingUser) {
       return res.status(400).send({ message: "Email already taken" });
     }
 

@@ -80,6 +80,12 @@ const Newcourse = () => {
 
     const createCourse = (e) => {
         e.preventDefault()
+        if(!price)
+        {
+            setOpen(true)
+            setSeverity("error")
+            return setMessage("Please add price tier")
+        }
         const frm = new FormData()
         frm.append("courseTitle", courseTitle)
         frm.append("courseDesc", courseDesc)

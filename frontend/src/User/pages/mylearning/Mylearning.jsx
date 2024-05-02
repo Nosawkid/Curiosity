@@ -45,11 +45,11 @@ const Mylearning = () => {
             <Typography sx={{ fontSize: "18px", fontWeight: "bold" }} variant='h3'>{row.courseId.courseTitle && row.courseId.courseTitle}</Typography>
             <Typography sx={{ fontSize: "13px", color: "gray" }} component={"p"} variant='span'>{row.courseId.instructorId.instructorName}</Typography>
             <Stack sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }} direction={"row"} spacing={1}>
-              <Typography sx={{ fontWeight: "bold", fontSize: "15px" }} component={"span"} variant='span'>4.6</Typography>
-              <Rating sx={{ fontSize: "20px" }} name="read-only" value={3} readOnly />
+              <Typography sx={{ fontWeight: "bold", fontSize: "15px" }} component={"span"} variant='span'>{row.courseId.courseAvg.toFixed(1)}</Typography>
+              <Rating sx={{ fontSize: "20px" }} name="read-only" value={row.courseId.courseAvg} readOnly />
             </Stack>
             <Stack sx={{ alignItems: "center", justifyContent: "space-between" }} direction={"row"}>
-              <Typography sx={{ fontSize: "25px", fontWeight: "bold" }} component={"p"} variant='h3'>{row.courseId.price}</Typography>
+              <Typography sx={{ fontSize: "25px", fontWeight: "bold" }} component={"p"} variant='h3'>₹{row.courseId.price}</Typography>
             </Stack>
           </CardContent>
         </Card>: ""

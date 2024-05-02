@@ -102,11 +102,14 @@ const Courses = () => {
             sx={{
               alignItems: "center",
               flexWrap: "wrap",
+              justifyContent:"center",
+              gap:"20px",
+              p:3
             }}
           >
             {courses &&
               courses.map((row, key) => (
-                <Card key={key} sx={{ width: "300px", height: "450px" }}>
+                <Card key={key} sx={{ width: "300px", height: "550px" }}>
                   <CardMedia
                     component="img"
                     image={row.courseImage}
@@ -114,7 +117,7 @@ const Courses = () => {
                     sx={{ height: "200px" }}
                   />
                   <CardContent>
-                    <Typography gutterBottom variant="h5" component="div">
+                    <Typography sx={{fontSize:"18px"}} gutterBottom variant="h5" component="div">
                       {row.courseTitle}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">

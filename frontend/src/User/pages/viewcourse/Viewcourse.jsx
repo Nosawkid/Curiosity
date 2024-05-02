@@ -571,20 +571,20 @@ const Viewcourse = () => {
                                                 </IconButton>
                                             </InputAdornment>
                                         }
-                                        startAdornment={<InputAdornment position="end">
-                                            <IconButton
-                                                component="label"
-                                                role={undefined}
-                                                variant="contained"
-                                                tabIndex={-1}
+                                        // startAdornment={<InputAdornment position="end">
+                                        //     <IconButton
+                                        //         component="label"
+                                        //         role={undefined}
+                                        //         variant="contained"
+                                        //         tabIndex={-1}
 
-                                            >
-                                                <AddPhotoAlternateIcon />
-                                                <VisuallyHiddenInput
-                                                    onChange={(e) => setChatImage(e.target.files[0])}
-                                                    type="file" />
-                                            </IconButton>
-                                        </InputAdornment>}
+                                        //     >
+                                        //         <AddPhotoAlternateIcon />
+                                        //         <VisuallyHiddenInput
+                                        //             onChange={(e) => setChatImage(e.target.files[0])}
+                                        //             type="file" />
+                                        //     </IconButton>
+                                        // </InputAdornment>}
                                     />
                                 </FormControl>
 
